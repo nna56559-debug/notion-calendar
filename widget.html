@@ -2,61 +2,62 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <style>
   @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body { font-family: 'Pretendard', sans-serif; background: transparent; display: flex; justify-content: center; align-items: flex-start; padding: 6px; }
-  .wrap { width: 100%; max-width: 680px; display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; align-items: flex-start; }
+  html, body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; background: transparent; width: 100%; overflow-x: hidden; }
+  body { display: flex; justify-content: center; align-items: flex-start; padding: 6px; }
+  .wrap { width: 100%; max-width: 680px; display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; align-items: flex-start; }
 
-  .cal-card { width: 100%; max-width: 310px; background: #f5eff2; border: 1px solid #e8dde2; border-radius: 22px; padding: 22px 18px 16px; box-shadow: 0 4px 16px rgba(180, 150, 165, 0.08); text-align: center; }
-  .month-title { font-size: 21px; font-weight: 700; color: #8ec5d6; margin-bottom: 16px; }
-  .grid { display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 6px; align-items: center; justify-items: center; }
-  .weekday { font-size: 12px; font-weight: 600; color: #8ec5d6; margin-bottom: 4px; }
+  /* 맑고 뽀얀 크림 핑크 카드 + 파스텔 테두리 */
+  .cal-card { width: 100%; max-width: 310px; background: #fffcfd; border: 1.5px solid #f2dce4; border-radius: 22px; padding: 18px 16px 14px; box-shadow: 0 6px 20px rgba(235, 165, 190, 0.14); text-align: center; }
+  .month-title { font-size: 20px; font-weight: 700; color: #8ec5d6; margin-bottom: 12px; }
+  .grid { display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 4px; align-items: center; justify-items: center; }
+  .weekday { font-size: 11.5px; font-weight: 600; color: #8ec5d6; margin-bottom: 4px; }
 
-  .day-cell { position: relative; width: 34px; height: 38px; border-radius: 11px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding-top: 2px; font-size: 13px; font-weight: 500; color: #444; cursor: pointer; transition: 0.15s; }
-  .day-cell:hover { background: rgba(142, 197, 214, 0.2); }
-  .day-cell.selected { outline: 2px solid #eb96b0; outline-offset: -2px; background: rgba(246, 184, 200, 0.24); }
-  .day-num { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 7px; line-height: 1; }
-  .other-month { color: #bbb; cursor: default; }
+  .day-cell { position: relative; width: 34px; height: 36px; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding-top: 2px; font-size: 13px; font-weight: 500; color: #444; cursor: pointer; }
+  .day-cell.selected { outline: 2px solid #eb96b0; outline-offset: -2px; background: rgba(246, 184, 200, 0.22); }
+  .day-num { width: 23px; height: 23px; display: flex; align-items: center; justify-content: center; border-radius: 7px; line-height: 1; }
+  .other-month { color: #ccc; cursor: default; }
   .weekend { color: #b85c5c; }
-  .other-month.weekend { color: #d8b2b2; }
-  .has-event .day-num { background: #f2a4b8; color: #fff; font-weight: 600; }
+  .other-month.weekend { color: #e2baba; }
+  .has-event .day-num { background: #f4a8bc; color: #fff; font-weight: 600; }
   .dot { width: 4px; height: 4px; background: #8ec5d6; border-radius: 50%; }
   .dot-ph { width: 4px; height: 4px; }
   .today .day-num { background: #8ec5d6 !important; color: #fff !important; font-weight: 700; }
 
-  .footer { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding: 0 6px; }
-  .brand { font-size: 9px; letter-spacing: 2px; color: #9ea7ab; }
+  .footer { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding: 0 6px; }
+  .brand { font-size: 9px; letter-spacing: 2px; color: #b0b8bc; }
   .nav-btns button { background: none; border: none; color: #8ec5d6; font-size: 14px; font-weight: 700; cursor: pointer; padding: 4px 6px; }
 
-  .detail-card { width: 100%; max-width: 340px; background: #f5eff2; border: 1px solid #e8dde2; border-radius: 22px; padding: 18px 16px; box-shadow: 0 4px 16px rgba(180, 150, 165, 0.08); }
-  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px dashed #dfd0d6; }
-  .date-label { font-size: 14.5px; font-weight: 700; color: #5b99ae; }
-  .count-badge { font-size: 11px; font-weight: 600; background: #fae1e8; color: #bd5d78; padding: 3px 8px; border-radius: 10px; }
-  .list { display: flex; flex-direction: column; gap: 10px; }
-  .empty { text-align: center; padding: 28px 0; font-size: 12.5px; color: #999; }
+  /* 상세 카드 (동일한 맑은 톤) */
+  .detail-card { width: 100%; max-width: 340px; background: #fffcfd; border: 1.5px solid #f2dce4; border-radius: 22px; padding: 16px 15px; box-shadow: 0 6px 20px rgba(235, 165, 190, 0.14); }
+  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 9px; border-bottom: 1px dashed #eddce2; }
+  .date-label { font-size: 14.5px; font-weight: 700; color: #6fa8bc; }
+  .count-badge { font-size: 11px; font-weight: 600; background: #fce8ee; color: #c46882; padding: 3px 8px; border-radius: 10px; }
+  .list { display: flex; flex-direction: column; gap: 9px; }
+  .empty { text-align: center; padding: 22px 0; font-size: 12.5px; color: #aaa; }
 
-  .ncard { border-radius: 15px; padding: 12px 13px; display: flex; flex-direction: column; background: #eef1f5; }
-  .ncard.bg-p { background: #ece2f7; }
-  .ncard.bg-k { background: #f9e1e5; }
-  .ncard.bg-y { background: #f7efd8; }
+  .ncard { border-radius: 15px; padding: 11px 12px; display: flex; flex-direction: column; background: #f4f7fa; }
+  .ncard.bg-p { background: #f3ecfa; }
+  .ncard.bg-k { background: #fcebed; }
+  .ncard.bg-y { background: #fbf6e6; }
 
-  .card-head { cursor: pointer; display: flex; flex-direction: column; gap: 7px; user-select: none; }
+  .card-head { cursor: pointer; display: flex; flex-direction: column; gap: 6px; user-select: none; }
   .ctop { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
   .ctitle-wrap { display: flex; align-items: center; gap: 6px; min-width: 0; }
-  .ctitle { font-size: 13.5px; font-weight: 700; color: #2b2b2b; word-break: keep-all; }
-
-  .arrow-icon { font-size: 13px; color: #555; background: rgba(255,255,255,0.85); width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; transition: transform 0.2s ease; flex-shrink: 0; }
+  .ctitle { font-size: 13.5px; font-weight: 700; color: #2f2f2f; word-break: keep-all; }
+  .arrow-icon { font-size: 13px; color: #555; background: rgba(255,255,255,0.9); width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; transition: transform 0.2s ease; flex-shrink: 0; }
   .ncard.open .arrow-icon { transform: rotate(180deg); }
-  .ctime { font-size: 11px; font-weight: 600; color: #666; background: rgba(255,255,255,0.8); padding: 2px 7px; border-radius: 6px; flex-shrink: 0; }
+  .ctime { font-size: 11px; font-weight: 600; color: #777; background: rgba(255,255,255,0.85); padding: 2px 7px; border-radius: 6px; flex-shrink: 0; }
 
   .cbadges { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
   .badge { font-size: 10.5px; font-weight: 600; padding: 2px 7px; border-radius: 6px; }
-  .b-p { background: #dcc7f5; color: #523080; }
-  .b-k { background: #f5c4cb; color: #8c2e3b; }
-  .b-y { background: #efddaa; color: #705714; }
-  .b-d { background: #d9e7f0; color: #345b73; }
+  .b-p { background: #e3d3f7; color: #5b388a; }
+  .b-k { background: #f8d2d7; color: #963744; }
+  .b-y { background: #f4e6b8; color: #7c621b; }
+  .b-d { background: #e3eef5; color: #3c647d; }
 
   .prof-select {
     appearance: none; -webkit-appearance: none;
@@ -66,25 +67,25 @@
     background-repeat: no-repeat; background-position: right 5px center; background-size: 8px;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath fill='%23555' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
   }
-  .p-hw { background-color: #edd4c4; color: #7d4c30; }
-  .p-hf { background-color: #c9e0f5; color: #285780; }
-  .p-cl { background-color: #c8e6d6; color: #256142; }
-  .p-tr { background-color: #f5d6c9; color: #993f20; }
-  .p-gr { background-color: #dfdfd9; color: #5e5e5c; }
+  .p-hw { background-color: #f2dfd3; color: #875538; }
+  .p-hf { background-color: #d6e8f8; color: #2f618c; }
+  .p-cl { background-color: #d5ede0; color: #2d6b4b; }
+  .p-tr { background-color: #fae3d9; color: #a34828; }
+  .p-gr { background-color: #e8e8e6; color: #6b6b69; }
   .stxt { font-size: 11px; font-weight: 700; color: #444; margin-left: auto; }
 
-  .roster-wrap { display: none; flex-direction: column; gap: 9px; margin-top: 9px; padding-top: 9px; border-top: 1px solid rgba(0,0,0,0.07); }
+  .roster-wrap { display: none; flex-direction: column; gap: 8px; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(0,0,0,0.06); }
   .ncard.open .roster-wrap { display: flex; }
   .role-group { display: flex; flex-direction: column; gap: 5px; }
   .role-header { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 7px; width: fit-content; }
-  .role-dealer { background: #fad4de; color: #ad3b59; }
-  .role-support { background: #cfeedf; color: #226e4f; }
-  .member-item { background: rgba(255,255,255,0.92); border-radius: 9px; padding: 7px 9px; display: flex; flex-direction: column; gap: 3px; border: 1px solid rgba(0,0,0,0.04); }
+  .role-dealer { background: #ffe2e8; color: #b84462; }
+  .role-support { background: #dcf3ea; color: #2a7859; }
+  .member-item { background: rgba(255,255,255,0.92); border-radius: 9px; padding: 7px 9px; display: flex; flex-direction: column; gap: 3px; border: 1px solid rgba(0,0,0,0.03); }
   .m-top { display: flex; align-items: center; justify-content: space-between; gap: 4px; }
-  .m-name { font-size: 12px; font-weight: 700; color: #2b2b2b; }
-  .m-guest { font-size: 9.5px; font-weight: 600; background: #e8eef4; color: #536678; padding: 1px 5px; border-radius: 4px; }
-  .m-spec { font-size: 10.5px; font-weight: 500; color: #555; }
-  .m-memo { font-size: 10.5px; font-weight: 600; color: #734b29; background: #faeedc; padding: 2px 7px; border-radius: 5px; width: fit-content; margin-top: 2px; }
+  .m-name { font-size: 12px; font-weight: 700; color: #2d2d2d; }
+  .m-guest { font-size: 9.5px; font-weight: 600; background: #eef2f6; color: #5c6f82; padding: 1px 5px; border-radius: 4px; }
+  .m-spec { font-size: 10.5px; font-weight: 500; color: #666; }
+  .m-memo { font-size: 10.5px; font-weight: 600; color: #7a5230; background: #fdf3e7; padding: 2px 7px; border-radius: 5px; width: fit-content; margin-top: 2px; }
 </style>
 </head>
 <body>
@@ -96,9 +97,9 @@
       <span style="width:45px"></span>
       <span class="brand">RAID CALENDAR</span>
       <div class="nav-btns">
-        <button id="prevBtn">←</button>
-        <button id="todayBtn">↻</button>
-        <button id="nextBtn">→</button>
+        <button type="button" id="prevBtn">←</button>
+        <button type="button" id="todayBtn">↻</button>
+        <button type="button" id="nextBtn">→</button>
       </div>
     </div>
   </div>
@@ -115,18 +116,19 @@
 </div>
 
 <script>
-  const WORKER_URL = "https://notion-cal.binhaha329.workers.dev";
-  const PROF_OPTIONS = ["숙련도 미지정", "숙제", "반숙", "클경", "트라이"];
-  const EMPTY_MEMBER_TEXT = "신청자 없음";
-  const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-  const weekdays = ["M","T","W","T","F","S","S"];
+  var WORKER_URL = "https://notion-cal.binhaha329.workers.dev";
+  var PROF_OPTIONS = ["숙련도 미지정", "숙제", "반숙", "클경", "트라이"];
+  var EMPTY_MEMBER_TEXT = "신청자 없음";
+  var months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  var weekdays = ["M","T","W","T","F","S","S"];
 
-  let current = new Date();
-  let eventMap = {};
-  let selectedDate = "";
+  var current = new Date();
+  var eventMap = {};
+  var selectedDate = "";
 
+  function pad2(n) { return n < 10 ? "0" + n : "" + n; }
   function formatYMD(d) {
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate());
   }
 
   function getDiff(d) {
@@ -144,39 +146,39 @@
     return "p-gr";
   }
 
-  window.toggleCard = function(headEl) {
-    const card = headEl.closest(".ncard");
+  function toggleCard(headEl) {
+    var card = headEl.closest(".ncard");
     if (card) card.classList.toggle("open");
-  };
+  }
 
-  window.updateProficiency = async function(selectEl, pageId, ds, idx) {
-    const newProf = selectEl.value;
-    selectEl.className = `prof-select ${getProfClass(newProf)}`;
+  function updateProficiency(selectEl, pageId, ds, idx) {
+    var newProf = selectEl.value;
+    selectEl.className = "prof-select " + getProfClass(newProf);
     if (eventMap[ds] && eventMap[ds][idx]) eventMap[ds][idx].proficiency = newProf;
 
-    try {
-      const res = await fetch(WORKER_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pageId, proficiency: newProf }),
-      });
+    fetch(WORKER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pageId: pageId, proficiency: newProf })
+    }).then(function(res) {
       if (!res.ok) alert("노션 숙련도 저장에 실패했어요.");
-    } catch (e) {
+    }).catch(function() {
       alert("네트워크 오류로 저장하지 못했어요.");
-    }
-  };
+    });
+  }
 
   function parseRoster(raw) {
-    if (!raw || !raw.trim()) return `<div class="roster-wrap"><div class="m-spec">${EMPTY_MEMBER_TEXT}</div></div>`;
-    const lines = raw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-    const groups = [];
-    let curGroup = null;
-    let curMember = null;
+    if (!raw || !raw.trim()) return '<div class="roster-wrap"><div class="m-spec">' + EMPTY_MEMBER_TEXT + '</div></div>';
+    var lines = raw.split(/\r?\n/).map(function(l) { return l.trim(); }).filter(Boolean);
+    var groups = [];
+    var curGroup = null;
+    var curMember = null;
 
-    for (const line of lines) {
-      if (line.startsWith("공격대 생성자")) continue;
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i];
+      if (line.indexOf("공격대 생성자") === 0) continue;
       if (/^(딜러|서포터)/.test(line)) {
-        curGroup = { role: line.startsWith("딜러") ? "dealer" : "support", title: line, members: [] };
+        curGroup = { role: line.indexOf("딜러") === 0 ? "dealer" : "support", title: line, members: [] };
         groups.push(curGroup);
         curMember = null;
         continue;
@@ -185,132 +187,131 @@
         curMember.memo = line.replace(/^[ㄴ└\-]\s*/, "").trim();
         continue;
       }
-      if (line.includes("|") && curMember) {
+      if (line.indexOf("|") !== -1 && curMember) {
         curMember.spec = line;
         continue;
       }
-      let cleanName = line.replace(/<@!?\d+>/g, "").replace(/@\S+/g, "").replace(/[💠👤🔹🔸🟢🔵🟡🟣⚪️⚫️]/g, "").trim();
+      var cleanName = line.replace(/<@!?\d+>/g, "").replace(/@\S+/g, "").replace(/[💠👤🔹🔸🟢🔵🟡🟣⚪️⚫️]/g, "").trim();
       if (cleanName) {
         if (!curGroup) {
           curGroup = { role: "dealer", title: "참여 멤버", members: [] };
           groups.push(curGroup);
         }
-        const isGuest = cleanName.includes("(지인)");
+        var isGuest = cleanName.indexOf("(지인)") !== -1;
         cleanName = cleanName.replace("(지인)", "").trim();
-        curMember = { name: cleanName, isGuest, spec: "", memo: "" };
+        curMember = { name: cleanName, isGuest: isGuest, spec: "", memo: "" };
         curGroup.members.push(curMember);
       }
     }
 
-    if (!groups.length) return `<div class="roster-wrap"><div class="m-spec">${EMPTY_MEMBER_TEXT}</div></div>`;
+    if (!groups.length) return '<div class="roster-wrap"><div class="m-spec">' + EMPTY_MEMBER_TEXT + '</div></div>';
 
-    return `<div class="roster-wrap">${groups.map(g => {
-      const cls = g.role === "support" ? "role-support" : "role-dealer";
-      const icon = g.role === "support" ? "💚" : "⚔️";
-      const mList = g.members.map(m => `
-        <div class="member-item">
-          <div class="m-top">
-            <span class="m-name">${m.name}</span>
-            ${m.isGuest ? `<span class="m-guest">지인</span>` : ""}
-          </div>
-          ${m.spec ? `<div class="m-spec">${m.spec}</div>` : ""}
-          ${m.memo ? `<div class="m-memo">ㄴ ${m.memo}</div>` : ""}
-        </div>`).join("");
-      return `<div class="role-group"><div class="role-header ${cls}">${icon} ${g.title}</div>${mList}</div>`;
-    }).join("")}</div>`;
+    return '<div class="roster-wrap">' + groups.map(function(g) {
+      var cls = g.role === "support" ? "role-support" : "role-dealer";
+      var icon = g.role === "support" ? "💚" : "⚔️";
+      var mList = g.members.map(function(m) {
+        return '<div class="member-item">' +
+          '<div class="m-top"><span class="m-name">' + m.name + '</span>' +
+          (m.isGuest ? '<span class="m-guest">지인</span>' : '') + '</div>' +
+          (m.spec ? '<div class="m-spec">' + m.spec + '</div>' : '') +
+          (m.memo ? '<div class="m-memo">ㄴ ' + m.memo + '</div>' : '') +
+          '</div>';
+      }).join("");
+      return '<div class="role-group"><div class="role-header ' + cls + '">' + icon + ' ' + g.title + '</div>' + mList + '</div>';
+    }).join("") + '</div>';
   }
 
-  window.selectDate = function(ds) {
+  function selectDate(ds) {
     selectedDate = ds;
     renderCal();
     renderDetail(ds);
-  };
+  }
 
   function renderDetail(ds) {
     document.getElementById("dateLabel").textContent = ds;
-    const items = eventMap[ds] || [];
-    document.getElementById("countBadge").textContent = `${items.length}건`;
-    const listEl = document.getElementById("detailList");
+    var items = eventMap[ds] || [];
+    document.getElementById("countBadge").textContent = items.length + "건";
+    var listEl = document.getElementById("detailList");
 
     if (!items.length) {
-      listEl.innerHTML = `<div class="empty">등록된 레이드 일정이 없습니다</div>`;
+      listEl.innerHTML = '<div class="empty">등록된 레이드 일정이 없습니다</div>';
       return;
     }
 
-    listEl.innerHTML = items.map((ev, idx) => {
-      const [bg, bd] = getDiff(ev.difficulty);
-      const dHtml = ev.difficulty ? `<span class="badge ${bd}">${ev.difficulty}</span>` : "";
-      const curProf = ev.proficiency || "숙련도 미지정";
-      const opts = PROF_OPTIONS.map(o => `<option value="${o}" ${o === curProf ? "selected" : ""}>${o}</option>`).join("");
-      const profSelect = `<select class="prof-select ${getProfClass(curProf)}" onclick="event.stopPropagation()" onchange="updateProficiency(this, '${ev.pageId || ""}', '${ds}', ${idx})">${opts}</select>`;
-      const sHtml = ev.status ? `<span class="stxt">${ev.status}</span>` : "";
+    listEl.innerHTML = items.map(function(ev, idx) {
+      var diff = getDiff(ev.difficulty);
+      var bg = diff[0], bd = diff[1];
+      var dHtml = ev.difficulty ? '<span class="badge ' + bd + '">' + ev.difficulty + '</span>' : "";
+      var curProf = ev.proficiency || "숙련도 미지정";
+      var opts = PROF_OPTIONS.map(function(o) {
+        return '<option value="' + o + '"' + (o === curProf ? " selected" : "") + '>' + o + '</option>';
+      }).join("");
+      var profSelect = '<select class="prof-select ' + getProfClass(curProf) + '" onclick="event.stopPropagation()" onchange="updateProficiency(this, \'' + (ev.pageId || "") + '\', \'' + ds + '\', ' + idx + ')">' + opts + '</select>';
+      var sHtml = ev.status ? '<span class="stxt">' + ev.status + '</span>' : "";
 
-      return `
-        <div class="ncard ${bg}">
-          <div class="card-head" onclick="toggleCard(this)">
-            <div class="ctop">
-              <div class="ctitle-wrap">
-                <span class="ctitle">${ev.title}</span>
-                <span class="arrow-icon">▾</span>
-              </div>
-              ${ev.time ? `<span class="ctime">${ev.time}</span>` : ""}
-            </div>
-            <div class="cbadges">${dHtml}${profSelect}${sHtml}</div>
-          </div>
-          ${parseRoster(ev.members)}
-        </div>`;
+      return '<div class="ncard ' + bg + '">' +
+        '<div class="card-head" onclick="toggleCard(this)">' +
+          '<div class="ctop">' +
+            '<div class="ctitle-wrap"><span class="ctitle">' + ev.title + '</span><span class="arrow-icon">▾</span></div>' +
+            (ev.time ? '<span class="ctime">' + ev.time + '</span>' : '') +
+          '</div>' +
+          '<div class="cbadges">' + dHtml + profSelect + sHtml + '</div>' +
+        '</div>' +
+        parseRoster(ev.members) +
+      '</div>';
     }).join("");
   }
 
   function renderCal() {
-    const y = current.getFullYear(), m = current.getMonth();
+    var y = current.getFullYear(), m = current.getMonth();
     document.getElementById("monthTitle").textContent = months[m];
-    const grid = document.getElementById("calGrid");
-    let html = weekdays.map(d => `<div class="weekday">${d}</div>`).join("");
-    const first = (new Date(y, m, 1).getDay() + 6) % 7;
-    const last = new Date(y, m + 1, 0).getDate();
-    const prev = new Date(y, m, 0).getDate();
-    const today = formatYMD(new Date());
+    var grid = document.getElementById("calGrid");
+    var html = weekdays.map(function(d) { return '<div class="weekday">' + d + '</div>'; }).join("");
+    var first = (new Date(y, m, 1).getDay() + 6) % 7;
+    var last = new Date(y, m + 1, 0).getDate();
+    var prev = new Date(y, m, 0).getDate();
+    var today = formatYMD(new Date());
 
-    for (let i = first - 1; i >= 0; i--) {
-      html += `<div class="day-cell other-month"><div class="day-num">${prev - i}</div><div class="dot-ph"></div></div>`;
+    for (var i = first - 1; i >= 0; i--) {
+      html += '<div class="day-cell other-month"><div class="day-num">' + (prev - i) + '</div><div class="dot-ph"></div></div>';
     }
-    for (let d = 1; d <= last; d++) {
-      const ds = `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
-      const dow = (first + d - 1) % 7;
-      const wk = dow >= 5 ? "weekend" : "";
-      const td = ds === today ? "today" : "";
-      const sel = ds === selectedDate ? "selected" : "";
-      const items = eventMap[ds] || [];
-      const evCls = items.length ? "has-event" : "";
-      const dot = items.length ? `<div class="dot"></div>` : `<div class="dot-ph"></div>`;
-      html += `<div class="day-cell ${wk} ${td} ${evCls} ${sel}" onclick="selectDate('${ds}')"><div class="day-num">${d}</div>${dot}</div>`;
+    for (var d = 1; d <= last; d++) {
+      var ds = y + "-" + pad2(m + 1) + "-" + pad2(d);
+      var dow = (first + d - 1) % 7;
+      var wk = dow >= 5 ? "weekend" : "";
+      var td = ds === today ? "today" : "";
+      var sel = ds === selectedDate ? "selected" : "";
+      var items = eventMap[ds] || [];
+      var evCls = items.length ? "has-event" : "";
+      var dot = items.length ? '<div class="dot"></div>' : '<div class="dot-ph"></div>';
+      html += '<div class="day-cell ' + wk + ' ' + td + ' ' + evCls + ' ' + sel + '" onclick="selectDate(\'' + ds + '\')"><div class="day-num">' + d + '</div>' + dot + '</div>';
     }
     grid.innerHTML = html;
   }
 
-  async function loadEvents() {
-    try {
-      const res = await fetch(WORKER_URL);
-      const list = await res.json();
-      eventMap = {};
-      list.forEach(item => {
-        if (!eventMap[item.date]) eventMap[item.date] = [];
-        eventMap[item.date].push(item);
+  function loadEvents() {
+    fetch(WORKER_URL + "?t=" + Date.now())
+      .then(function(res) { return res.json(); })
+      .then(function(list) {
+        eventMap = {};
+        list.forEach(function(item) {
+          if (!eventMap[item.date]) eventMap[item.date] = [];
+          eventMap[item.date].push(item);
+        });
+        var today = formatYMD(new Date());
+        var pick = eventMap[today] ? today : (list[0] ? list[0].date : today);
+        selectDate(pick);
+      })
+      .catch(function(err) {
+        renderCal();
+        document.getElementById("dateLabel").textContent = formatYMD(new Date());
+        document.getElementById("detailList").innerHTML = '<div class="empty">일정을 불러오지 못했습니다</div>';
       });
-      const today = formatYMD(new Date());
-      const pick = eventMap[today] ? today : (list[0]?.date || today);
-      selectDate(pick);
-    } catch (e) {
-      renderCal();
-      document.getElementById("dateLabel").textContent = formatYMD(new Date());
-      document.getElementById("detailList").innerHTML = `<div class="empty">데이터 연결 오류 (${e.message})</div>`;
-    }
   }
 
-  document.getElementById("prevBtn").onclick = () => { current.setMonth(current.getMonth() - 1); renderCal(); };
-  document.getElementById("todayBtn").onclick = () => { current = new Date(); renderCal(); };
-  document.getElementById("nextBtn").onclick = () => { current.setMonth(current.getMonth() + 1); renderCal(); };
+  document.getElementById("prevBtn").onclick = function() { current.setMonth(current.getMonth() - 1); renderCal(); };
+  document.getElementById("todayBtn").onclick = function() { current = new Date(); renderCal(); };
+  document.getElementById("nextBtn").onclick = function() { current.setMonth(current.getMonth() + 1); renderCal(); };
 
   renderCal();
   loadEvents();
