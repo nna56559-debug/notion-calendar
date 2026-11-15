@@ -18,8 +18,8 @@
 
   .day-cell { position: relative; width: 34px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; color: #444; cursor: pointer; }
   .day-cell.selected { outline: 2px solid #eb96b0; outline-offset: -2px; background: rgba(246, 184, 200, 0.22); }
-  .day-num { width: 23px; height: 23px; display: flex; align-items: center; justify-content: center; border-radius: 7px; line-height: 1; }
-  .dot { position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%); width: 3.5px; height: 3.5px; background: #8ec5d6; border-radius: 50%; }
+  .day-num { width: 23px; height: 22px; display: flex; align-items: center; justify-content: center; border-radius: 7px; line-height: 1; margin-top: -1px; padding-left: 0.5px; }
+  .dot { position: absolute; bottom: 3.5px; left: 50%; transform: translateX(-50%); width: 3.5px; height: 3.5px; background: #8ec5d6; border-radius: 50%; }
   .dot-ph { display: none; }
   .today .day-num { background: #8ec5d6 !important; color: #fff !important; font-weight: 700; }
 
@@ -114,7 +114,7 @@
 <script>
   var WORKER_URL = "https://notion-cal.binhaha329.workers.dev";
   var PROF_OPTIONS = ["숙련도 미지정", "숙제", "반숙", "클경", "트라이"];
-  var EMPTY_MEMBER_TEXT = "신청자 없음";
+  var EMPTY_MEMBER_TEXT = "신청없음";
   var months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   var weekdays = ["M","T","W","T","F","S","S"];
 
