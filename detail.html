@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: 'Pretendard', sans-serif; background: transparent; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+  .cal-card { position: relative; width: 100%; max-width: 310px; background: #fdfafb; border-radius: 22px; padding: 22px 18px 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); text-align: center; }
+  .month-title { font-size: 21px; font-weight: 700; color: #b8dce8; margin-bottom: 16px; }
+  .grid { display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 8px; align-items: center; justify-items: center; }
+  .weekday { font-size: 12px; font-weight: 600; color: #b8dce8; margin-bottom: 4px; }
+  .day-cell { position: relative; width: 34px; height: 36px; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; color: #444; cursor: pointer; transition: 0.15s; }
+  .day-cell:hover { background: rgba(184, 220, 232, 0.2); }
+  .day-cell.selected { outline: 2px solid #f2a7be; background: rgba(246, 184, 200, 0.15); }
+  .day-num { width: 25px; height: 25px; line-height: 25px; border-radius: 7px; }
+  .other-month { color: #ccc; cursor: default; }
+  .weekend { color: #b85c5c; }
+  .other-month.weekend { color: #e0baba; }
+  .has-event .day-num { background: #f6b8c8; color: #fff; font-weight: 600; }
+  .dot { width: 3.5px; height: 3.5px; background: #b8dce8; border-radius: 50%; margin-top: 2px; }
+  .dot-ph { width: 3.5px; height: 3.5px; margin-top: 2px; }
+  .today .day-num { background: #a8dce8 !important; color: #fff !important; font-weight: 700; }
+  .footer { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding: 0 6px; }
+  .brand { font-size: 9px; letter-spacing: 2px; color: #b0b8bc; }
+  .nav-btns button { background: none; border: none; color: #b8dce8; font-size: 14px; cursor: pointer; padding: 4px 6px; }
+</style>
+</head>
+<body>
+<div class="cal-card">
+  <div class="month-title" id="monthTitle">November</div>
+  <div class="grid" id="calGrid"></div>
+  <div class="footer">
+    <span style="width:45px"></span>
+    <span class="brand">RAID CALENDAR</span>
+    <div class="nav-btns">
+      <button onclick="changeMonth(-1)">←</button>
+      <button onclick="resetToday()">↻</button>
+      <button onclick="changeMonth(1)">→</button>
+    </div>
+  </div>
+</div>
+<script>
+  const WORKER_URL = "https://notion-cal.binhaha329.workers.dev";
+  const channel = new BroadcastChannel("raid_cal_sync");
+  const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const weekdays = ["M","T","W","T","F","S","S"];
+  let current = new Date();
+  let eventMap = {};
+  let selectedDate = "";
+
+  function broadcastDate(ds) {
+    selectedDate = ds;
+    const payload = { date: ds, items: eventMap[ds] || [] };
+    localStorage.setItem("raid_cal_selected", JSON.stringify(payload));
+    channel.postMessage(payload);
+    render();
+  }
+
+  async function loadEvents() {
+    try {
+      const res = await fetch(WORKER_URL);
+      const list = await res.json();
+      eventMap = {};
+      list.forEach(item => {
+        if (!eventMap[item.date]) eventMap[item.date] = [];
+        eventMap[item.date].push(item);
+      });
+      const today = new Date().toLocaleDateString("en-CA");
+      const firstDate = eventMap[today] ? today : (list[0]?.date || today);
+      broadcastDate(firstDate);
+    } catch (e) { render(); }
+  }
+
+  function render() {
+    const y = current.getFullYear(), m = current.getMonth();
+    document.getElementById("monthTitle").textContent = months[m];
+    const grid = document.getElementById("calGrid");
+    let html = weekdays.map(d => `<div class="weekday">${d}</div>`).join("");
+    const first = (new Date(y, m, 1).getDay() + 6) % 7;
+    const last = new Date(y, m + 1, 0).getDate();
+    const prev = new Date(y, m, 0).getDate();
+    const today = new Date().toLocaleDateString("en-CA");
+
+    for (let i = first - 1; i >= 0; i--) {
+      html += `<div class="day-cell other-month"><div class="day-num">${prev - i}</div><div class="dot-ph"></div></div>`;
+    }
+    for (let d = 1; d <= last; d++) {
+      const ds = `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+      const dow = (first + d - 1) % 7;
+      const wk = dow >= 5 ? "weekend" : "";
+      const td = ds === today ? "today" : "";
+      const sel = ds === selectedDate ? "selected" : "";
+      const items = eventMap[ds] || [];
+      const evCls = items.length ? "has-event" : "";
+      const dot = items.length ? `<div class="dot"></div>` : `<div class="dot-ph"></div>`;
+      html += `<div class="day-cell ${wk} ${td} ${evCls} ${sel}" onclick="broadcastDate('${ds}')"><div class="day-num">${d}</div>${dot}</div>`;
+    }
+    grid.innerHTML = html;
+  }
+
+  function changeMonth(d) { current.setMonth(current.getMonth() + d); render(); }
+  function resetToday() { current = new Date(); render(); }
+  render();
+  loadEvents();
+</script>
+</body>
+</html>
