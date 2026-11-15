@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: 'Pretendard', sans-serif; background: transparent; display: flex; justify-content: center; align-items: flex-start; padding: 6px; }
+  .wrap { width: 100%; max-width: 680px; display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; align-items: flex-start; }
+
+  /* 미니 캘린더 */
+  .cal-card { width: 100%; max-width: 310px; background: #fdfafb; border-radius: 22px; padding: 22px 18px 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); text-align: center; }
+  .month-title { font-size: 21px; font-weight: 700; color: #b8dce8; margin-bottom: 16px; }
+  .grid { display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 8px; align-items: center; justify-items: center; }
+  .weekday { font-size: 12px; font-weight: 600; color: #b8dce8; margin-bottom: 4px; }
+  .day-cell { position: relative; width: 34px; height: 36px; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; color: #444; cursor: pointer; transition: 0.15s; }
+  .day-cell:hover { background: rgba(184, 220, 232, 0.2); }
+  .day-cell.selected { outline: 2px solid #f2a7be; background: rgba(246, 184, 200, 0.15); }
+  .day-num { width: 25px; height: 25px; line-height: 25px; border-radius: 7px; }
+  .other-month { color: #ccc; cursor: default; }
+  .weekend { color: #b85c5c; }
+  .other-month.weekend { color: #e0baba; }
+  .has-event .day-num { background: #f6b8c8; color: #fff; font-weight: 600; }
+  .dot { width: 3.5px; height: 3.5px; background: #b8dce8; border-radius: 50%; margin-top: 2px; }
+  .dot-ph { width: 3.5px; height: 3.5px; margin-top: 2px; }
+  .today .day-num { background: #a8dce8 !important; color: #fff !important; font-weight: 700; }
+  .footer { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding: 0 6px; }
+  .brand { font-size: 9px; letter-spacing: 2px; color: #b0b8bc; }
+  .nav-btns button { background: none; border: none; color: #b8dce8; font-size: 14px; cursor: pointer; padding: 4px 6px; }
+
+  /* 상세 카드 */
+  .detail-card { width: 100%; max-width: 340px; background: #fdfafb; border-radius: 22px; padding: 18px 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
+  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px dashed #eadce0; }
+  .date-label { font-size: 14.5px; font-weight: 700; color: #6fa8bc; }
+  .count-badge { font-size: 11px; font-weight: 600; background: #fce8ee; color: #c46882; padding: 3px 8px; border-radius: 10px; }
+  .list { display: flex; flex-direction: column; gap: 10px; }
+  .empty { text-align: center; padding: 28px 0; font-size: 12.5px; color: #aaa; }
+
+  .ncard { border-radius: 15px; padding: 12px 13px; display: flex; flex-direction: column; background: #f5f7f9; }
+  .ncard.bg-p { background: #f3ecfa; }
+  .ncard.bg-k { background: #fcebed; }
+  .ncard.bg-y { background: #fbf6e6; }
+
+  .card-head { cursor: pointer; display: flex; flex-direction: column; gap: 7px; user-select: none; }
+  .ctop { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+  .ctitle-wrap { display: flex; align-items: center; gap: 5px; min-width: 0; }
+  .ctitle { font-size: 13.5px; font-weight: 700; color: #2f2f2f; word-break: keep-all; }
+  .arrow-icon { font-size: 10px; color: #888; transition: transform 0.2s ease; flex-shrink: 0; }
+  .ncard.open .arrow-icon { transform: rotate(180deg); }
+  .ctime { font-size: 11px; font-weight: 600; color: #777; background: rgba(255,255,255,0.75); padding: 2px 7px; border-radius: 6px; flex-shrink: 0; }
+
+  .cbadges { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
+  .badge { font-size: 10.5px; font-weight: 600; padding: 2px 7px; border-radius: 6px; }
+  .b-p { background: #e3d3f7; color: #5b388a; }
+  .b-k { background: #f8d2d7; color: #963744; }
+  .b-y { background: #f4e6b8; color: #7c621b; }
+  .b-d { background: #e3eef5; color: #3c647d; }
+
+  .prof-select {
+    appearance: none; -webkit-appearance: none;
+    border: none; outline: none; cursor: pointer;
+    font-family: inherit; font-size: 10.5px; font-weight: 700;
+    padding: 2px 18px 2px 7px; border-radius: 6px;
+    background-repeat: no-repeat; background-position: right 5px center; background-size: 8px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath fill='%23555' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+  }
+  .p-hw { background-color: #f2dfd3; color: #875538; }
+  .p-hf { background-color: #d6e8f8; color: #2f618c; }
+  .p-cl { background-color: #d5ede0; color: #2d6b4b; }
+  .p-tr { background-color: #fae3d9; color: #a34828; }
+  .p-gr { background-color: #e8e8e6; color: #6b6b69; }
+  .stxt { font-size: 11px; font-weight: 700; color: #444; margin-left: auto; }
+
+  .roster-wrap { display: none; flex-direction: column; gap: 9px; margin-top: 9px; padding-top: 9px; border-top: 1px solid rgba(0,0,0,0.06); }
+  .ncard.open .roster-wrap { display: flex; }
+  .role-group { display: flex; flex-direction: column; gap: 5px; }
+  .role-header { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 7px; width: fit-content; }
+  .role-dealer { background: #ffe2e8; color: #b84462; }
+  .role-support { background: #dcf3ea; color: #2a7859; }
+  .member-item { background: rgba(255,255,255,0.88); border-radius: 9px; padding: 7px 9px; display: flex; flex-direction: column; gap: 3px; border: 1px solid rgba(0,0,0,0.03); }
+  .m-top { display: flex; align-items: center; justify-content: space-between; gap: 4px; }
+  .m-name { font-size: 12px; font-weight: 700; color: #2d2d2d; }
+  .m-guest { font-size: 9.5px; font-weight: 600; background: #eef2f6; color: #5c6f82; padding: 1px 5px; border-radius: 4px; }
+  .m-spec { font-size: 10.5px; font-weight: 500; color: #666; }
+  .m-memo { font-size: 10.5px; font-weight: 600; color: #7a5230; background: #fdf3e7; padding: 2px 7px; border-radius: 5px; width: fit-content; margin-top: 2px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="cal-card">
+    <div class="month-title" id="monthTitle">November</div>
+    <div class="grid" id="calGrid"></div>
+    <div class="footer">
+      <span style="width:45px"></span>
+      <span class="brand">RAID CALENDAR</span>
+      <div class="nav-btns">
+        <button onclick="changeMonth(-1)">←</button>
+        <button onclick="resetToday()">↻</button>
+        <button onclick="changeMonth(1)">→</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="detail-card">
+    <div class="header">
+      <span class="date-label" id="dateLabel">불러오는 중...</span>
+      <span class="count-badge" id="countBadge">0건</span>
+    </div>
+    <div class="list" id="detailList">
+      <div class="empty">일정을 불러오는 중입니다...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const WORKER_URL = "https://notion-cal.binhaha329.workers.dev";
+  const PROF_OPTIONS = ["숙련도 미지정", "숙제", "반숙", "클경", "트라이"];
+  const EMPTY_MEMBER_TEXT = "참여 멤버 미정"; // ← 원하시는 문구로 여기서 바꾸세요!
+  const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const weekdays = ["M","T","W","T","F","S","S"];
+
+  let current = new Date();
+  let eventMap = {};
+  let selectedDate = "";
+
+  function getDiff(d) {
+    if (d === "나이트메어" || d === "3단계") return ["bg-p", "b-p"];
+    if (d === "하드" || d === "2단계") return ["bg-k", "b-k"];
+    if (d === "노말" || d === "1단계") return ["bg-y", "b-y"];
+    return ["", "b-d"];
+  }
+  function getProfClass(p) {
+    if (p === "숙제") return "p-hw";
+    if (p === "반숙") return "p-hf";
+    if (p === "클경") return "p-cl";
+    if (p === "트라이") return "p-tr";
+    return "p-gr";
+  }
+
+  function toggleCard(headEl) {
+    const card = headEl.closest(".ncard");
+    if (card) card.classList.toggle("open");
+  }
+
+  async function updateProficiency(selectEl, pageId, ds, idx) {
+    const newProf = selectEl.value;
+    selectEl.className = `prof-select ${getProfClass(newProf)}`;
+    if (eventMap[ds] && eventMap[ds][idx]) eventMap[ds][idx].proficiency = newProf;
+
+    try {
+      const res = await fetch(WORKER_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pageId, proficiency: newProf }),
+      });
+      if (!res.ok) alert("노션 숙련도 저장에 실패했어요.");
+    } catch (e) {
+      alert("네트워크 오류로 저장하지 못했어요.");
+    }
+  }
+
+  function parseRoster(raw) {
+    if (!raw || !raw.trim()) return `<div class="roster-wrap"><div class="m-spec">${EMPTY_MEMBER_TEXT}</div></div>`;
+    const lines = raw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    const groups = [];
+    let curGroup = null;
+    let curMember = null;
+
+    for (const line of lines) {
+      if (line.startsWith("공격대 생성자")) continue;
+      if (/^(딜러|서포터)/.test(line)) {
+        curGroup = { role: line.startsWith("딜러") ? "dealer" : "support", title: line, members: [] };
+        groups.push(curGroup);
+        curMember = null;
+        continue;
+      }
+      if (/^[ㄴ└\-]/.test(line) && curMember) {
+        curMember.memo = line.replace(/^[ㄴ└\-]\s*/, "").trim();
+        continue;
+      }
+      if (line.includes("|") && curMember) {
+        curMember.spec = line;
+        continue;
+      }
+      let cleanName = line.replace(/<@!?\d+>/g, "").replace(/@\S+/g, "").replace(/[💠👤🔹🔸🟢🔵🟡🟣⚪️⚫️]/g, "").trim();
+      if (cleanName) {
+        if (!curGroup) {
+          curGroup = { role: "dealer", title: "참여 멤버", members: [] };
+          groups.push(curGroup);
+        }
+        const isGuest = cleanName.includes("(지인)");
+        cleanName = cleanName.replace("(지인)", "").trim();
+        curMember = { name: cleanName, isGuest, spec: "", memo: "" };
+        curGroup.members.push(curMember);
+      }
+    }
+
+    if (!groups.length) return `<div class="roster-wrap"><div class="m-spec">${EMPTY_MEMBER_TEXT}</div></div>`;
+
+    return `<div class="roster-wrap">${groups.map(g => {
+      const cls = g.role === "support" ? "role-support" : "role-dealer";
+      const icon = g.role === "support" ? "💚" : "⚔️";
+      const mList = g.members.map(m => `
+        <div class="member-item">
+          <div class="m-top">
+            <span class="m-name">${m.name}</span>
+            ${m.isGuest ? `<span class="m-guest">지인</span>` : ""}
+          </div>
+          ${m.spec ? `<div class="m-spec">${m.spec}</div>` : ""}
+          ${m.memo ? `<div class="m-memo">ㄴ ${m.memo}</div>` : ""}
+        </div>`).join("");
+      return `<div class="role-group"><div class="role-header ${cls}">${icon} ${g.title}</div>${mList}</div>`;
+    }).join("")}</div>`;
+  }
+
+  function selectDate(ds) {
+    selectedDate = ds;
+    renderCal();
+    renderDetail(ds);
+  }
+
+  function renderDetail(ds) {
+    document.getElementById("dateLabel").textContent = ds;
+    const items = eventMap[ds] || [];
+    document.getElementById("countBadge").textContent = `${items.length}건`;
+    const listEl = document.getElementById("detailList");
+
+    if (!items.length) {
+      listEl.innerHTML = `<div class="empty">등록된 레이드 일정이 없습니다</div>`;
+      return;
+    }
+
+    listEl.innerHTML = items.map((ev, idx) => {
+      const [bg, bd] = getDiff(ev.difficulty);
+      const dHtml = ev.difficulty ? `<span class="badge ${bd}">${ev.difficulty}</span>` : "";
+      const curProf = ev.proficiency || "숙련도 미지정";
+      const opts = PROF_OPTIONS.map(o => `<option value="${o}" ${o === curProf ? "selected" : ""}>${o}</option>`).join("");
+      const profSelect = `<select class="prof-select ${getProfClass(curProf)}" onclick="event.stopPropagation()" onchange="updateProficiency(this, '${ev.pageId || ""}', '${ds}', ${idx})">${opts}</select>`;
+      const sHtml = ev.status ? `<span class="stxt">${ev.status}</span>` : "";
+
+      return `
+        <div class="ncard ${bg}">
+          <div class="card-head" onclick="toggleCard(this)">
+            <div class="ctop">
+              <div class="ctitle-wrap">
+                <span class="ctitle">${ev.title}</span>
+                <span class="arrow-icon">▾</span>
+              </div>
+              ${ev.time ? `<span class="ctime">${ev.time}</span>` : ""}
+            </div>
+            <div class="cbadges">${dHtml}${profSelect}${sHtml}</div>
+          </div>
+          ${parseRoster(ev.members)}
+        </div>`;
+    }).join("");
+  }
+
+  function renderCal() {
+    const y = current.getFullYear(), m = current.getMonth();
+    document.getElementById("monthTitle").textContent = months[m];
+    const grid = document.getElementById("calGrid");
+    let html = weekdays.map(d => `<div class="weekday">${d}</div>`).join("");
+    const first = (new Date(y, m, 1).getDay() + 6) % 7;
+    const last = new Date(y, m + 1, 0).getDate();
+    const prev = new Date(y, m, 0).getDate();
+    const today = new Date().toLocaleDateString("en-CA");
+
+    for (let i = first - 1; i >= 0; i--) {
+      html += `<div class="day-cell other-month"><div class="day-num">${prev - i}</div><div class="dot-ph"></div></div>`;
+    }
+    for (let d = 1; d <= last; d++) {
+      const ds = `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+      const dow = (first + d - 1) % 7;
+      const wk = dow >= 5 ? "weekend" : "";
+      const td = ds === today ? "today" : "";
+      const sel = ds === selectedDate ? "selected" : "";
+      const items = eventMap[ds] || [];
+      const evCls = items.length ? "has-event" : "";
+      const dot = items.length ? `<div class="dot"></div>` : `<div class="dot-ph"></div>`;
+      html += `<div class="day-cell ${wk} ${td} ${evCls} ${sel}" onclick="selectDate('${ds}')"><div class="day-num">${d}</div>${dot}</div>`;
+    }
+    grid.innerHTML = html;
+  }
+
+  async function loadEvents() {
+    try {
+      const res = await fetch(WORKER_URL);
+      const list = await res.json();
+      eventMap = {};
+      list.forEach(item => {
+        if (!eventMap[item.date]) eventMap[item.date] = [];
+        eventMap[item.date].push(item);
+      });
+      const today = new Date().toLocaleDateString("en-CA");
+      const pick = eventMap[today] ? today : (list[0]?.date || today);
+      selectDate(pick);
+    } catch (e) { renderCal(); }
+  }
+
+  function changeMonth(d) { current.setMonth(current.getMonth() + d); renderCal(); }
+  function resetToday() { current = new Date(); renderCal(); }
+  renderCal();
+  loadEvents();
+</script>
+</body>
+</html>
