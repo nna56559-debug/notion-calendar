@@ -16,9 +16,14 @@
   .grid { display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 4px; align-items: center; justify-items: center; }
   .weekday { font-size: 11.5px; font-weight: 600; color: #8ec5d6; margin-bottom: 4px; }
 
+  /* 날짜 칸 & 상하좌우 대칭 정렬 */
   .day-cell { position: relative; width: 34px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; color: #444; cursor: pointer; }
   .day-cell.selected { outline: 2px solid #eb96b0; outline-offset: -2px; background: rgba(246, 184, 200, 0.22); }
   .day-num { width: 23px; height: 22px; display: flex; align-items: center; justify-content: center; border-radius: 7px; line-height: 1; margin-top: -1px; padding-left: 0.5px; }
+  .other-month { color: #ccc; cursor: default; }
+  .weekend { color: #b85c5c; }
+  .other-month.weekend { color: #e2baba; }
+  .has-event .day-num { background: #f4a8bc; color: #fff; font-weight: 600; }
   .dot { position: absolute; bottom: 3.5px; left: 50%; transform: translateX(-50%); width: 3.5px; height: 3.5px; background: #8ec5d6; border-radius: 50%; }
   .dot-ph { display: none; }
   .today .day-num { background: #8ec5d6 !important; color: #fff !important; font-weight: 700; }
@@ -27,7 +32,7 @@
   .brand { font-size: 9px; letter-spacing: 2px; color: #b0b8bc; }
   .nav-btns button { background: none; border: none; color: #8ec5d6; font-size: 14px; font-weight: 700; cursor: pointer; padding: 4px 6px; }
 
-  /* 상세 카드 (동일한 맑은 톤) */
+  /* 상세 카드 */
   .detail-card { width: 100%; max-width: 340px; background: #fffcfd; border: 1.5px solid #f2dce4; border-radius: 22px; padding: 16px 15px; box-shadow: 0 6px 20px rgba(235, 165, 190, 0.14); }
   .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 9px; border-bottom: 1px dashed #eddce2; }
   .date-label { font-size: 14.5px; font-weight: 700; color: #6fa8bc; }
