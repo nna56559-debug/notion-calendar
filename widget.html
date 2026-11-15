@@ -46,7 +46,7 @@
   .ctop { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
   .ctitle-wrap { display: flex; align-items: center; gap: 5px; min-width: 0; }
   .ctitle { font-size: 13.5px; font-weight: 700; color: #2f2f2f; word-break: keep-all; }
-  .arrow-icon { font-size: 10px; color: #888; transition: transform 0.2s ease; flex-shrink: 0; }
+  .arrow-icon { font-size: 13px; color: #555; background: rgba(255,255,255,0.85); width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-left: 4px; transition: transform 0.2s ease; flex-shrink: 0; }
   .ncard.open .arrow-icon { transform: rotate(180deg); }
   .ctime { font-size: 11px; font-weight: 600; color: #777; background: rgba(255,255,255,0.75); padding: 2px 7px; border-radius: 6px; flex-shrink: 0; }
 
@@ -116,7 +116,7 @@
 <script>
   const WORKER_URL = "https://notion-cal.binhaha329.workers.dev";
   const PROF_OPTIONS = ["숙련도 미지정", "숙제", "반숙", "클경", "트라이"];
-  const EMPTY_MEMBER_TEXT = "참여자 없음"; // ← 원하시는 문구로 여기서 바꾸세요!
+  const EMPTY_MEMBER_TEXT = "신청자 없음"; // ← 원하시는 문구로 여기서 바꾸세요!
   const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   const weekdays = ["M","T","W","T","F","S","S"];
 
