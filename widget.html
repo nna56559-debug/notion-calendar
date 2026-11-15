@@ -9,13 +9,11 @@
   body { font-family: 'Pretendard', sans-serif; background: transparent; display: flex; justify-content: center; align-items: flex-start; padding: 6px; }
   .wrap { width: 100%; max-width: 680px; display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; align-items: flex-start; }
 
-  /* 미니 캘린더 (배경색 살짝 진하게 + 테두리) */
   .cal-card { width: 100%; max-width: 310px; background: #f5eff2; border: 1px solid #e8dde2; border-radius: 22px; padding: 22px 18px 16px; box-shadow: 0 4px 16px rgba(180, 150, 165, 0.08); text-align: center; }
   .month-title { font-size: 21px; font-weight: 700; color: #8ec5d6; margin-bottom: 16px; }
   .grid { display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 6px; align-items: center; justify-items: center; }
   .weekday { font-size: 12px; font-weight: 600; color: #8ec5d6; margin-bottom: 4px; }
 
-  /* 날짜 셀 상하좌우 균형 정렬 */
   .day-cell { position: relative; width: 34px; height: 38px; border-radius: 11px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding-top: 2px; font-size: 13px; font-weight: 500; color: #444; cursor: pointer; transition: 0.15s; }
   .day-cell:hover { background: rgba(142, 197, 214, 0.2); }
   .day-cell.selected { outline: 2px solid #eb96b0; outline-offset: -2px; background: rgba(246, 184, 200, 0.24); }
@@ -32,7 +30,6 @@
   .brand { font-size: 9px; letter-spacing: 2px; color: #9ea7ab; }
   .nav-btns button { background: none; border: none; color: #8ec5d6; font-size: 14px; font-weight: 700; cursor: pointer; padding: 4px 6px; }
 
-  /* 상세 카드 (배경색 통일) */
   .detail-card { width: 100%; max-width: 340px; background: #f5eff2; border: 1px solid #e8dde2; border-radius: 22px; padding: 18px 16px; box-shadow: 0 4px 16px rgba(180, 150, 165, 0.08); }
   .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px dashed #dfd0d6; }
   .date-label { font-size: 14.5px; font-weight: 700; color: #5b99ae; }
@@ -50,7 +47,6 @@
   .ctitle-wrap { display: flex; align-items: center; gap: 6px; min-width: 0; }
   .ctitle { font-size: 13.5px; font-weight: 700; color: #2b2b2b; word-break: keep-all; }
 
-  /* 큼직한 펼침 아이콘 버튼 */
   .arrow-icon { font-size: 13px; color: #555; background: rgba(255,255,255,0.85); width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; transition: transform 0.2s ease; flex-shrink: 0; }
   .ncard.open .arrow-icon { transform: rotate(180deg); }
   .ctime { font-size: 11px; font-weight: 600; color: #666; background: rgba(255,255,255,0.8); padding: 2px 7px; border-radius: 6px; flex-shrink: 0; }
@@ -100,9 +96,9 @@
       <span style="width:45px"></span>
       <span class="brand">RAID CALENDAR</span>
       <div class="nav-btns">
-        <button onclick="changeMonth(-1)">←</button>
-        <button onclick="resetToday()">↻</button>
-        <button onclick="changeMonth(1)">→</button>
+        <button id="prevBtn">←</button>
+        <button id="todayBtn">↻</button>
+        <button id="nextBtn">→</button>
       </div>
     </div>
   </div>
@@ -121,7 +117,7 @@
 <script>
   const WORKER_URL = "https://notion-cal.binhaha329.workers.dev";
   const PROF_OPTIONS = ["숙련도 미지정", "숙제", "반숙", "클경", "트라이"];
-  const EMPTY_MEMBER_TEXT = "신청자 없음"; // ← 원하시는 문구로 여기서 바꾸세요!
+  const EMPTY_MEMBER_TEXT = "신청자 없음";
   const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   const weekdays = ["M","T","W","T","F","S","S"];
 
@@ -129,12 +125,17 @@
   let eventMap = {};
   let selectedDate = "";
 
+  function formatYMD(d) {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  }
+
   function getDiff(d) {
     if (d === "나이트메어" || d === "3단계") return ["bg-p", "b-p"];
     if (d === "하드" || d === "2단계") return ["bg-k", "b-k"];
     if (d === "노말" || d === "1단계") return ["bg-y", "b-y"];
     return ["", "b-d"];
   }
+
   function getProfClass(p) {
     if (p === "숙제") return "p-hw";
     if (p === "반숙") return "p-hf";
@@ -142,3 +143,177 @@
     if (p === "트라이") return "p-tr";
     return "p-gr";
   }
+
+  window.toggleCard = function(headEl) {
+    const card = headEl.closest(".ncard");
+    if (card) card.classList.toggle("open");
+  };
+
+  window.updateProficiency = async function(selectEl, pageId, ds, idx) {
+    const newProf = selectEl.value;
+    selectEl.className = `prof-select ${getProfClass(newProf)}`;
+    if (eventMap[ds] && eventMap[ds][idx]) eventMap[ds][idx].proficiency = newProf;
+
+    try {
+      const res = await fetch(WORKER_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pageId, proficiency: newProf }),
+      });
+      if (!res.ok) alert("노션 숙련도 저장에 실패했어요.");
+    } catch (e) {
+      alert("네트워크 오류로 저장하지 못했어요.");
+    }
+  };
+
+  function parseRoster(raw) {
+    if (!raw || !raw.trim()) return `<div class="roster-wrap"><div class="m-spec">${EMPTY_MEMBER_TEXT}</div></div>`;
+    const lines = raw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    const groups = [];
+    let curGroup = null;
+    let curMember = null;
+
+    for (const line of lines) {
+      if (line.startsWith("공격대 생성자")) continue;
+      if (/^(딜러|서포터)/.test(line)) {
+        curGroup = { role: line.startsWith("딜러") ? "dealer" : "support", title: line, members: [] };
+        groups.push(curGroup);
+        curMember = null;
+        continue;
+      }
+      if (/^[ㄴ└\-]/.test(line) && curMember) {
+        curMember.memo = line.replace(/^[ㄴ└\-]\s*/, "").trim();
+        continue;
+      }
+      if (line.includes("|") && curMember) {
+        curMember.spec = line;
+        continue;
+      }
+      let cleanName = line.replace(/<@!?\d+>/g, "").replace(/@\S+/g, "").replace(/[💠👤🔹🔸🟢🔵🟡🟣⚪️⚫️]/g, "").trim();
+      if (cleanName) {
+        if (!curGroup) {
+          curGroup = { role: "dealer", title: "참여 멤버", members: [] };
+          groups.push(curGroup);
+        }
+        const isGuest = cleanName.includes("(지인)");
+        cleanName = cleanName.replace("(지인)", "").trim();
+        curMember = { name: cleanName, isGuest, spec: "", memo: "" };
+        curGroup.members.push(curMember);
+      }
+    }
+
+    if (!groups.length) return `<div class="roster-wrap"><div class="m-spec">${EMPTY_MEMBER_TEXT}</div></div>`;
+
+    return `<div class="roster-wrap">${groups.map(g => {
+      const cls = g.role === "support" ? "role-support" : "role-dealer";
+      const icon = g.role === "support" ? "💚" : "⚔️";
+      const mList = g.members.map(m => `
+        <div class="member-item">
+          <div class="m-top">
+            <span class="m-name">${m.name}</span>
+            ${m.isGuest ? `<span class="m-guest">지인</span>` : ""}
+          </div>
+          ${m.spec ? `<div class="m-spec">${m.spec}</div>` : ""}
+          ${m.memo ? `<div class="m-memo">ㄴ ${m.memo}</div>` : ""}
+        </div>`).join("");
+      return `<div class="role-group"><div class="role-header ${cls}">${icon} ${g.title}</div>${mList}</div>`;
+    }).join("")}</div>`;
+  }
+
+  window.selectDate = function(ds) {
+    selectedDate = ds;
+    renderCal();
+    renderDetail(ds);
+  };
+
+  function renderDetail(ds) {
+    document.getElementById("dateLabel").textContent = ds;
+    const items = eventMap[ds] || [];
+    document.getElementById("countBadge").textContent = `${items.length}건`;
+    const listEl = document.getElementById("detailList");
+
+    if (!items.length) {
+      listEl.innerHTML = `<div class="empty">등록된 레이드 일정이 없습니다</div>`;
+      return;
+    }
+
+    listEl.innerHTML = items.map((ev, idx) => {
+      const [bg, bd] = getDiff(ev.difficulty);
+      const dHtml = ev.difficulty ? `<span class="badge ${bd}">${ev.difficulty}</span>` : "";
+      const curProf = ev.proficiency || "숙련도 미지정";
+      const opts = PROF_OPTIONS.map(o => `<option value="${o}" ${o === curProf ? "selected" : ""}>${o}</option>`).join("");
+      const profSelect = `<select class="prof-select ${getProfClass(curProf)}" onclick="event.stopPropagation()" onchange="updateProficiency(this, '${ev.pageId || ""}', '${ds}', ${idx})">${opts}</select>`;
+      const sHtml = ev.status ? `<span class="stxt">${ev.status}</span>` : "";
+
+      return `
+        <div class="ncard ${bg}">
+          <div class="card-head" onclick="toggleCard(this)">
+            <div class="ctop">
+              <div class="ctitle-wrap">
+                <span class="ctitle">${ev.title}</span>
+                <span class="arrow-icon">▾</span>
+              </div>
+              ${ev.time ? `<span class="ctime">${ev.time}</span>` : ""}
+            </div>
+            <div class="cbadges">${dHtml}${profSelect}${sHtml}</div>
+          </div>
+          ${parseRoster(ev.members)}
+        </div>`;
+    }).join("");
+  }
+
+  function renderCal() {
+    const y = current.getFullYear(), m = current.getMonth();
+    document.getElementById("monthTitle").textContent = months[m];
+    const grid = document.getElementById("calGrid");
+    let html = weekdays.map(d => `<div class="weekday">${d}</div>`).join("");
+    const first = (new Date(y, m, 1).getDay() + 6) % 7;
+    const last = new Date(y, m + 1, 0).getDate();
+    const prev = new Date(y, m, 0).getDate();
+    const today = formatYMD(new Date());
+
+    for (let i = first - 1; i >= 0; i--) {
+      html += `<div class="day-cell other-month"><div class="day-num">${prev - i}</div><div class="dot-ph"></div></div>`;
+    }
+    for (let d = 1; d <= last; d++) {
+      const ds = `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+      const dow = (first + d - 1) % 7;
+      const wk = dow >= 5 ? "weekend" : "";
+      const td = ds === today ? "today" : "";
+      const sel = ds === selectedDate ? "selected" : "";
+      const items = eventMap[ds] || [];
+      const evCls = items.length ? "has-event" : "";
+      const dot = items.length ? `<div class="dot"></div>` : `<div class="dot-ph"></div>`;
+      html += `<div class="day-cell ${wk} ${td} ${evCls} ${sel}" onclick="selectDate('${ds}')"><div class="day-num">${d}</div>${dot}</div>`;
+    }
+    grid.innerHTML = html;
+  }
+
+  async function loadEvents() {
+    try {
+      const res = await fetch(WORKER_URL);
+      const list = await res.json();
+      eventMap = {};
+      list.forEach(item => {
+        if (!eventMap[item.date]) eventMap[item.date] = [];
+        eventMap[item.date].push(item);
+      });
+      const today = formatYMD(new Date());
+      const pick = eventMap[today] ? today : (list[0]?.date || today);
+      selectDate(pick);
+    } catch (e) {
+      renderCal();
+      document.getElementById("dateLabel").textContent = formatYMD(new Date());
+      document.getElementById("detailList").innerHTML = `<div class="empty">데이터 연결 오류 (${e.message})</div>`;
+    }
+  }
+
+  document.getElementById("prevBtn").onclick = () => { current.setMonth(current.getMonth() - 1); renderCal(); };
+  document.getElementById("todayBtn").onclick = () => { current = new Date(); renderCal(); };
+  document.getElementById("nextBtn").onclick = () => { current.setMonth(current.getMonth() + 1); renderCal(); };
+
+  renderCal();
+  loadEvents();
+</script>
+</body>
+</html>
