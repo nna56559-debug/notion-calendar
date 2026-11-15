@@ -43,8 +43,9 @@
   }
   .day-cell {
     position: relative;
-    width: 32px;
-    height: 36px;
+    width: 34px;
+    height: 38px;
+    border-radius: 10px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -53,6 +54,10 @@
     font-weight: 500;
     color: #444;
     cursor: default;
+    transition: background 0.15s ease;
+  }
+  .day-cell:hover {
+    background: rgba(184, 220, 232, 0.14);
   }
   .day-num {
     width: 26px;
@@ -64,12 +69,7 @@
   .weekend { color: #b85c5c; }
   .other-month.weekend { color: #e0baba; }
 
-  /* 일정 있는 날 (파스텔 핑크 + 하단 점) */
-  .has-event .day-num {
-    background: #f6b8c8;
-    color: #fff;
-    font-weight: 600;
-  }
+  /* 일정 있는 날 하단 점 (기본/중요 공통) */
   .dot {
     width: 3.5px;
     height: 3.5px;
@@ -77,33 +77,62 @@
     border-radius: 50%;
     margin-top: 3px;
   }
+  .dot-placeholder {
+    width: 3.5px;
+    height: 3.5px;
+    margin-top: 3px;
+  }
 
-  /* 오늘 날짜 (파스텔 하늘색) */
+  /* 중요 일정 있는 날 (파스텔 핑크 배경) */
+  .has-important .day-num {
+    background: #f6b8c8;
+    color: #fff;
+    font-weight: 600;
+  }
+
+  /* 오늘 날짜 (파스텔 하늘색 배경) */
   .today .day-num {
     background: #a8dce8 !important;
     color: #fff !important;
     font-weight: 700;
   }
 
-  /* 마우스 올렸을 때 말풍선 */
+  /* 마우스 올렸을 때 하얀 말풍선 컨테이너 */
   .tooltip {
     display: none;
+    flex-direction: column;
+    gap: 5px;
     position: absolute;
-    top: 36px;
+    top: 40px;
     left: 50%;
     transform: translateX(-50%);
-    background: #fce8ee;
-    color: #555;
+    background: #ffffff;
+    padding: 7px;
+    border-radius: 13px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    z-index: 20;
+    min-width: 110px;
+  }
+  .day-cell:hover .tooltip {
+    display: flex;
+  }
+
+  /* 말풍선 내부 개별 일정 알약 배지 */
+  .tooltip-item {
     font-size: 11px;
     font-weight: 600;
-    padding: 6px 10px;
-    border-radius: 10px;
+    color: #444;
+    padding: 6px 11px;
+    border-radius: 8px;
     white-space: nowrap;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    z-index: 10;
-    border: 2px solid #fff;
+    text-align: center;
   }
-  .day-cell:hover .tooltip { display: block; }
+  .tooltip-item.normal {
+    background: #e4f4fa; /* 일반 일정: 연하늘색 */
+  }
+  .tooltip-item.important {
+    background: #fce8ee; /* 중요 일정: 연분홍색 */
+  }
 
   .footer {
     display: flex;
@@ -145,7 +174,6 @@
 </div>
 
 <script>
-  // ▼ 2단계에서 복사한 Cloudflare Worker 주소를 아래 따옴표 안에 넣으세요
   const WORKER_URL = "https://notion-cal.binhaha329.workers.dev";
 
   const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -160,7 +188,7 @@
       eventMap = {};
       list.forEach(item => {
         if (!eventMap[item.date]) eventMap[item.date] = [];
-        eventMap[item.date].push(item.title);
+        eventMap[item.date].push({ title: item.title, important: !!item.important });
       });
     } catch (e) { console.error(e); }
     render();
@@ -174,14 +202,14 @@
     const grid = document.getElementById("calGrid");
     grid.innerHTML = weekdays.map(d => `<div class="weekday">${d}</div>`).join("");
 
-    const firstDay = (new Date(year, month, 1).getDay() + 6) % 7; // 월요일 시작
+    const firstDay = (new Date(year, month, 1).getDay() + 6) % 7;
     const lastDate = new Date(year, month + 1, 0).getDate();
     const prevLast = new Date(year, month, 0).getDate();
     const todayStr = new Date().toLocaleDateString("en-CA");
 
     // 이전 달 날짜
     for (let i = firstDay - 1; i >= 0; i--) {
-      grid.innerHTML += `<div class="day-cell other-month"><div class="day-num">${prevLast - i}</div></div>`;
+      grid.innerHTML += `<div class="day-cell other-month"><div class="day-num">${prevLast - i}</div><div class="dot-placeholder"></div></div>`;
     }
 
     // 이번 달 날짜
@@ -190,13 +218,20 @@
       const dayOfWeek = (firstDay + d - 1) % 7;
       const isWeekend = dayOfWeek >= 5 ? "weekend" : "";
       const isToday = dateStr === todayStr ? "today" : "";
-      const titles = eventMap[dateStr];
-      const hasEvent = titles ? "has-event" : "";
+      const items = eventMap[dateStr] || [];
+      const hasImportant = items.some(ev => ev.important) ? "has-important" : "";
+
+      const tooltipHtml = items.length
+        ? `<div class="dot"></div>
+           <div class="tooltip">
+             ${items.map(ev => `<div class="tooltip-item ${ev.important ? "important" : "normal"}">${ev.title}</div>`).join("")}
+           </div>`
+        : `<div class="dot-placeholder"></div>`;
 
       grid.innerHTML += `
-        <div class="day-cell ${isWeekend} ${isToday} ${hasEvent}">
+        <div class="day-cell ${isWeekend} ${isToday} ${hasImportant}">
           <div class="day-num">${d}</div>
-          ${titles ? `<div class="dot"></div><div class="tooltip">${titles.join("<br>")}</div>` : ""}
+          ${tooltipHtml}
         </div>`;
     }
   }
