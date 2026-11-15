@@ -184,9 +184,9 @@
         curMember = null;
         continue;
       }
-      if (/^[ㄴ└\-]/.test(line) && curMember) {
-        curMember.memo = line.replace(/^[ㄴ└\-]\s*/, "").trim();
-        continue;
+      if (/^[ㄴ└┗↳\-]/.test(line) && curMember) {
+     curMember.memo = line.replace(/^[ㄴ└┗↳\-\s]+/, "").trim();
+     continue;
       }
       if (line.indexOf("|") !== -1 && curMember) {
         curMember.spec = line;
@@ -215,7 +215,7 @@
           '<div class="m-top"><span class="m-name">' + m.name + '</span>' +
           (m.isGuest ? '<span class="m-guest">지인</span>' : '') + '</div>' +
           (m.spec ? '<div class="m-spec">' + m.spec + '</div>' : '') +
-          (m.memo ? '<div class="m-memo">' + m.memo + '</div>' : '') +
+          (m.memo ? '<div class="m-memo">' + m.memo.replace(/^[ㄴ└┗↳\-\s]+/, "") + '</div>' : '') +
           '</div>';
       }).join("");
       return '<div class="role-group"><div class="role-header ' + cls + '">' + icon + ' ' + g.title + '</div>' + mList + '</div>';
