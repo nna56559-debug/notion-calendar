@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Pretendard', sans-serif;
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  .cal-card {
+    position: relative;
+    width: 310px;
+    background: #fdfafb;
+    border-radius: 22px;
+    padding: 28px 22px 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    text-align: center;
+  }
+  .month-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #b8dce8;
+    margin-bottom: 22px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    row-gap: 10px;
+    align-items: center;
+    justify-items: center;
+  }
+  .weekday {
+    font-size: 12px;
+    font-weight: 600;
+    color: #b8dce8;
+    margin-bottom: 6px;
+  }
+  .day-cell {
+    position: relative;
+    width: 32px;
+    height: 36px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 500;
+    color: #444;
+    cursor: default;
+  }
+  .day-num {
+    width: 26px;
+    height: 26px;
+    line-height: 26px;
+    border-radius: 7px;
+  }
+  .other-month { color: #ccc; }
+  .weekend { color: #b85c5c; }
+  .other-month.weekend { color: #e0baba; }
+
+  /* 일정 있는 날 (파스텔 핑크 + 하단 점) */
+  .has-event .day-num {
+    background: #f6b8c8;
+    color: #fff;
+    font-weight: 600;
+  }
+  .dot {
+    width: 3.5px;
+    height: 3.5px;
+    background: #b8dce8;
+    border-radius: 50%;
+    margin-top: 3px;
+  }
+
+  /* 오늘 날짜 (파스텔 하늘색) */
+  .today .day-num {
+    background: #a8dce8 !important;
+    color: #fff !important;
+    font-weight: 700;
+  }
+
+  /* 마우스 올렸을 때 말풍선 */
+  .tooltip {
+    display: none;
+    position: absolute;
+    top: 36px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fce8ee;
+    color: #555;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 10px;
+    border-radius: 10px;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    z-index: 10;
+    border: 2px solid #fff;
+  }
+  .day-cell:hover .tooltip { display: block; }
+
+  .footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 18px;
+    padding: 0 6px;
+  }
+  .brand {
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: #b0b8bc;
+  }
+  .nav-btns button {
+    background: none;
+    border: none;
+    color: #b8dce8;
+    font-size: 13px;
+    cursor: pointer;
+    margin-left: 6px;
+  }
+  .nav-btns button:hover { color: #82bfd4; }
+</style>
+</head>
+<body>
+
+<div class="cal-card">
+  <div class="month-title" id="monthTitle">November</div>
+  <div class="grid" id="calGrid"></div>
+  <div class="footer">
+    <span style="width:45px"></span>
+    <span class="brand">RAID CALENDAR</span>
+    <div class="nav-btns">
+      <button onclick="changeMonth(-1)">←</button>
+      <button onclick="resetToday()">↻</button>
+      <button onclick="changeMonth(1)">→</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ▼ 2단계에서 복사한 Cloudflare Worker 주소를 아래 따옴표 안에 넣으세요
+  const WORKER_URL = "https://notion-cal.binhaha329.workers.dev";
+
+  const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const weekdays = ["M","T","W","T","F","S","S"];
+  let current = new Date();
+  let eventMap = {};
+
+  async function loadEvents() {
+    try {
+      const res = await fetch(WORKER_URL);
+      const list = await res.json();
+      eventMap = {};
+      list.forEach(item => {
+        if (!eventMap[item.date]) eventMap[item.date] = [];
+        eventMap[item.date].push(item.title);
+      });
+    } catch (e) { console.error(e); }
+    render();
+  }
+
+  function render() {
+    const year = current.getFullYear();
+    const month = current.getMonth();
+    document.getElementById("monthTitle").textContent = months[month];
+
+    const grid = document.getElementById("calGrid");
+    grid.innerHTML = weekdays.map(d => `<div class="weekday">${d}</div>`).join("");
+
+    const firstDay = (new Date(year, month, 1).getDay() + 6) % 7; // 월요일 시작
+    const lastDate = new Date(year, month + 1, 0).getDate();
+    const prevLast = new Date(year, month, 0).getDate();
+    const todayStr = new Date().toLocaleDateString("en-CA");
+
+    // 이전 달 날짜
+    for (let i = firstDay - 1; i >= 0; i--) {
+      grid.innerHTML += `<div class="day-cell other-month"><div class="day-num">${prevLast - i}</div></div>`;
+    }
+
+    // 이번 달 날짜
+    for (let d = 1; d <= lastDate; d++) {
+      const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+      const dayOfWeek = (firstDay + d - 1) % 7;
+      const isWeekend = dayOfWeek >= 5 ? "weekend" : "";
+      const isToday = dateStr === todayStr ? "today" : "";
+      const titles = eventMap[dateStr];
+      const hasEvent = titles ? "has-event" : "";
+
+      grid.innerHTML += `
+        <div class="day-cell ${isWeekend} ${isToday} ${hasEvent}">
+          <div class="day-num">${d}</div>
+          ${titles ? `<div class="dot"></div><div class="tooltip">${titles.join("<br>")}</div>` : ""}
+        </div>`;
+    }
+  }
+
+  function changeMonth(diff) {
+    current.setMonth(current.getMonth() + diff);
+    render();
+  }
+  function resetToday() {
+    current = new Date();
+    render();
+  }
+
+  render();
+  loadEvents();
+</script>
+</body>
+</html>
