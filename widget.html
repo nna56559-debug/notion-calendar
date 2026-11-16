@@ -8,52 +8,51 @@
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; background: transparent; width: 100%; overflow-x: hidden; }
   body { display: flex; justify-content: center; align-items: flex-start; padding: 6px; }
-  .wrap { width: 100%; max-width: 680px; display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; align-items: flex-start; }
+  .wrap { width: 100%; max-width: 650px; display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; align-items: flex-start; }
 
-  /* 033023_2 캡처와 동일한 연분홍 실선 테두리 + 뽀얀 크림 파스텔 카드 */
+  /* 1번 사진(033023_3)과 동일한 연분홍 실선 테두리 + 아담한 비율 */
   .card {
     background: #FFFDFB;
-    border: 1.5px solid #FADADD;
-    border-radius: 24px;
-    padding: 20px 18px 18px;
-    box-shadow: 0 6px 22px rgba(244, 175, 192, 0.14);
+    border: 1.5px solid #F8DCE1;
+    border-radius: 22px;
+    padding: 18px 18px 14px;
+    box-shadow: 0 4px 16px rgba(244, 175, 192, 0.1);
   }
-  .cal-card { flex: 1 1 280px; max-width: 310px; }
-  .detail-card { flex: 1 1 290px; max-width: 330px; min-height: 325px; display: flex; flex-direction: column; }
+  .cal-card { flex: 1 1 265px; max-width: 285px; }
+  .detail-card { flex: 1 1 285px; max-width: 315px; min-height: 298px; display: flex; flex-direction: column; }
 
-  /* 달력 상단 월 타이틀 */
-  .cal-header { text-align: center; margin-bottom: 16px; }
-  .month-title { font-size: 18px; font-weight: 800; color: #88C9E8; letter-spacing: -0.3px; }
+  /* 달력 상단 월 타이틀 (1번 사진 하늘색 톤) */
+  .cal-header { text-align: center; margin-bottom: 12px; }
+  .month-title { font-size: 17px; font-weight: 800; color: #7FC4E5; letter-spacing: -0.3px; }
 
-  /* 요일 및 날짜 (033023_2 캡처 동일) */
-  .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; margin-bottom: 10px; }
-  .weekdays span { font-size: 10.5px; font-weight: 700; color: #88C9E8; }
-  .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px 4px; text-align: center; place-items: center; }
+  /* 요일 및 날짜 (1번 사진처럼 여백 넉넉하고 슬림한 크기) */
+  .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; margin-bottom: 8px; }
+  .weekdays span { font-size: 10px; font-weight: 700; color: #7FC4E5; }
+  .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 7px 2px; text-align: center; place-items: center; }
   .day {
-    position: relative; width: 31px; height: 27px;
+    position: relative; width: 24px; height: 24px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 11.5px; font-weight: 600; color: #524B48; border-radius: 7px; cursor: pointer; transition: all 0.15s ease;
+    font-size: 11px; font-weight: 600; color: #4A4442; border-radius: 7px; cursor: pointer; transition: all 0.15s ease;
   }
   .day:hover { background: #FFF2F5; }
-  .day.muted { color: #C7C0BC; font-weight: 500; }
-  /* 토요일·일요일 주말 색상 */
-  .day.weekend { color: #D96B7E; }
+  .day.muted { color: #C5BEBA; font-weight: 500; }
+  .day.weekend { color: #C96D7E; }
 
-  /* 일정 있는 날 (선명한 파스텔 핑크) */
-  .day.has-event { background: #F497B6; color: #FFFFFF !important; font-weight: 700; }
+  /* 일정 있는 날 (1번 사진 파스텔 핑크) */
+  .day.has-event { background: #F49BB8; color: #FFFFFF !important; font-weight: 700; }
 
-  /* 당일 날짜 (선명한 파스텔 하늘색) */
+  /* 당일 날짜 (1번 사진 파스텔 하늘색) */
   .day.today {
-    background: #88C9E8 !important;
+    background: #84C7E6 !important;
     color: #FFFFFF !important;
     font-weight: 800;
   }
 
-  /* 선택된 날짜 (핑크 이중 테두리) */
+  /* 선택된 날짜 (1번 사진 핑크 이중 테두리) */
   .day.selected {
-    outline: 1.5px solid #F497B6;
-    outline-offset: 2.5px;
-    border-radius: 7px;
+    outline: 1.5px solid #F29AB6;
+    outline-offset: 2px;
+    border-radius: 8px;
   }
   .day.selected:not(.has-event):not(.today) {
     background: #FFF2F5;
@@ -61,61 +60,62 @@
     font-weight: 800;
   }
 
-  .dot { position: absolute; bottom: -5px; width: 3.5px; height: 3.5px; border-radius: 50%; background: #88C9E8; }
+  .dot { position: absolute; bottom: -4.5px; width: 3px; height: 3px; border-radius: 50%; background: #7FC4E5; }
 
-  /* 하단 푸터: RAID CALENDAR 대신 초기화 카운트다운 배치 */
+  /* 하단 푸터: RAID CALENDAR 대신 초기화 카운트다운 */
   .cal-footer {
-    display: flex; align-items: center; justify-content: flex-end; gap: 16px;
-    margin-top: 22px; padding: 0 4px;
+    display: flex; align-items: center; justify-content: flex-end; gap: 14px;
+    margin-top: 16px; padding: 0 2px;
   }
-  .reset-label { font-size: 10px; font-weight: 700; color: #B8AEAB; letter-spacing: 0.4px; }
-  .nav-btns { display: flex; align-items: center; gap: 8px; }
+  .reset-label { font-size: 9.5px; font-weight: 700; color: #B5ABA8; letter-spacing: 0.3px; }
+  .nav-btns { display: flex; align-items: center; gap: 7px; }
   .nav-btn {
-    border: none; background: transparent; color: #88C9E8; font-size: 12.5px; font-weight: 700;
-    width: 20px; height: 20px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    border: none; background: transparent; color: #7FC4E5; font-size: 12px; font-weight: 700;
+    width: 18px; height: 18px; border-radius: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center;
   }
   .nav-btn:hover { background: #FFF2F5; color: #E58FA7; }
 
   /* 우측 일정 상세 카드 */
-  .detail-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; padding: 0 2px; }
-  .detail-date { font-size: 13px; font-weight: 800; color: #7CC0E4; }
-  .count-badge { font-size: 10px; font-weight: 700; color: #E07A8E; background: #FFF0F3; padding: 2px 9px; border-radius: 999px; border: 1px solid #FADADD; }
+  .detail-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding: 0 2px; }
+  .detail-date { font-size: 12.5px; font-weight: 800; color: #7FC4E5; }
+  .count-badge { font-size: 10px; font-weight: 700; color: #E07A8E; background: #FFF0F3; padding: 2px 8px; border-radius: 999px; border: 1px solid #F8DCE1; }
 
-  .event-list { display: flex; flex-direction: column; gap: 10px; flex: 1; }
-  .empty-msg { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #B8AFA9; text-align: center; padding: 24px 0; }
+  .event-list { display: flex; flex-direction: column; gap: 9px; flex: 1; }
+  .empty-msg { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 11.5px; color: #B8AFA9; text-align: center; padding: 20px 0; }
 
-  /* ★ 난이도별 카드 배경색 (image_c26e81.png 기준) ★ */
+  /* ★ 2번 사진(043035) 난이도별 카드 배경색 100% 일치 ★ */
   .ev-item {
-    background: #EBF5FA; /* 기본(난이도 없음): 연하늘 */
-    border-radius: 15px;
-    padding: 11px 13px;
+    background: #FFFFFF;
+    border: 1px solid #EFECEB; /* 난이도 없음(asd): 깔끔한 흰색 카드 */
+    border-radius: 14px;
+    padding: 10px 12px;
     transition: opacity 0.25s ease;
   }
-  .ev-item.bg-purple { background: #F1ECFA; } /* 나이트메어 / 3단계 */
-  .ev-item.bg-yellow { background: #FBF5DC; } /* 노말 / 1단계 */
-  .ev-item.bg-pink { background: #FBECEB; }   /* 하드 / 2단계 */
+  .ev-item.bg-purple { background: #F2EEFA; border-color: transparent; } /* 나이트메어 / 3단계 */
+  .ev-item.bg-yellow { background: #FAF4DC; border-color: transparent; } /* 노말 / 1단계 */
+  .ev-item.bg-pink { background: #FAEDEB; border-color: transparent; }   /* 하드 / 2단계 */
 
   /* 🚀출발 체크 시 취소선 없이 카드 전체 흐림 */
   .ev-item.cleared { opacity: 0.45; }
 
-  .ev-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 8px; }
-  .ev-title-area { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0; cursor: pointer; }
-  .ev-title { font-size: 12.5px; font-weight: 800; color: #3D3836; line-height: 1.35; word-break: keep-all; }
+  .ev-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 7px; }
+  .ev-title-area { display: flex; align-items: center; gap: 5px; flex: 1; min-width: 0; cursor: pointer; }
+  .ev-title { font-size: 12px; font-weight: 800; color: #3D3836; line-height: 1.35; word-break: keep-all; }
 
   .acc-btn {
-    width: 17px; height: 17px; border-radius: 50%; border: none;
+    width: 16px; height: 16px; border-radius: 50%; border: none;
     background: rgba(255,255,255,0.92); color: #8A817C;
-    font-size: 9px; display: inline-flex; align-items: center; justify-content: center;
+    font-size: 8.5px; display: inline-flex; align-items: center; justify-content: center;
     cursor: pointer; flex-shrink: 0; transition: transform 0.2s ease;
   }
   .ev-item.open .acc-btn { transform: rotate(180deg); }
 
-  .ev-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-  .ev-time { font-size: 10.5px; font-weight: 700; color: #7C7470; background: rgba(255,255,255,0.92); padding: 2px 8px; border-radius: 999px; }
+  .ev-right { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+  .ev-time { font-size: 10px; font-weight: 700; color: #7C7470; background: rgba(255,255,255,0.92); padding: 2px 7px; border-radius: 999px; }
 
   /* 🚀출발 원클릭 체크박스 */
   .clear-check {
-    width: 17px; height: 17px; border-radius: 5px;
+    width: 16px; height: 16px; border-radius: 5px;
     border: 1.5px solid #E5A4B8; background: rgba(255,255,255,0.92);
     display: flex; align-items: center; justify-content: center;
     cursor: pointer; transition: all 0.15s ease; flex-shrink: 0;
@@ -125,57 +125,57 @@
   .clear-check svg { width: 10px; height: 10px; stroke: #FFFFFF; stroke-width: 2.8; fill: none; opacity: 0; }
   .clear-check.checked svg { opacity: 1; }
 
-  .ev-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .ev-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
 
-  /* 난이도 뱃지 색상 (image_c26e81.png 기준) */
-  .tag-diff { font-size: 10px; font-weight: 700; padding: 2.5px 8px; border-radius: 7px; background: #E3D6F7; color: #684E94; }
-  .tag-diff.normal { background: #F3E4B2; color: #7D6A3B; }
-  .tag-diff.hard { background: #F6D1D1; color: #8C4A4A; }
+  /* 2번 사진 난이도 뱃지 색상 */
+  .tag-diff { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 6px; background: #E4D8F8; color: #684E94; }
+  .tag-diff.normal { background: #F2E2B1; color: #7D6A3B; }
+  .tag-diff.hard { background: #F5D2D0; color: #8C4A4A; }
 
-  /* 숙련도 드롭다운 색상 (image_c26e81.png 기준) */
+  /* 2번 사진 숙련도 드롭다운 색상 */
   .prof-select {
     font-family: inherit; font-size: 10px; font-weight: 700;
-    background: #F4E0CF; color: #875A36;
-    border: none; border-radius: 7px; padding: 2.5px 8px; cursor: pointer; outline: none;
+    background: #F4DFCC; color: #875A36;
+    border: none; border-radius: 6px; padding: 2px 7px; cursor: pointer; outline: none;
   }
-  .prof-select.st-bansuk { background: #D3E6F8; color: #366494; }
-  .prof-select.st-clgyeong { background: #D6E9DD; color: #3A6B4C; }
-  .prof-select.st-try { background: #E6E5E4; color: #6B6866; }
+  .prof-select.st-bansuk { background: #D1E6F9; color: #366494; }
+  .prof-select.st-clgyeong { background: #D5E8DC; color: #3A6B4C; }
+  .prof-select.st-try { background: #E5E4E2; color: #6B6866; }
 
   /* 클릭 시 펼쳐지는 참여자 & 메모 서랍 */
   .ev-drawer {
     display: none;
-    margin-top: 10px;
-    padding-top: 10px;
+    margin-top: 9px;
+    padding-top: 9px;
     border-top: 1px solid rgba(155, 140, 175, 0.2);
   }
   .ev-item.open .ev-drawer { display: block; }
 
-  .role-group { margin-bottom: 10px; }
+  .role-group { margin-bottom: 9px; }
   .role-group:last-child { margin-bottom: 0; }
   .role-badge {
     display: inline-flex; align-items: center; gap: 4px;
-    font-size: 10.5px; font-weight: 800;
-    padding: 3px 9px; border-radius: 8px; margin-bottom: 6px;
+    font-size: 10px; font-weight: 800;
+    padding: 3px 8px; border-radius: 7px; margin-bottom: 6px;
   }
   .role-badge.dealer { background: #FADCE2; color: #B8526A; }
   .role-badge.supporter { background: #D5F2E1; color: #337D54; }
 
   .p-card {
     background: #FFFFFF;
-    border-radius: 12px;
-    padding: 9px 11px;
-    margin-bottom: 6px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.025);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    border-radius: 11px;
+    padding: 8px 10px;
+    margin-bottom: 5px;
   }
   .p-card:last-child { margin-bottom: 0; }
-  .p-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 3px; }
-  .p-name { font-size: 12px; font-weight: 800; color: #3D3836; }
-  .p-friend { font-size: 9.5px; font-weight: 700; color: #6B8BA4; background: #E8F1F8; padding: 1.5px 6px; border-radius: 5px; }
-  .p-spec { font-size: 10.5px; font-weight: 600; color: #7C7572; }
+  .p-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 2px; }
+  .p-name { font-size: 11.5px; font-weight: 800; color: #3D3836; }
+  .p-friend { font-size: 9px; font-weight: 700; color: #6B8BA4; background: #E8F1F8; padding: 1.5px 6px; border-radius: 5px; }
+  .p-spec { font-size: 10px; font-weight: 600; color: #7C7572; }
   .p-memo {
     display: inline-block; margin-top: 5px;
-    font-size: 10px; font-weight: 700; color: #8A6A46;
+    font-size: 9.5px; font-weight: 700; color: #8A6A46;
     background: #F9EFE2; padding: 2.5px 8px; border-radius: 6px;
   }
 
@@ -193,7 +193,7 @@
     background: rgba(255, 255, 255, 0.9);
     border-radius: 10px;
     padding: 7px 10px;
-    font-size: 10.5px;
+    font-size: 10px;
     color: #6B625F;
     line-height: 1.45;
     white-space: pre-wrap;
@@ -308,7 +308,6 @@
       const dow = new Date(year, month, d).getDay();
       const cell = document.createElement("div");
       cell.className = "day";
-      // 토요일(6), 일요일(0) 모두 붉은 파스텔 텍스트
       if (dow === 0 || dow === 6) cell.classList.add("weekend");
       if (eventDates.has(dateStr)) {
         cell.classList.add("has-event");
@@ -336,7 +335,6 @@
     return status === "🚀출발" || status === "출발" || status === "출발 완료" || status === "완료" || status === "클리어";
   }
 
-  // 난이도별 카드 배경색 매칭
   function getCardBgClass(diff) {
     if (!diff) return "";
     if (diff.includes("나이트") || diff.includes("3단계")) return "bg-purple";
@@ -358,7 +356,6 @@
     return "";
   }
 
-  // 1줄(닉네임) + 2줄(직업 | 템렙 | 전투력) + 3줄(ㄴ 메모) 한 사람 카드로 묶기
   function parseParticipantGroups(raw) {
     const text = (raw || "").trim();
     if (!text) return null;
@@ -529,7 +526,6 @@
       tags.appendChild(sel);
       card.appendChild(tags);
 
-      // 클릭 시 펼쳐지는 참여자 & 메모 서랍
       const drawer = document.createElement("div");
       drawer.className = "ev-drawer";
 
