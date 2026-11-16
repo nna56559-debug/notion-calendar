@@ -30,14 +30,14 @@
   .weekdays span.wknd { color: #E5A5B4; }
   .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 7px 3px; text-align: center; place-items: center; }
 
-  /* 1. 분홍 테두리가 살짝 위로 올라가도록 상단 패딩 축소 */
+  /* 1. 선택 분홍 테두리 상·하·좌·우 여백 간격 균일화 */
   .day-wrap {
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 2px 2.5px 4px;
+    padding: 3px 3px 3.5px;
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.15s ease;
@@ -82,8 +82,9 @@
   }
   .dot.empty { background: transparent; }
 
-  /* 2. 초기화 글씨 제거 후 우측 화살표만 깔끔하게 배치 */
+  /* 2. '초기화' 글씨만 빼고 D-1 00:21 숫자만 정중앙 배치 */
   .cal-footer {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -91,7 +92,17 @@
     margin-top: 14px;
     padding: 0 2px;
   }
-  .nav-btns { display: flex; align-items: center; gap: 6px; }
+  .reset-label {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 9.5px;
+    font-weight: 700;
+    color: #B5ABA8;
+    letter-spacing: 0.4px;
+    white-space: nowrap;
+  }
+  .nav-btns { display: flex; align-items: center; gap: 6px; position: relative; z-index: 1; }
   .nav-btn {
     border: none; background: transparent; color: #AED9EB; font-size: 12px; font-weight: 700;
     width: 18px; height: 18px; border-radius: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center;
@@ -232,6 +243,7 @@
     </div>
     <div class="days" id="daysGrid"></div>
     <div class="cal-footer">
+      <span class="reset-label" id="resetTimer" title="매주 수요일 06:00 주간 초기화">D-1</span>
       <div class="nav-btns">
         <button class="nav-btn" id="prevBtn" title="이전 달">←</button>
         <button class="nav-btn" id="refreshBtn" title="새로고침">↻</button>
@@ -267,6 +279,29 @@
     const day = String(d.getDate()).padStart(2, "0");
     return `${y}-${m}-${day}`;
   }
+
+  function updateResetTimer() {
+    const now = new Date();
+    const kstNow = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
+    const target = new Date(kstNow);
+    const day = kstNow.getDay();
+    let diffDays = (3 - day + 7) % 7;
+    if (diffDays === 0 && kstNow.getHours() >= 6) diffDays = 7;
+    target.setDate(kstNow.getDate() + diffDays);
+    target.setHours(6, 0, 0, 0);
+
+    const diffMs = target - kstNow;
+    const totalMins = Math.floor(diffMs / 60000);
+    const d = Math.floor(totalMins / 1440);
+    const h = String(Math.floor((totalMins % 1440) / 60)).padStart(2, "0");
+    const m = String(totalMins % 60).padStart(2, "0");
+
+    const el = document.getElementById("resetTimer");
+    // '초기화' 글씨만 빼고 D-1 00:21 만 표기
+    el.textContent = d > 0 ? `D-${d} ${h}:${m}` : `${h}:${m}`;
+  }
+  updateResetTimer();
+  setInterval(updateResetTimer, 30000);
 
   async function loadEvents() {
     try {
