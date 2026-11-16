@@ -8,117 +8,105 @@
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; background: transparent; width: 100%; overflow-x: hidden; }
   body { display: flex; justify-content: center; align-items: flex-start; padding: 6px; }
-  .wrap { width: 100%; max-width: 680px; display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; align-items: flex-start; }
+  .wrap { width: 100%; max-width: 680px; display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; align-items: flex-start; }
 
-  /* 기존 크림 웜 파스텔 + 핑크 테두리 카드 */
+  /* 기존 둥글고 뽀얀 파스텔 카드 (테두리 없이 부드러운 섀도우) */
   .card {
-    background: #FFF9FA;
-    border: 1.5px solid #FADADD;
-    border-radius: 24px;
-    padding: 20px 18px 16px;
-    box-shadow: 0 4px 16px rgba(244, 162, 184, 0.1);
+    background: #FFFDFB;
+    border-radius: 26px;
+    padding: 22px 20px 18px;
+    box-shadow: 0 8px 28px rgba(244, 182, 198, 0.16);
   }
-  .cal-card { flex: 1 1 280px; max-width: 315px; }
-  .detail-card { flex: 1 1 280px; max-width: 315px; min-height: 310px; display: flex; flex-direction: column; }
+  .cal-card { flex: 1 1 285px; max-width: 315px; }
+  .detail-card { flex: 1 1 285px; max-width: 325px; min-height: 330px; display: flex; flex-direction: column; }
 
-  /* 상단 월 타이틀 (가운데 정렬) */
-  .cal-header { text-align: center; margin-bottom: 14px; }
-  .month-title { font-size: 18px; font-weight: 800; color: #7CC0E4; letter-spacing: -0.3px; }
+  /* 달력 상단 월 타이틀 */
+  .cal-header { text-align: center; margin-bottom: 16px; }
+  .month-title { font-size: 18.5px; font-weight: 800; color: #A6D6EA; letter-spacing: -0.3px; }
 
   /* 요일 및 날짜 그리드 */
-  .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; margin-bottom: 8px; }
-  .weekdays span { font-size: 10.5px; font-weight: 700; color: #8AC4E2; }
-  .weekdays span:last-child { color: #E58C9E; }
-  .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px 3px; text-align: center; place-items: center; }
+  .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; margin-bottom: 10px; }
+  .weekdays span { font-size: 10.5px; font-weight: 700; color: #9ED0E6; }
+  .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 7px 4px; text-align: center; place-items: center; }
   .day {
-    position: relative; width: 32px; height: 32px;
+    position: relative; width: 31px; height: 31px;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    font-size: 11.5px; font-weight: 600; color: #5C5552; border-radius: 10px; cursor: pointer; transition: all 0.15s ease;
+    font-size: 11.5px; font-weight: 600; color: #635B58; border-radius: 9px; cursor: pointer; transition: all 0.15s ease;
   }
-  .day:hover { background: #FFF0F3; }
-  .day.muted { color: #C9C2BE; font-weight: 500; }
-  .day.sun { color: #D96B7E; }
+  .day:hover { background: #FFF2F5; }
+  .day.muted { color: #CFC8C4; font-weight: 500; }
+  .day.sun { color: #D47A8A; }
 
-  /* 일정 있는 날 (핑크) */
-  .day.has-event { background: #F497B6; color: #FFFFFF !important; font-weight: 700; }
+  /* 일정 있는 날 (파스텔 핑크) */
+  .day.has-event { background: #F5B0C4; color: #FFFFFF !important; font-weight: 700; }
 
-  /* ★ 당일 날짜 (하늘색 배경 + 흰 글씨) ★ */
+  /* 당일 날짜 (파스텔 하늘색) */
   .day.today {
-    background: #7CC0E4 !important;
+    background: #A4D7EB !important;
     color: #FFFFFF !important;
     font-weight: 800;
   }
 
-  /* 선택된 날짜 (핑크 이중 테두리) */
+  /* 선택된 날짜 (핑크 이중 링) */
   .day.selected {
-    outline: 2px solid #F497B6;
-    outline-offset: 2px;
+    outline: 1.5px solid #F2A3BA;
+    outline-offset: 2.5px;
   }
   .day.selected:not(.has-event):not(.today) {
-    background: #FFF0F3;
-    color: #D96B8A;
+    background: #FFF2F5;
+    color: #D97E96;
     font-weight: 800;
   }
 
-  .dot { position: absolute; bottom: 3px; width: 3.5px; height: 3.5px; border-radius: 50%; background: #7CC0E4; }
-  .day.has-event .dot { background: #BCE6FF; }
-  .day.today .dot { background: #FFFFFF; }
+  .dot { position: absolute; bottom: -5px; width: 3.5px; height: 3.5px; border-radius: 50%; background: #9ED0E6; }
 
-  /* 달력 하단 푸터 (기존 RAID CALENDAR 위치에 별빛 라벨) */
+  /* 하단 푸터: RAID CALENDAR 대신 초기화 카운트다운 배치 */
   .cal-footer {
-    display: flex; align-items: center; justify-content: flex-end; gap: 14px;
-    margin-top: 16px; padding: 10px 4px 0; border-top: 1px solid #F7E1E5;
+    display: flex; align-items: center; justify-content: flex-end; gap: 16px;
+    margin-top: 20px; padding: 0 4px;
   }
-  .deco-label { font-size: 10px; color: #C9A3B0; letter-spacing: 1px; font-weight: 600; }
-  .nav-btns { display: flex; align-items: center; gap: 6px; }
+  .reset-label { font-size: 10px; font-weight: 700; color: #B8AEAB; letter-spacing: 0.4px; }
+  .nav-btns { display: flex; align-items: center; gap: 8px; }
   .nav-btn {
-    border: none; background: transparent; color: #8AC4E2; font-size: 12px; font-weight: 700;
+    border: none; background: transparent; color: #A6D6EA; font-size: 12.5px; font-weight: 700;
     width: 20px; height: 20px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center;
   }
-  .nav-btn:hover { background: #FFF0F3; color: #D96B8A; }
+  .nav-btn:hover { background: #FFF2F5; color: #E58FA7; }
 
-  /* 우측 상세 카드 헤더 */
-  .detail-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; padding: 0 2px; gap: 6px; }
-  .detail-date { font-size: 13px; font-weight: 800; color: #7CC0E4; }
-  .header-badges { display: flex; align-items: center; gap: 5px; }
-  .reset-pill {
-    font-size: 9.5px; font-weight: 700; color: #B88A98;
-    background: #FFF0F3; border: 1px solid #FADADD;
-    padding: 2px 7px; border-radius: 999px; white-space: nowrap;
-  }
-  .count-badge { font-size: 10px; font-weight: 700; color: #E07A8E; background: #FFF0F3; padding: 2px 8px; border-radius: 999px; border: 1px solid #FADADD; white-space: nowrap; }
+  /* 우측 일정 상세 카드 */
+  .detail-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; padding: 0 2px; }
+  .detail-date { font-size: 13px; font-weight: 800; color: #8AC4E2; }
+  .count-badge { font-size: 10px; font-weight: 700; color: #E07A8E; background: #FFF0F3; padding: 2px 9px; border-radius: 999px; }
 
-  .event-list { display: flex; flex-direction: column; gap: 9px; flex: 1; }
-  .empty-msg { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #B8AFA9; text-align: center; padding: 20px 0; }
+  .event-list { display: flex; flex-direction: column; gap: 10px; flex: 1; }
+  .empty-msg { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #B8AFA9; text-align: center; padding: 24px 0; }
 
-  /* 일정 아이템 카드 (기존 파스텔 연보라 / 연하늘 테마) */
   .ev-item {
-    background: #F0ECF9;
-    border-radius: 15px;
-    padding: 11px 12px;
+    background: #F2EEF9;
+    border-radius: 16px;
+    padding: 12px 14px;
     transition: opacity 0.25s ease;
   }
-  .ev-item.alt { background: #E9F4FA; }
-  .ev-item.warm { background: #FCF5E8; }
+  .ev-item.alt { background: #EBF5FA; }
+  .ev-item.warm { background: #FCF6E8; }
   .ev-item.pink { background: #FCEEF3; }
-  /* 🚀출발 체크 시 취소선 없이 카드만 흐릿하게 */
-  .ev-item.cleared { opacity: 0.42; }
+  /* 🚀출발 체크 시 취소선 없이 카드 전체 흐림 */
+  .ev-item.cleared { opacity: 0.45; }
 
-  .ev-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 7px; }
-  .ev-title-area { display: flex; align-items: center; gap: 5px; flex: 1; min-width: 0; cursor: pointer; }
-  .ev-title { font-size: 12px; font-weight: 700; color: #4A4442; line-height: 1.35; word-break: keep-all; }
+  .ev-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 8px; }
+  .ev-title-area { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0; cursor: pointer; }
+  .ev-title { font-size: 12.5px; font-weight: 700; color: #4A4442; line-height: 1.35; word-break: keep-all; }
 
-  /* 기존 동그란 화살표 아코디언 버튼 */
   .acc-btn {
-    width: 16px; height: 16px; border-radius: 50%; border: none;
+    width: 17px; height: 17px; border-radius: 50%; border: none;
     background: rgba(255,255,255,0.9); color: #8A817C;
     font-size: 9px; display: inline-flex; align-items: center; justify-content: center;
     cursor: pointer; flex-shrink: 0; transition: transform 0.2s ease;
   }
   .ev-item.open .acc-btn { transform: rotate(180deg); }
 
-  .ev-right { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
-  .ev-time { font-size: 10px; font-weight: 700; color: #8A817C; background: rgba(255,255,255,0.9); padding: 2px 7px; border-radius: 999px; }
+  .ev-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+  .ev-time { font-size: 10.5px; font-weight: 700; color: #7C7470; background: rgba(255,255,255,0.9); padding: 2.5px 8px; border-radius: 999px; }
 
   /* 🚀출발 원클릭 체크박스 */
   .clear-check {
@@ -132,48 +120,78 @@
   .clear-check svg { width: 10px; height: 10px; stroke: #FFFFFF; stroke-width: 2.8; fill: none; opacity: 0; }
   .clear-check.checked svg { opacity: 1; }
 
-  .ev-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
-  .tag-diff { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 7px; background: #E3D7F7; color: #6E5499; }
-  .tag-diff.hard { background: #FADADD; color: #C25975; }
+  .ev-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 
-  /* 숙련도 드롭다운 (기존 베이지 / 하늘색 톤) */
+  /* 난이도 뱃지 색상 (캡처 기준: 노말/1단계 노랑, 하드/2단계 핑크, 나이트메어/3단계 보라) */
+  .tag-diff { font-size: 10px; font-weight: 700; padding: 2.5px 8px; border-radius: 7px; background: #E4D8F8; color: #6B5394; }
+  .tag-diff.normal { background: #F4E6BA; color: #7D6A3B; }
+  .tag-diff.hard { background: #F7D4D4; color: #8C4A4A; }
+
+  /* 숙련도 드롭다운 (캡처 기준: 숙제 살구, 반숙 하늘, 클경 민트, 트라이 회색) */
   .prof-select {
-    font-family: inherit; font-size: 10px; font-weight: 700; color: #7C6854;
-    background: #F4E4D0; border: none; border-radius: 7px; padding: 2px 7px; cursor: pointer; outline: none;
+    font-family: inherit; font-size: 10px; font-weight: 700;
+    background: #F4E0CF; color: #875A36;
+    border: none; border-radius: 7px; padding: 2.5px 8px; cursor: pointer; outline: none;
   }
-  .ev-item.alt .prof-select { background: #D8ECF8; color: #537891; }
+  .prof-select.st-bansuk { background: #D3E6F8; color: #366494; }
+  .prof-select.st-clgyeong { background: #D6E9DD; color: #3A6B4C; }
+  .prof-select.st-try { background: #E6E5E4; color: #6B6866; }
 
-  /* 클릭 시 펼쳐지는 참여자 & 메모 아코디언 */
+  /* 클릭 시 펼쳐지는 참여자 & 메모 서랍 (기존 카드 디자인 100% 복원) */
   .ev-drawer {
     display: none;
-    margin-top: 9px;
-    padding-top: 8px;
-    border-top: 1px dashed rgba(160, 145, 155, 0.25);
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(155, 140, 175, 0.2);
   }
   .ev-item.open .ev-drawer { display: block; }
 
-  .drawer-sec { margin-bottom: 6px; }
-  .drawer-sec:last-child { margin-bottom: 0; }
-  .drawer-label { font-size: 10px; font-weight: 800; color: #9B8B93; margin-bottom: 3px; }
-  .member-list { display: flex; flex-direction: column; gap: 3px; }
-  .member-row {
-    background: rgba(255, 255, 255, 0.78);
-    padding: 4px 8px;
-    border-radius: 8px;
-    font-size: 10.5px;
-    line-height: 1.4;
-    color: #554E4C;
-    word-break: keep-all;
+  .role-group { margin-bottom: 10px; }
+  .role-group:last-child { margin-bottom: 0; }
+  .role-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 10.5px; font-weight: 800;
+    padding: 3px 9px; border-radius: 8px; margin-bottom: 6px;
   }
-  .memo-box {
-    background: rgba(255, 255, 255, 0.78);
-    padding: 5px 8px;
-    border-radius: 8px;
+  .role-badge.dealer { background: #FADCE2; color: #B8526A; }
+  .role-badge.supporter { background: #D5F2E1; color: #337D54; }
+
+  .p-card {
+    background: #FFFFFF;
+    border-radius: 12px;
+    padding: 9px 11px;
+    margin-bottom: 6px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  }
+  .p-card:last-child { margin-bottom: 0; }
+  .p-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 3px; }
+  .p-name { font-size: 12px; font-weight: 800; color: #3D3836; }
+  .p-friend { font-size: 9.5px; font-weight: 700; color: #6B8BA4; background: #E8F1F8; padding: 1.5px 6px; border-radius: 5px; }
+  .p-spec { font-size: 10.5px; font-weight: 600; color: #7C7572; }
+  .p-memo {
+    display: inline-block; margin-top: 5px;
+    font-size: 10px; font-weight: 700; color: #8A6A46;
+    background: #F9EFE2; padding: 2.5px 8px; border-radius: 6px;
+  }
+
+  .empty-apply {
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 10px;
+    padding: 8px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #8E8580;
+    text-align: center;
+  }
+  .general-memo {
+    margin-top: 8px;
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 10px;
+    padding: 7px 10px;
     font-size: 10.5px;
-    line-height: 1.45;
     color: #6B625F;
+    line-height: 1.45;
     white-space: pre-wrap;
-    word-break: keep-all;
   }
 </style>
 </head>
@@ -188,7 +206,7 @@
     </div>
     <div class="days" id="daysGrid"></div>
     <div class="cal-footer">
-      <span class="deco-label">. ₊ ⊹ . ₊˖ . ₊</span>
+      <span class="reset-label" id="resetTimer" title="매주 수요일 06:00 주간 초기화">초기화 D-1</span>
       <div class="nav-btns">
         <button class="nav-btn" id="prevBtn" title="이전 달">←</button>
         <button class="nav-btn" id="refreshBtn" title="새로고침">↻</button>
@@ -200,10 +218,7 @@
   <div class="card detail-card">
     <div class="detail-header">
       <div class="detail-date" id="detailDate">-</div>
-      <div class="header-badges">
-        <span class="reset-pill" id="resetTimer" title="매주 수요일 오전 06:00 주간 초기화">초기화 D-1</span>
-        <span class="count-badge" id="countBadge">0건</span>
-      </div>
+      <div class="count-badge" id="countBadge">0건</div>
     </div>
     <div class="event-list" id="eventList">
       <div class="empty-msg">일정을 불러오는 중...</div>
@@ -214,7 +229,7 @@
 <script>
   const API_URL = "https://notion-cal.binhaha329.workers.dev";
   const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-  const PROF_OPTIONS = ["숙제", "반숙", "트라이", "클경", "학원", "숙련도 미지정"];
+  const PROF_OPTIONS = ["숙제", "반숙", "클경", "트라이"];
 
   let allEvents = [];
   let current = new Date();
@@ -315,14 +330,70 @@
     return status === "🚀출발" || status === "출발" || status === "출발 완료" || status === "완료" || status === "클리어";
   }
 
-  function parseMembers(raw) {
+  function getDiffClass(diff) {
+    if (diff.includes("노말") || diff.includes("1단계")) return "normal";
+    if (diff.includes("하드") || diff.includes("2단계")) return "hard";
+    return "";
+  }
+
+  function getProfClass(prof) {
+    if (prof === "반숙") return "st-bansuk";
+    if (prof === "클경") return "st-clgyeong";
+    if (prof === "트라이") return "st-try";
+    return "";
+  }
+
+  // 참여자 텍스트를 딜러 / 서포터 그룹과 개별 카드로 파싱
+  function renderParticipantGroups(raw) {
     const text = (raw || "").trim();
-    if (!text) return [];
-    if (text.includes("\n")) {
-      return text.split("\n").map(s => s.trim()).filter(Boolean);
-    }
-    const splitByPerson = text.replace(/(\d+(?:\.\d+)?)\s+(?=[가-힣a-zA-Z0-9]{2,}\s*(?:\(지인\))?\s*[가-힣]+\s*\|)/g, "$1\n");
-    return splitByPerson.split("\n").map(s => s.trim()).filter(Boolean);
+    if (!text) return null;
+
+    const groups = { dealer: [], supporter: [] };
+    let currentRole = "dealer";
+
+    // '딜러 3 ... 서포터 2 ...' 형태 또는 줄바꿈 형태 모두 대응
+    const tokens = text
+      .replace(/(딜러\s*\d*)/g, "\n$1\n")
+      .replace(/(서포터\s*\d*)/g, "\n$1\n")
+      .split("\n")
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    tokens.forEach(line => {
+      if (/^딜러\s*\d*$/.test(line)) {
+        currentRole = "dealer";
+        return;
+      }
+      if (/^서포터\s*\d*$/.test(line)) {
+        currentRole = "supporter";
+        return;
+      }
+
+      // 한 줄에 여러 명이 붙어있는 경우 분리 (전투력/레벨 숫자 뒤에 공백+닉네임 패턴)
+      const subLines = line
+        .replace(/(\d+(?:\.\d+)?)\s+(?=[가-힣a-zA-Z0-9]{2,}\s*(?:\(지인\))?\s*[가-힣]+\s*\|)/g, "$1\n")
+        .split("\n")
+        .map(s => s.trim())
+        .filter(Boolean);
+
+      subLines.forEach(item => {
+        const parts = item.split("|").map(p => p.trim());
+        const head = parts[0] || "";
+        const isFriend = head.includes("(지인)");
+        const cleanHead = head.replace("(지인)", "").trim();
+        const headWords = cleanHead.split(/\s+/);
+        const name = headWords[0] || cleanHead;
+        const job = headWords.slice(1).join(" ");
+
+        const ilvl = parts[1] || "";
+        const cp = parts[2] || "";
+        const memo = parts.slice(3).join(" | ");
+
+        groups[currentRole].push({ name, isFriend, job, ilvl, cp, memo });
+      });
+    });
+
+    return groups;
   }
 
   function renderDetails() {
@@ -405,13 +476,13 @@
 
       if (ev.difficulty) {
         const diff = document.createElement("span");
-        diff.className = `tag-diff${ev.difficulty.includes("하드") || ev.difficulty.includes("나이트") ? " hard" : ""}`;
+        diff.className = `tag-diff ${getDiffClass(ev.difficulty)}`;
         diff.textContent = ev.difficulty;
         tags.appendChild(diff);
       }
 
       const sel = document.createElement("select");
-      sel.className = "prof-select";
+      sel.className = `prof-select ${getProfClass(ev.proficiency)}`;
       const opts = PROF_OPTIONS.includes(ev.proficiency) ? PROF_OPTIONS : [ev.proficiency, ...PROF_OPTIONS];
       opts.forEach(opt => {
         const o = document.createElement("option");
@@ -422,6 +493,7 @@
       });
       sel.onchange = async () => {
         ev.proficiency = sel.value;
+        sel.className = `prof-select ${getProfClass(sel.value)}`;
         await fetch(API_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -431,49 +503,79 @@
       tags.appendChild(sel);
       card.appendChild(tags);
 
-      // 클릭 시 펼쳐지는 참여자 목록 & 메모 서랍
+      // 클릭 시 펼쳐지는 참여자 & 메모 영역
       const drawer = document.createElement("div");
       drawer.className = "ev-drawer";
 
-      const memSec = document.createElement("div");
-      memSec.className = "drawer-sec";
-      const memLabel = document.createElement("div");
-      memLabel.className = "drawer-label";
-      memLabel.textContent = "참여자 목록";
-      memSec.appendChild(memLabel);
+      const groups = renderParticipantGroups(ev.members);
+      const hasAnyMember = groups && (groups.dealer.length > 0 || groups.supporter.length > 0);
 
-      const memberRows = parseMembers(ev.members);
-      const listWrap = document.createElement("div");
-      listWrap.className = "member-list";
-
-      if (memberRows.length === 0) {
-        const emptyRow = document.createElement("div");
-        emptyRow.className = "member-row";
-        emptyRow.textContent = "신청없음";
-        listWrap.appendChild(emptyRow);
+      if (!hasAnyMember) {
+        const emptyEl = document.createElement("div");
+        emptyEl.className = "empty-apply";
+        emptyEl.textContent = "신청없음";
+        drawer.appendChild(emptyEl);
       } else {
-        memberRows.forEach(line => {
-          const row = document.createElement("div");
-          row.className = "member-row";
-          row.textContent = line;
-          listWrap.appendChild(row);
-        });
+        const buildGroup = (roleKey, labelText) => {
+          const list = groups[roleKey];
+          if (!list || list.length === 0) return;
+          const gWrap = document.createElement("div");
+          gWrap.className = "role-group";
+
+          const badge = document.createElement("div");
+          badge.className = `role-badge ${roleKey}`;
+          badge.textContent = `${labelText} ${list.length}`;
+          gWrap.appendChild(badge);
+
+          list.forEach(p => {
+            const pCard = document.createElement("div");
+            pCard.className = "p-card";
+
+            const pTop = document.createElement("div");
+            pTop.className = "p-top";
+            const pName = document.createElement("span");
+            pName.className = "p-name";
+            pName.textContent = p.name;
+            pTop.appendChild(pName);
+
+            if (p.isFriend) {
+              const fTag = document.createElement("span");
+              fTag.className = "p-friend";
+              fTag.textContent = "지인";
+              pTop.appendChild(fTag);
+            }
+            pCard.appendChild(pTop);
+
+            const specParts = [p.job, p.ilvl, p.cp].filter(Boolean);
+            if (specParts.length > 0) {
+              const pSpec = document.createElement("div");
+              pSpec.className = "p-spec";
+              pSpec.textContent = specParts.join(" | ");
+              pCard.appendChild(pSpec);
+            }
+
+            if (p.memo) {
+              const pMemo = document.createElement("div");
+              pMemo.className = "p-memo";
+              pMemo.textContent = `ㄴ ${p.memo}`;
+              pCard.appendChild(pMemo);
+            }
+
+            gWrap.appendChild(pCard);
+          });
+
+          drawer.appendChild(gWrap);
+        };
+
+        buildGroup("dealer", "⚔️ 딜러");
+        buildGroup("supporter", "💚 서포터");
       }
-      memSec.appendChild(listWrap);
-      drawer.appendChild(memSec);
 
       if ((ev.memo || "").trim()) {
-        const memoSec = document.createElement("div");
-        memoSec.className = "drawer-sec";
-        const memoLabel = document.createElement("div");
-        memoLabel.className = "drawer-label";
-        memoLabel.textContent = "메모";
-        const memoBox = document.createElement("div");
-        memoBox.className = "memo-box";
-        memoBox.textContent = ev.memo.trim();
-        memoSec.appendChild(memoLabel);
-        memoSec.appendChild(memoBox);
-        drawer.appendChild(memoSec);
+        const gMemo = document.createElement("div");
+        gMemo.className = "general-memo";
+        gMemo.textContent = ev.memo.trim();
+        drawer.appendChild(gMemo);
       }
 
       card.appendChild(drawer);
