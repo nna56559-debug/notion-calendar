@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; background: transparent; width: 100%; overflow-x: hidden; }
+  body { display: flex; justify-content: center; align-items: flex-start; padding: 6px; }
+
+  /* 캘린더와 동일한 크림 화이트 + 파스텔 핑크 테두리 */
+  .gal-card {
+    width: 100%;
+    max-width: 680px;
+    background: #fffcfd;
+    border: 1.5px solid #f2dce4;
+    border-radius: 22px;
+    padding: 16px 16px 18px;
+    box-shadow: 0 6px 20px rgba(235, 165, 190, 0.14);
+  }
+
+  .gal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 9px;
+    border-bottom: 1px dashed #eddce2;
+  }
+  .gal-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #8ec5d6;
+    letter-spacing: 0.3px;
+  }
+  .gal-badge {
+    font-size: 11px;
+    font-weight: 600;
+    background: #fce8ee;
+    color: #c46882;
+    padding: 3px 9px;
+    border-radius: 10px;
+  }
+
+  /* 완벽한 1:1 정사각형 5열 그리드 (모바일은 3열) */
+  .gal-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+  }
+  @media (max-width: 480px) {
+    .gal-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  }
+
+  .gal-item {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fdf2f5;
+    border: 1px solid #f5e1e8;
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+  .gal-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(235, 165, 190, 0.25);
+  }
+  .gal-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .gal-caption {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 14px 6px 5px;
+    background: linear-gradient(to top, rgba(45, 35, 40, 0.55), transparent);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    opacity: 0;
+    transition: opacity 0.18s ease;
+  }
+  .gal-item:hover .gal-caption { opacity: 1; }
+  .gal-empty {
+    text-align: center;
+    padding: 28px 0;
+    font-size: 12.5px;
+    color: #aaa;
+  }
+
+  /* 클릭 시 확대 팝업 (라이트박스) */
+  .lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(40, 32, 36, 0.65);
+    backdrop-filter: blur(3px);
+    z-index: 999;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+  }
+  .lightbox.open { display: flex; }
+  .lb-box {
+    background: #fffcfd;
+    border: 1.5px solid #f2dce4;
+    border-radius: 20px;
+    padding: 12px;
+    max-width: 90%;
+    max-height: 90%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  }
+  .lb-box img {
+    max-width: 100%;
+    max-height: 72vh;
+    border-radius: 12px;
+    object-fit: contain;
+  }
+  .lb-text {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #6fa8bc;
+  }
+</style>
+</head>
+<body>
+
+<div class="gal-card">
+  <div class="gal-header">
+    <span class="gal-title">Gallery Board</span>
+    <span class="gal-badge" id="photoCount">0장</span>
+  </div>
+  <div id="galContainer">
+    <div class="gal-empty">사진을 불러오는 중입니다...</div>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <div class="lb-box" onclick="event.stopPropagation()">
+    <img id="lbImg" src="" alt="">
+    <div class="lb-text" id="lbText"></div>
+  </div>
+</div>
+
+<script>
+  var WORKER_URL = "https://notion-cal.binhaha329.workers.dev";
+  var photoList = [];
+
+  function loadGallery() {
+    fetch(WORKER_URL + "/gallery?t=" + Date.now())
+      .then(function(res) { return res.json(); })
+      .then(function(list) {
+        photoList = Array.isArray(list) ? list : [];
+        document.getElementById("photoCount").textContent = photoList.length + "장";
+        var container = document.getElementById("galContainer");
+
+        if (!photoList.length) {
+          container.innerHTML = '<div class="gal-empty">등록된 사진이 없습니다. 노션 DB에 사진을 올려보세요!</div>';
+          return;
+        }
+
+        container.innerHTML = '<div class="gal-grid">' + photoList.map(function(p, idx) {
+          return '<div class="gal-item" onclick="openLightbox(' + idx + ')">' +
+            '<img src="' + p.url + '" alt="' + (p.title || "") + '" loading="lazy">' +
+            (p.title ? '<div class="gal-caption">' + p.title + '</div>' : '') +
+          '</div>';
+        }).join("") + '</div>';
+      })
+      .catch(function() {
+        document.getElementById("galContainer").innerHTML = '<div class="gal-empty">사진을 불러오지 못했습니다.</div>';
+      });
+  }
+
+  function openLightbox(idx) {
+    var p = photoList[idx];
+    if (!p) return;
+    document.getElementById("lbImg").src = p.url;
+    document.getElementById("lbText").textContent = p.title || "";
+    document.getElementById("lightbox").classList.add("open");
+  }
+
+  function closeLightbox() {
+    document.getElementById("lightbox").classList.remove("open");
+  }
+
+  loadGallery();
+</script>
+</body>
+</html>
