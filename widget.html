@@ -10,33 +10,36 @@
   body { display: flex; justify-content: center; align-items: flex-start; padding: 6px; }
   .wrap { width: 100%; max-width: 650px; display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; align-items: flex-start; }
 
+  /* 갤러리 바탕색과 동일한 순백색(#FFFFFF) 카드 배경 */
   .card {
-    background: #FDF8F9;
+    background: #FFFFFF;
     border: 1.5px solid #F9E5E9;
     border-radius: 24px;
-    padding: 22px 20px 18px;
-    box-shadow: 0 6px 22px rgba(244, 182, 198, 0.12);
+    padding: 20px 18px 16px;
+    box-shadow: 0 4px 18px rgba(244, 182, 198, 0.1);
   }
-  .cal-card { flex: 1 1 275px; max-width: 300px; }
-  .detail-card { flex: 1 1 285px; max-width: 320px; min-height: 336px; display: flex; flex-direction: column; }
+  .cal-card { flex: 1 1 275px; max-width: 298px; }
+  .detail-card { flex: 1 1 285px; max-width: 318px; min-height: 312px; display: flex; flex-direction: column; }
 
   /* 달력 상단 월 타이틀 */
-  .cal-header { text-align: center; margin-bottom: 18px; }
+  .cal-header { text-align: center; margin-bottom: 14px; }
   .month-title { font-size: 18px; font-weight: 800; color: #AED9EB; letter-spacing: -0.3px; }
 
-  /* 요일 및 날짜 */
-  .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; margin-bottom: 12px; }
+  /* 요일 및 날짜 간격 */
+  .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; margin-bottom: 8px; }
   .weekdays span { font-size: 10.5px; font-weight: 700; color: #AED9EB; }
-  .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 13px 4px; text-align: center; place-items: center; }
+  /* 주말 S S 어울리는 파스텔 로즈 핑크 */
+  .weekdays span.wknd { color: #E5A5B4; }
+  .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 7px 3px; text-align: center; place-items: center; }
 
-  /* 날짜 셀 래퍼 (2번째 사진처럼 점까지 감싸는 이중 링 구조) */
+  /* 날짜 셀 래퍼 (점까지 감싸는 이중 링 구조) */
   .day-wrap {
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 2px 2px 6px;
+    padding: 2px 2.5px 5px;
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.15s ease;
@@ -88,7 +91,7 @@
     align-items: center;
     justify-content: flex-end;
     height: 20px;
-    margin-top: 18px;
+    margin-top: 14px;
     padding: 0 2px;
   }
   .reset-label {
@@ -116,17 +119,17 @@
   .event-list { display: flex; flex-direction: column; gap: 9px; flex: 1; }
   .empty-msg { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 11.5px; color: #B8AFA9; text-align: center; padding: 20px 0; }
 
-  /* 갤러리/보드 뷰와 100% 맞춘 난이도별 카드 배경색 */
+  /* 갤러리/보드 뷰와 맞춘 난이도별 카드 배경색 */
   .ev-item {
     background: #FFFFFF;
-    border: 1px solid #EFECEB; /* 난이도 미지정(asd): 순백색 카드 */
+    border: 1px solid #EFECEB;
     border-radius: 14px;
     padding: 10px 12px;
     transition: opacity 0.25s ease;
   }
-  .ev-item.bg-purple { background: #F3EFFB; border-color: transparent; } /* 나이트메어 / 3단계 */
-  .ev-item.bg-yellow { background: #FBF5DD; border-color: transparent; } /* 노말 / 1단계 */
-  .ev-item.bg-pink { background: #FBECEB; border-color: transparent; }   /* 하드 / 2단계 */
+  .ev-item.bg-purple { background: #F3EFFB; border-color: transparent; }
+  .ev-item.bg-yellow { background: #FBF5DD; border-color: transparent; }
+  .ev-item.bg-pink { background: #FBECEB; border-color: transparent; }
   .ev-item.cleared { opacity: 0.45; }
 
   .ev-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 7px; }
@@ -158,12 +161,12 @@
 
   .ev-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
 
-  /* 갤러리 뷰 난이도 뱃지 색상 */
+  /* 난이도 뱃지 색상 */
   .tag-diff { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 6px; background: #E4D8F8; color: #684E94; }
   .tag-diff.normal { background: #F2E2B1; color: #7D6A3B; }
   .tag-diff.hard { background: #F5D2D0; color: #8C4A4A; }
 
-  /* 갤러리 뷰 숙련도 드롭다운 색상 */
+  /* 숙련도 드롭다운 색상 */
   .prof-select {
     font-family: inherit; font-size: 10px; font-weight: 700;
     background: #F4DFCC; color: #875A36;
@@ -238,7 +241,7 @@
       <div class="month-title" id="monthTitle">November</div>
     </div>
     <div class="weekdays">
-      <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+      <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span class="wknd">S</span><span class="wknd">S</span>
     </div>
     <div class="days" id="daysGrid"></div>
     <div class="cal-footer">
@@ -635,7 +638,7 @@
             if (p.memo) {
               const pMemo = document.createElement("div");
               pMemo.className = "p-memo";
-              pMemo.textContent = `ㄴ ${p.memo}`;
+              pMemo.textContent = p.memo;
               pCard.appendChild(pMemo);
             }
 
