@@ -7,169 +7,211 @@
   @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; background: transparent; width: 100%; overflow-x: hidden; }
-  body { display: flex; justify-content: center; align-items: flex-start; padding: 6px; }
+  body { padding: 6px; }
 
-  /* 상단 헤더 없이 깔끔한 크림 화이트 + 파스텔 핑크 테두리 카드 */
-  .gal-card {
+  .gallery-box {
     width: 100%;
-    max-width: 680px;
-    background: #fffcfd;
-    border: 1.5px solid #f2dce4;
+    background: #FFFDFB;
+    border: 1.5px solid #FADADD;
     border-radius: 22px;
     padding: 14px;
-    box-shadow: 0 6px 20px rgba(235, 165, 190, 0.14);
+    box-shadow: 0 6px 20px rgba(244, 162, 184, 0.14);
   }
 
-  /* 완벽한 1:1 정사각형 5열 그리드 (모바일은 3열) */
-  .gal-grid {
+  .grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
-  }
-  @media (max-width: 480px) {
-    .gal-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+    gap: 10px;
   }
 
-  .gal-item {
+  .thumb {
     position: relative;
-    width: 100%;
     aspect-ratio: 1 / 1;
-    border-radius: 12px;
+    border-radius: 14px;
     overflow: hidden;
-    background: #fdf2f5;
-    border: 1px solid #f5e1e8;
+    border: 1.5px solid #FCE4E8;
+    background: #FFF5F7;
     cursor: pointer;
     transition: transform 0.18s ease, box-shadow 0.18s ease;
   }
-  .gal-item:hover {
+  .thumb:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(235, 165, 190, 0.25);
+    box-shadow: 0 6px 14px rgba(244, 151, 182, 0.25);
   }
-  .gal-item img {
+  .thumb img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
   }
-  .gal-caption {
-    position: absolute;
-    left: 0; right: 0; bottom: 0;
-    padding: 14px 6px 5px;
-    background: linear-gradient(to top, rgba(45, 35, 40, 0.55), transparent);
-    color: #fff;
-    font-size: 10px;
-    font-weight: 600;
+
+  .empty {
     text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    opacity: 0;
-    transition: opacity 0.18s ease;
-  }
-  .gal-item:hover .gal-caption { opacity: 1; }
-  .gal-empty {
-    text-align: center;
-    padding: 24px 0;
-    font-size: 12.5px;
-    color: #b5a3a9;
+    font-size: 12px;
+    color: #B8AFA9;
+    padding: 28px 10px;
   }
 
-  /* 클릭 시 확대 팝업 (라이트박스) */
-  .lightbox {
+  /* 원본 크게 보기 모달 */
+  .modal {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(40, 32, 36, 0.65);
-    backdrop-filter: blur(3px);
+    background: rgba(65, 52, 56, 0.55);
+    backdrop-filter: blur(4px);
     z-index: 999;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     padding: 16px;
   }
-  .lightbox.open { display: flex; }
-  .lb-box {
-    background: #fffcfd;
-    border: 1.5px solid #f2dce4;
-    border-radius: 20px;
+  .modal.open { display: flex; }
+
+  .modal-card {
+    position: relative;
+    background: #FFFDFB;
+    border: 2px solid #FADADD;
+    border-radius: 22px;
     padding: 12px;
-    max-width: 90%;
-    max-height: 90%;
+    max-width: 92vw;
+    max-height: 90vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.2);
+    animation: popIn 0.18s ease;
   }
-  .lb-box img {
+  @keyframes popIn { from { transform: scale(0.94); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+  .modal-card img {
     max-width: 100%;
-    max-height: 72vh;
-    border-radius: 12px;
+    max-height: calc(90vh - 76px);
+    border-radius: 14px;
     object-fit: contain;
+    display: block;
   }
-  .lb-text {
+
+  .modal-info {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 10px;
+    padding: 0 4px;
+  }
+  .modal-title {
     font-size: 12.5px;
-    font-weight: 600;
-    color: #6fa8bc;
+    font-weight: 700;
+    color: #5C5552;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
+  .modal-date {
+    font-size: 11px;
+    font-weight: 700;
+    color: #D96B8A;
+    background: #FFF0F3;
+    border: 1px solid #FADADD;
+    padding: 2px 9px;
+    border-radius: 999px;
+    flex-shrink: 0;
+  }
+  .close-btn {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1.5px solid #FADADD;
+    background: rgba(255, 253, 251, 0.92);
+    color: #D96B8A;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .close-btn:hover { background: #FADADD; }
 </style>
 </head>
 <body>
-
-<div class="gal-card">
-  <div id="galContainer">
-    <div class="gal-empty">사진을 불러오는 중입니다...</div>
+  <div class="gallery-box">
+    <div id="content"><div class="empty">사진을 불러오는 중...</div></div>
   </div>
-</div>
 
-<div class="lightbox" id="lightbox" onclick="closeLightbox()">
-  <div class="lb-box" onclick="event.stopPropagation()">
-    <img id="lbImg" src="" alt="">
-    <div class="lb-text" id="lbText"></div>
+  <div class="modal" id="photoModal">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <button class="close-btn" id="closeModal" title="닫기">✕</button>
+      <img id="modalImg" src="" alt="원본 사진">
+      <div class="modal-info">
+        <div class="modal-title" id="modalTitle"></div>
+        <div class="modal-date" id="modalDate"></div>
+      </div>
+    </div>
   </div>
-</div>
 
 <script>
-  var WORKER_URL = "https://notion-cal.binhaha329.workers.dev";
-  var photoList = [];
+  const GALLERY_API = "https://notion-cal.binhaha329.workers.dev/gallery";
+  const modal = document.getElementById("photoModal");
+  const modalImg = document.getElementById("modalImg");
+  const modalTitle = document.getElementById("modalTitle");
+  const modalDate = document.getElementById("modalDate");
 
-  function loadGallery() {
-    fetch(WORKER_URL + "/gallery?t=" + Date.now())
-      .then(function(res) { return res.json(); })
-      .then(function(list) {
-        // url 속성이 실제로 존재하는 진짜 사진 항목만 필터링 (캘린더 일정 혼입 완벽 차단)
-        photoList = Array.isArray(list) ? list.filter(function(item) {
-          return item && typeof item.url === "string" && item.url.indexOf("http") === 0;
-        }) : [];
+  function openModal(item) {
+    modalImg.src = item.url;
+    modalTitle.textContent = item.title || "추억 기록";
+    if (item.date) {
+      modalDate.textContent = item.date;
+      modalDate.style.display = "inline-block";
+    } else {
+      modalDate.style.display = "none";
+    }
+    modal.classList.add("open");
+  }
 
-        var container = document.getElementById("galContainer");
+  function closeModal() {
+    modal.classList.remove("open");
+    modalImg.src = "";
+  }
 
-        if (!photoList.length) {
-          container.innerHTML = '<div class="gal-empty">노션 갤러리 DB에 사진을 올려보세요</div>';
-          return;
-        }
+  modal.onclick = closeModal;
+  document.getElementById("closeModal").onclick = closeModal;
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModal(); });
 
-        container.innerHTML = '<div class="gal-grid">' + photoList.map(function(p, idx) {
-          return '<div class="gal-item" onclick="openLightbox(' + idx + ')">' +
-            '<img src="' + p.url + '" alt="' + (p.title || "") + '" loading="lazy">' +
-            (p.title ? '<div class="gal-caption">' + p.title + '</div>' : '') +
-          '</div>';
-        }).join("") + '</div>';
-      })
-      .catch(function() {
-        document.getElementById("galContainer").innerHTML = '<div class="gal-empty">사진을 불러오지 못했습니다</div>';
+  async function loadGallery() {
+    const box = document.getElementById("content");
+    try {
+      const res = await fetch(GALLERY_API);
+      const photos = await res.json();
+
+      if (!Array.isArray(photos) || photos.length === 0) {
+        box.innerHTML = `<div class="empty">노션 갤러리 DB에 사진을 올려보세요</div>`;
+        return;
+      }
+
+      const grid = document.createElement("div");
+      grid.className = "grid";
+
+      photos.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "thumb";
+        const img = document.createElement("img");
+        img.src = item.url;
+        img.alt = item.title || "gallery";
+        img.loading = "lazy";
+        div.appendChild(img);
+        div.onclick = () => openModal(item);
+        grid.appendChild(div);
       });
-  }
 
-  function openLightbox(idx) {
-    var p = photoList[idx];
-    if (!p) return;
-    document.getElementById("lbImg").src = p.url;
-    document.getElementById("lbText").textContent = p.title || "";
-    document.getElementById("lightbox").classList.add("open");
-  }
-
-  function closeLightbox() {
-    document.getElementById("lightbox").classList.remove("open");
+      box.innerHTML = "";
+      box.appendChild(grid);
+    } catch (e) {
+      box.innerHTML = `<div class="empty">사진을 불러오지 못했습니다</div>`;
+    }
   }
 
   loadGallery();
