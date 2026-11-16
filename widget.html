@@ -8,94 +8,92 @@
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; background: transparent; width: 100%; overflow-x: hidden; }
   body { display: flex; justify-content: center; align-items: flex-start; padding: 6px; }
-  .wrap { width: 100%; max-width: 650px; display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; align-items: flex-start; }
+  .wrap { width: 100%; max-width: 650px; display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; align-items: flex-start; }
 
-  /* 1번 사진(033023_3)과 동일한 연분홍 실선 테두리 + 아담한 비율 */
+  /* 1번 사진과 동일한 연한 핑크빛 크림 파스텔 카드 */
   .card {
-    background: #FFFDFB;
-    border: 1.5px solid #F8DCE1;
-    border-radius: 22px;
-    padding: 18px 18px 14px;
-    box-shadow: 0 4px 16px rgba(244, 175, 192, 0.1);
+    background: #FDF8F9;
+    border: 1.5px solid #F9E5E9;
+    border-radius: 24px;
+    padding: 22px 20px 16px;
+    box-shadow: 0 6px 22px rgba(244, 182, 198, 0.12);
   }
-  .cal-card { flex: 1 1 265px; max-width: 285px; }
-  .detail-card { flex: 1 1 285px; max-width: 315px; min-height: 298px; display: flex; flex-direction: column; }
+  .cal-card { flex: 1 1 275px; max-width: 300px; }
+  .detail-card { flex: 1 1 285px; max-width: 320px; min-height: 332px; display: flex; flex-direction: column; }
 
-  /* 달력 상단 월 타이틀 (1번 사진 하늘색 톤) */
-  .cal-header { text-align: center; margin-bottom: 12px; }
-  .month-title { font-size: 17px; font-weight: 800; color: #7FC4E5; letter-spacing: -0.3px; }
+  /* 달력 상단 월 타이틀 (1번 사진 파우더 하늘색) */
+  .cal-header { text-align: center; margin-bottom: 18px; }
+  .month-title { font-size: 18px; font-weight: 800; color: #AED9EB; letter-spacing: -0.3px; }
 
-  /* 요일 및 날짜 (1번 사진처럼 여백 넉넉하고 슬림한 크기) */
-  .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; margin-bottom: 8px; }
-  .weekdays span { font-size: 10px; font-weight: 700; color: #7FC4E5; }
-  .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 7px 2px; text-align: center; place-items: center; }
+  /* 요일 및 날짜 (1번 사진의 작은 박스 + 넓은 날짜 간격) */
+  .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; margin-bottom: 12px; }
+  .weekdays span { font-size: 10.5px; font-weight: 700; color: #AED9EB; }
+  .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 13px 4px; text-align: center; place-items: center; }
   .day {
-    position: relative; width: 24px; height: 24px;
+    position: relative; width: 26px; height: 23px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 11px; font-weight: 600; color: #4A4442; border-radius: 7px; cursor: pointer; transition: all 0.15s ease;
+    font-size: 11px; font-weight: 600; color: #4A4442; border-radius: 6px; cursor: pointer; transition: all 0.15s ease;
   }
-  .day:hover { background: #FFF2F5; }
-  .day.muted { color: #C5BEBA; font-weight: 500; }
-  .day.weekend { color: #C96D7E; }
+  .day:hover { background: #FCEEF2; }
+  .day.muted { color: #B5AEAB; font-weight: 500; }
+  .day.weekend { color: #B85C6A; }
 
-  /* 일정 있는 날 (1번 사진 파스텔 핑크) */
-  .day.has-event { background: #F49BB8; color: #FFFFFF !important; font-weight: 700; }
+  /* 일정 있는 날 (1번 사진 밀키 베이비핑크) */
+  .day.has-event { background: #F6B4CA; color: #FFFFFF !important; font-weight: 700; }
 
-  /* 당일 날짜 (1번 사진 파스텔 하늘색) */
+  /* 당일 날짜 (1번 사진 22번처럼 파우더리 하늘색) */
   .day.today {
-    background: #84C7E6 !important;
+    background: #B0DFEF !important;
     color: #FFFFFF !important;
     font-weight: 800;
   }
 
-  /* 선택된 날짜 (1번 사진 핑크 이중 테두리) */
+  /* 선택된 날짜 (1번 사진 17번처럼 은은한 핑크 링) */
   .day.selected {
-    outline: 1.5px solid #F29AB6;
-    outline-offset: 2px;
-    border-radius: 8px;
+    outline: 1.5px solid #F6B4CA;
+    outline-offset: 2.5px;
+    border-radius: 7px;
   }
   .day.selected:not(.has-event):not(.today) {
-    background: #FFF2F5;
-    color: #D96B8A;
+    background: #FCEEF2;
+    color: #D97E96;
     font-weight: 800;
   }
 
-  .dot { position: absolute; bottom: -4.5px; width: 3px; height: 3px; border-radius: 50%; background: #7FC4E5; }
+  .dot { position: absolute; bottom: -5.5px; width: 3.5px; height: 3.5px; border-radius: 50%; background: #B0DFEF; }
 
-  /* 하단 푸터: RAID CALENDAR 대신 초기화 카운트다운 */
+  /* 하단 푸터 */
   .cal-footer {
     display: flex; align-items: center; justify-content: flex-end; gap: 14px;
-    margin-top: 16px; padding: 0 2px;
+    margin-top: 20px; padding: 0 2px;
   }
   .reset-label { font-size: 9.5px; font-weight: 700; color: #B5ABA8; letter-spacing: 0.3px; }
   .nav-btns { display: flex; align-items: center; gap: 7px; }
   .nav-btn {
-    border: none; background: transparent; color: #7FC4E5; font-size: 12px; font-weight: 700;
+    border: none; background: transparent; color: #AED9EB; font-size: 12px; font-weight: 700;
     width: 18px; height: 18px; border-radius: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center;
   }
-  .nav-btn:hover { background: #FFF2F5; color: #E58FA7; }
+  .nav-btn:hover { background: #FCEEF2; color: #E58FA7; }
 
   /* 우측 일정 상세 카드 */
   .detail-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding: 0 2px; }
-  .detail-date { font-size: 12.5px; font-weight: 800; color: #7FC4E5; }
+  .detail-date { font-size: 12.5px; font-weight: 800; color: #8AC8E4; }
   .count-badge { font-size: 10px; font-weight: 700; color: #E07A8E; background: #FFF0F3; padding: 2px 8px; border-radius: 999px; border: 1px solid #F8DCE1; }
 
   .event-list { display: flex; flex-direction: column; gap: 9px; flex: 1; }
   .empty-msg { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 11.5px; color: #B8AFA9; text-align: center; padding: 20px 0; }
 
-  /* ★ 2번 사진(043035) 난이도별 카드 배경색 100% 일치 ★ */
+  /* 난이도별 카드 배경색 */
   .ev-item {
     background: #FFFFFF;
-    border: 1px solid #EFECEB; /* 난이도 없음(asd): 깔끔한 흰색 카드 */
+    border: 1px solid #EFECEB;
     border-radius: 14px;
     padding: 10px 12px;
     transition: opacity 0.25s ease;
   }
-  .ev-item.bg-purple { background: #F2EEFA; border-color: transparent; } /* 나이트메어 / 3단계 */
-  .ev-item.bg-yellow { background: #FAF4DC; border-color: transparent; } /* 노말 / 1단계 */
-  .ev-item.bg-pink { background: #FAEDEB; border-color: transparent; }   /* 하드 / 2단계 */
-
-  /* 🚀출발 체크 시 취소선 없이 카드 전체 흐림 */
+  .ev-item.bg-purple { background: #F2EEFA; border-color: transparent; }
+  .ev-item.bg-yellow { background: #FAF4DC; border-color: transparent; }
+  .ev-item.bg-pink { background: #FAEDEB; border-color: transparent; }
   .ev-item.cleared { opacity: 0.45; }
 
   .ev-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 7px; }
@@ -121,18 +119,16 @@
     cursor: pointer; transition: all 0.15s ease; flex-shrink: 0;
   }
   .clear-check:hover { border-color: #D96B8A; }
-  .clear-check.checked { background: #F497B6; border-color: #F497B6; }
+  .clear-check.checked { background: #F6B4CA; border-color: #F6B4CA; }
   .clear-check svg { width: 10px; height: 10px; stroke: #FFFFFF; stroke-width: 2.8; fill: none; opacity: 0; }
   .clear-check.checked svg { opacity: 1; }
 
   .ev-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
 
-  /* 2번 사진 난이도 뱃지 색상 */
   .tag-diff { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 6px; background: #E4D8F8; color: #684E94; }
   .tag-diff.normal { background: #F2E2B1; color: #7D6A3B; }
   .tag-diff.hard { background: #F5D2D0; color: #8C4A4A; }
 
-  /* 2번 사진 숙련도 드롭다운 색상 */
   .prof-select {
     font-family: inherit; font-size: 10px; font-weight: 700;
     background: #F4DFCC; color: #875A36;
@@ -296,6 +292,7 @@
 
     const eventDates = new Set(allEvents.map(e => e.date));
 
+    // 이전 달 날짜
     for (let i = startOffset - 1; i >= 0; i--) {
       const cell = document.createElement("div");
       cell.className = "day muted";
@@ -303,6 +300,7 @@
       grid.appendChild(cell);
     }
 
+    // 이번 달 날짜
     for (let d = 1; d <= daysInMonth; d++) {
       const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
       const dow = new Date(year, month, d).getDay();
@@ -327,6 +325,16 @@
         renderCalendar();
         renderDetails();
       };
+      grid.appendChild(cell);
+    }
+
+    // 1번 사진처럼 6주(42칸)를 채워 다음 달 날짜 표시
+    const totalCells = startOffset + daysInMonth;
+    const nextDays = totalCells <= 35 ? (35 - totalCells) : (42 - totalCells);
+    for (let i = 1; i <= nextDays; i++) {
+      const cell = document.createElement("div");
+      cell.className = "day muted";
+      cell.textContent = i;
       grid.appendChild(cell);
     }
   }
