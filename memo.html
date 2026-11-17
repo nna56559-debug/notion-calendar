@@ -6,185 +6,52 @@
 <style>
   @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  html, body {
-    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: transparent;
-    width: 100%;
-    overflow-x: hidden;
-  }
-  body {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    padding: 6px;
-  }
+  html, body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; background: transparent; width: 100%; overflow-x: hidden; }
+  body { display: flex; justify-content: center; align-items: flex-start; padding: 6px; }
 
-  .board-wrap {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
-    align-items: flex-start;
-    width: 100%;
-    max-width: 350px;
-  }
+  .board-wrap { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: flex-start; width: 100%; max-width: 350px; }
+  .col-panel { width: 162px; border-radius: 22px; padding: 13px 10px 11px; display: flex; flex-direction: column; gap: 7px; }
+  .col-panel.pink { background: #FDF4F6; border: 1.5px solid #F9E5E9; box-shadow: 0 4px 14px rgba(244, 182, 198, 0.1); }
+  .col-panel.green { background: #F3F8F5; border: 1.5px solid #E1EFE6; box-shadow: 0 4px 14px rgba(164, 206, 180, 0.1); }
 
-  .col-panel {
-    width: 162px;
-    border-radius: 22px;
-    padding: 13px 10px 11px;
-    display: flex;
-    flex-direction: column;
-    gap: 7px;
-  }
-  .col-panel.pink {
-    background: #FDF4F6;
-    border: 1.5px solid #F9E5E9;
-    box-shadow: 0 4px 14px rgba(244, 182, 198, 0.1);
-  }
-  .col-panel.green {
-    background: #F3F8F5;
-    border: 1.5px solid #E1EFE6;
-    box-shadow: 0 4px 14px rgba(164, 206, 180, 0.1);
-  }
-
-  .col-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 2px 2px;
-  }
-  .col-badge {
-    font-size: 10px;
-    font-weight: 800;
-    padding: 2.5px 8px;
-    border-radius: 7px;
-  }
+  .col-head { display: flex; align-items: center; justify-content: space-between; padding: 0 2px 2px; }
+  .col-badge { font-size: 10px; font-weight: 800; padding: 2.5px 8px; border-radius: 7px; }
   .pink .col-badge { background: #F7D6E0; color: #9C4E65; }
   .green .col-badge { background: #D5E8DC; color: #3D6E50; }
 
-  .add-btn {
-    width: 20px;
-    height: 20px;
-    border-radius: 7px;
-    border: none;
-    background: rgba(255, 255, 255, 0.9);
-    font-size: 13px;
-    font-weight: 800;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.12s ease;
-  }
+  .add-btn { width: 20px; height: 20px; border-radius: 7px; border: none; background: rgba(255, 255, 255, 0.9); font-size: 13px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.12s ease; }
   .pink .add-btn { color: #D96B8A; }
   .green .add-btn { color: #4A8762; }
   .add-btn:hover { transform: scale(1.08); }
 
-  .card-list {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .m-card {
-    position: relative;
-    background: #FFFFFF;
-    border-radius: 13px;
-    padding: 8px 9px;
-    transition: all 0.15s ease;
-  }
+  .card-list { display: flex; flex-direction: column; gap: 6px; }
+  .m-card { position: relative; background: #FFFFFF; border-radius: 13px; padding: 8px 9px; transition: all 0.15s ease; }
   .pink .m-card { border: 1px solid #F6E2E7; }
   .green .m-card { border: 1px solid #E2EFE6; }
 
-  .m-top {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 4px;
-  }
-
-  .m-title {
-    flex: 1;
-    font-size: 11px;
-    font-weight: 800;
-    color: #4A4442;
-    line-height: 1.3;
-    word-break: break-all;
-    outline: none;
-    border-radius: 4px;
-    padding: 1px 2px;
-  }
+  .m-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 4px; }
+  .m-title { flex: 1; font-size: 11px; font-weight: 800; color: #4A4442; line-height: 1.3; word-break: break-all; outline: none; border-radius: 4px; padding: 1px 2px; }
   .m-title:focus { background: #FFF8FA; }
   .green .m-title:focus { background: #F4FBF6; }
 
-  .del-btn {
-    opacity: 0;
-    border: none;
-    background: transparent;
-    color: #B8AFA9;
-    font-size: 11px;
-    font-weight: 700;
-    cursor: pointer;
-    padding: 0 2px;
-    line-height: 1;
-    transition: opacity 0.15s ease;
-  }
+  .del-btn { opacity: 0; border: none; background: transparent; color: #B8AFA9; font-size: 11px; font-weight: 700; cursor: pointer; padding: 0 2px; line-height: 1; transition: opacity 0.15s ease; }
   .m-card:hover .del-btn { opacity: 1; }
   .del-btn:hover { color: #D96B8A; }
 
-  .m-note {
-    margin-top: 3px;
-    font-size: 9.5px;
-    font-weight: 600;
-    color: #8A817C;
-    line-height: 1.35;
-    word-break: keep-all;
-    outline: none;
-    border-radius: 4px;
-    padding: 1px 2px;
-    min-height: 14px;
-  }
-  .m-note:empty::before {
-    content: "메모 입력...";
-    color: #CBC4C0;
-    font-weight: 500;
-  }
+  .m-note { margin-top: 3px; font-size: 9.5px; font-weight: 600; color: #8A817C; line-height: 1.35; word-break: keep-all; outline: none; border-radius: 4px; padding: 1px 2px; min-height: 14px; }
+  .m-note:empty::before { content: "메모 입력..."; color: #CBC4C0; font-weight: 500; }
   .m-note:focus { background: #F9F7F6; color: #5C5350; }
-
-  .empty-txt {
-    text-align: center;
-    font-size: 10px;
-    color: #B5AEAB;
-    padding: 12px 0;
-  }
-  .warn-banner {
-    width: 100%;
-    text-align: center;
-    font-size: 9.5px;
-    font-weight: 700;
-    color: #C95B7A;
-    background: #FFF0F4;
-    border: 1px solid #F7D6E0;
-    border-radius: 10px;
-    padding: 6px 8px;
-    display: none;
-  }
-  .warn-banner.show { display: block; }
+  .empty-txt { text-align: center; font-size: 10px; color: #B5AEAB; padding: 12px 0; }
 </style>
 </head>
 <body>
 <div class="board-wrap">
-  <div class="warn-banner" id="warnBanner">노션 '잊지말기' DB에 연결(Integration)을 추가해 주세요!</div>
-
   <div class="col-panel pink">
     <div class="col-head">
       <span class="col-badge">쿠폰</span>
       <button type="button" class="add-btn" onclick="createItem('쿠폰')" title="쿠폰 추가">+</button>
     </div>
-    <div class="card-list" id="list-coupon">
-      <div class="empty-txt">불러오는 중...</div>
-    </div>
+    <div class="card-list" id="list-coupon"></div>
   </div>
 
   <div class="col-panel green">
@@ -192,26 +59,47 @@
       <span class="col-badge">교환</span>
       <button type="button" class="add-btn" onclick="createItem('교환')" title="교환 추가">+</button>
     </div>
-    <div class="card-list" id="list-exchange">
-      <div class="empty-txt">불러오는 중...</div>
-    </div>
+    <div class="card-list" id="list-exchange"></div>
   </div>
 </div>
 
 <script>
   const API_URL = "https://notion-cal.binhaha329.workers.dev/memo";
-  let memoItems = [];
+  const STORAGE_KEY = "lostark_memo_backup_v1";
 
-  async function loadMemos() {
+  const DEFAULT_ITEMS = [
+    { pageId: "init-1", title: "1029라이브방송보상", group: "쿠폰", note: "~ 2026.12.23" },
+    { pageId: "init-2", title: "8주년감사의선물", group: "쿠폰", note: "~ 2027.03.03" },
+    { pageId: "init-3", title: "보석", group: "교환", note: "쿠르잔/림레이크 앞바다 10~15 , 40~45(분)" },
+    { pageId: "init-4", title: "혈석", group: "교환", note: "" },
+    { pageId: "init-5", title: "싱글", group: "교환", note: "" }
+  ];
+
+  function loadLocal() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return DEFAULT_ITEMS;
+  }
+
+  function saveLocal(items) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); } catch (e) {}
+  }
+
+  let memoItems = loadLocal();
+
+  async function initMemos() {
+    renderBoards();
     try {
       const res = await fetch(API_URL);
       const data = await res.json();
-      document.getElementById("warnBanner").classList.toggle("show", data.ok === false);
-      memoItems = data.items || [];
-    } catch (e) {
-      memoItems = [];
-    }
-    renderBoards();
+      if (data.ok && Array.isArray(data.items) && data.items.length > 0) {
+        memoItems = data.items;
+        saveLocal(memoItems);
+        renderBoards();
+      }
+    } catch (e) {}
   }
 
   function buildCard(item) {
@@ -225,19 +113,14 @@
     titleEl.className = "m-title";
     titleEl.contentEditable = "true";
     titleEl.textContent = item.title || "새 항목";
-    titleEl.onkeydown = (e) => {
-      if (e.key === "Enter") { e.preventDefault(); titleEl.blur(); }
-    };
+    titleEl.onkeydown = (e) => { if (e.key === "Enter") { e.preventDefault(); titleEl.blur(); } };
     titleEl.onblur = async () => {
       const nextVal = titleEl.textContent.trim();
       if (nextVal && nextVal !== item.title) {
         item.title = nextVal;
-        if (!String(item.pageId).startsWith("temp-")) {
-          await fetch(API_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: "update", pageId: item.pageId, title: nextVal })
-          });
+        saveLocal(memoItems);
+        if (!String(item.pageId).startsWith("init-") && !String(item.pageId).startsWith("temp-")) {
+          fetch(API_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "update", pageId: item.pageId, title: nextVal }) }).catch(() => {});
         }
       }
     };
@@ -246,16 +129,12 @@
     delBtn.type = "button";
     delBtn.className = "del-btn";
     delBtn.textContent = "×";
-    delBtn.title = "삭제";
-    delBtn.onclick = async () => {
+    delBtn.onclick = () => {
       memoItems = memoItems.filter(m => m.pageId !== item.pageId);
+      saveLocal(memoItems);
       renderBoards();
-      if (!String(item.pageId).startsWith("temp-")) {
-        await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "delete", pageId: item.pageId })
-        });
+      if (!String(item.pageId).startsWith("init-") && !String(item.pageId).startsWith("temp-")) {
+        fetch(API_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "delete", pageId: item.pageId }) }).catch(() => {});
       }
     };
 
@@ -266,19 +145,14 @@
     noteEl.className = "m-note";
     noteEl.contentEditable = "true";
     noteEl.textContent = item.note || "";
-    noteEl.onkeydown = (e) => {
-      if (e.key === "Enter") { e.preventDefault(); noteEl.blur(); }
-    };
+    noteEl.onkeydown = (e) => { if (e.key === "Enter") { e.preventDefault(); noteEl.blur(); } };
     noteEl.onblur = async () => {
       const nextNote = noteEl.textContent.trim();
       if (nextNote !== item.note) {
         item.note = nextNote;
-        if (!String(item.pageId).startsWith("temp-")) {
-          await fetch(API_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: "update", pageId: item.pageId, note: nextNote })
-          });
+        saveLocal(memoItems);
+        if (!String(item.pageId).startsWith("init-") && !String(item.pageId).startsWith("temp-")) {
+          fetch(API_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "update", pageId: item.pageId, note: nextNote }) }).catch(() => {});
         }
       }
     };
@@ -291,7 +165,6 @@
   function renderBoards() {
     const couponBox = document.getElementById("list-coupon");
     const exchangeBox = document.getElementById("list-exchange");
-
     const coupons = memoItems.filter(i => i.group.includes("쿠폰"));
     const exchanges = memoItems.filter(i => !i.group.includes("쿠폰"));
 
@@ -305,29 +178,20 @@
   async function createItem(groupName) {
     const tempItem = { pageId: "temp-" + Date.now(), title: "새 항목", group: groupName, note: "" };
     memoItems.push(tempItem);
+    saveLocal(memoItems);
     renderBoards();
 
     try {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "create", title: tempItem.title, group: groupName, note: tempItem.note })
-      });
+      const res = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "create", title: tempItem.title, group: groupName, note: tempItem.note }) });
       const data = await res.json();
       if (data.ok && data.pageId) {
         tempItem.pageId = data.pageId;
-        await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "update", pageId: tempItem.pageId, title: tempItem.title, note: tempItem.note })
-        });
-      } else {
-        document.getElementById("warnBanner").classList.add("show");
+        saveLocal(memoItems);
       }
     } catch (e) {}
   }
 
-  loadMemos();
+  initMemos();
 </script>
 </body>
 </html>
