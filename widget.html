@@ -8,7 +8,17 @@
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; background: transparent; width: 100%; overflow-x: hidden; }
   body { display: flex; justify-content: center; align-items: flex-start; padding: 6px; }
-  .wrap { width: 100%; max-width: 650px; display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; align-items: flex-start; }
+
+  /* 3단 레이아웃: 캘린더 / 레이드일정 / 참여자목록 */
+  .wrap {
+    width: 100%;
+    max-width: 960px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: center;
+    align-items: flex-start;
+  }
 
   .card {
     background: #FFFFFF;
@@ -17,8 +27,9 @@
     padding: 20px 18px 16px;
     box-shadow: 0 4px 18px rgba(244, 182, 198, 0.1);
   }
-  .cal-card { flex: 1 1 275px; max-width: 298px; }
-  .detail-card { flex: 1 1 285px; max-width: 318px; min-height: 312px; display: flex; flex-direction: column; }
+  .cal-card { flex: 1 1 268px; max-width: 292px; }
+  .detail-card { flex: 1 1 275px; max-width: 305px; min-height: 312px; display: flex; flex-direction: column; }
+  .member-card { flex: 1 1 275px; max-width: 305px; min-height: 312px; display: flex; flex-direction: column; }
 
   /* 달력 상단 월 타이틀 */
   .cal-header { text-align: center; margin-bottom: 14px; }
@@ -30,7 +41,7 @@
   .weekdays span.wknd { color: #E5A5B4; }
   .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 7px 3px; text-align: center; place-items: center; }
 
-  /* 1 & 2. 분홍 박스·하늘 박스 선택 테두리 상하좌우 간격 동일 통일 */
+  /* 선택 분홍 테두리 간격 */
   .day-wrap {
     position: relative;
     display: flex;
@@ -73,7 +84,7 @@
     font-weight: 800;
   }
 
-  /* 링 안쪽 하단에 자리 잡는 하늘색 점 */
+  /* 링 안쪽 하단 하늘색 점 */
   .dot {
     width: 3.5px; height: 3.5px;
     border-radius: 50%;
@@ -82,7 +93,7 @@
   }
   .dot.empty { background: transparent; }
 
-  /* 3. '초기화' 글씨만 빼고 디데이 숫자만 정중앙 배치 */
+  /* 디데이 숫자 정중앙 + 우측 화살표 */
   .cal-footer {
     position: relative;
     display: flex;
@@ -109,38 +120,48 @@
   }
   .nav-btn:hover { background: #FCEEF2; color: #E58FA7; }
 
-  /* 우측 일정 상세 카드 */
-  .detail-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding: 0 2px; }
-  .detail-date { font-size: 12.5px; font-weight: 800; color: #8AC8E4; }
-  .count-badge { font-size: 10px; font-weight: 700; color: #E07A8E; background: #FFF0F3; padding: 2px 8px; border-radius: 999px; border: 1px solid #F8DCE1; }
+  /* 2열(레이드 일정) & 3열(참여자 목록) 공통 헤더 */
+  .detail-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding: 0 2px; gap: 6px; }
+  .detail-date { font-size: 12.5px; font-weight: 800; color: #8AC8E4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .count-badge { font-size: 10px; font-weight: 700; color: #E07A8E; background: #FFF0F3; padding: 2px 8px; border-radius: 999px; border: 1px solid #F8DCE1; flex-shrink: 0; }
 
   .event-list { display: flex; flex-direction: column; gap: 9px; flex: 1; }
   .empty-msg { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 11.5px; color: #B8AFA9; text-align: center; padding: 20px 0; }
 
-  /* 갤러리/보드 뷰와 맞춘 난이도별 카드 배경색 */
+  /* 2열: 레이드 일정 카드 */
   .ev-item {
     background: #FFFFFF;
-    border: 1px solid #EFECEB;
+    border: 1.5px solid #EFECEB;
     border-radius: 14px;
     padding: 10px 12px;
-    transition: opacity 0.25s ease;
+    cursor: pointer;
+    transition: all 0.18s ease;
   }
   .ev-item.bg-purple { background: #F3EFFB; border-color: transparent; }
   .ev-item.bg-yellow { background: #FBF5DD; border-color: transparent; }
   .ev-item.bg-pink { background: #FBECEB; border-color: transparent; }
   .ev-item.cleared { opacity: 0.45; }
 
+  /* 선택된 레이드 강조 테두리 */
+  .ev-item.active-raid {
+    border-color: #F49BB8 !important;
+    box-shadow: 0 2px 10px rgba(244, 155, 184, 0.22);
+  }
+
   .ev-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 7px; }
-  .ev-title-area { display: flex; align-items: center; gap: 5px; flex: 1; min-width: 0; cursor: pointer; }
+  .ev-title-area { display: flex; align-items: center; gap: 5px; flex: 1; min-width: 0; }
   .ev-title { font-size: 12px; font-weight: 800; color: #3D3836; line-height: 1.35; word-break: keep-all; }
 
-  .acc-btn {
-    width: 16px; height: 16px; border-radius: 50%; border: none;
-    background: rgba(255,255,255,0.92); color: #8A817C;
-    font-size: 8.5px; display: inline-flex; align-items: center; justify-content: center;
-    cursor: pointer; flex-shrink: 0; transition: transform 0.2s ease;
+  .arrow-hint {
+    font-size: 10px;
+    font-weight: 800;
+    color: #B8AFA9;
+    transition: transform 0.15s ease, color 0.15s ease;
   }
-  .ev-item.open .acc-btn { transform: rotate(180deg); }
+  .ev-item.active-raid .arrow-hint {
+    color: #E57A9B;
+    transform: translateX(2px);
+  }
 
   .ev-right { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
   .ev-time { font-size: 10px; font-weight: 700; color: #7C7470; background: rgba(255,255,255,0.92); padding: 2px 7px; border-radius: 999px; }
@@ -174,17 +195,15 @@
   .prof-select.st-clgyeong { background: #D5E8DC; color: #3A6B4C; }
   .prof-select.st-try { background: #E5E4E2; color: #6B6866; }
 
-  /* 클릭 시 펼쳐지는 참여자 & 메모 서랍 */
-  .ev-drawer {
-    display: none;
-    margin-top: 9px;
-    padding-top: 9px;
-    border-top: 1px solid rgba(155, 140, 175, 0.2);
+  /* 3열: 참여자 목록 & 메모 패널 */
+  .member-body {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    flex: 1;
   }
-  .ev-item.open .ev-drawer { display: block; }
 
-  .role-group { margin-bottom: 9px; }
-  .role-group:last-child { margin-bottom: 0; }
+  .role-group { margin-bottom: 2px; }
   .role-badge {
     display: inline-flex; align-items: center; gap: 4px;
     font-size: 10px; font-weight: 800;
@@ -194,8 +213,8 @@
   .role-badge.supporter { background: #D5F2E1; color: #337D54; }
 
   .p-card {
-    background: #FFFFFF;
-    border: 1px solid rgba(0, 0, 0, 0.04);
+    background: #FDFBFC;
+    border: 1px solid #F5E6EA;
     border-radius: 11px;
     padding: 8px 10px;
     margin-bottom: 5px;
@@ -212,19 +231,20 @@
   }
 
   .empty-apply {
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 10px;
-    padding: 8px 10px;
+    background: #FDF8F9;
+    border: 1px dashed #F3D9E0;
+    border-radius: 11px;
+    padding: 12px 10px;
     font-size: 11px;
     font-weight: 600;
-    color: #8E8580;
+    color: #9E9390;
     text-align: center;
   }
   .general-memo {
-    margin-top: 8px;
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 10px;
-    padding: 7px 10px;
+    background: #FDF8F9;
+    border: 1px solid #F5E6EA;
+    border-radius: 11px;
+    padding: 8px 10px;
     font-size: 10px;
     color: #6B625F;
     line-height: 1.45;
@@ -234,6 +254,7 @@
 </head>
 <body>
 <div class="wrap">
+  <!-- 1열: 캘린더 -->
   <div class="card cal-card">
     <div class="cal-header">
       <div class="month-title" id="monthTitle">November</div>
@@ -252,6 +273,7 @@
     </div>
   </div>
 
+  <!-- 2열: 레이드 일정 -->
   <div class="card detail-card">
     <div class="detail-header">
       <div class="detail-date" id="detailDate">-</div>
@@ -259,6 +281,17 @@
     </div>
     <div class="event-list" id="eventList">
       <div class="empty-msg">일정을 불러오는 중...</div>
+    </div>
+  </div>
+
+  <!-- 3열: 선택된 레이드의 참여자 목록 -->
+  <div class="card member-card">
+    <div class="detail-header">
+      <div class="detail-date" id="memberHeaderTitle">참여자 목록</div>
+      <div class="count-badge" id="memberCountBadge">0명</div>
+    </div>
+    <div class="member-body" id="memberBody">
+      <div class="empty-msg">레이드를 선택해 주세요</div>
     </div>
   </div>
 </div>
@@ -272,6 +305,7 @@
   let current = new Date();
   const todayStr = formatDate(new Date());
   let selectedDate = todayStr;
+  let selectedPageId = null;
 
   function formatDate(d) {
     const y = d.getFullYear();
@@ -366,6 +400,7 @@
 
       wrap.onclick = () => {
         selectedDate = dateStr;
+        selectedPageId = null;
         renderCalendar();
         renderDetails();
       };
@@ -478,6 +513,95 @@
     return groups;
   }
 
+  /* 3열: 선택된 레이드의 참여자 목록 렌더링 */
+  function renderMembers(ev) {
+    const headerTitle = document.getElementById("memberHeaderTitle");
+    const countBadge = document.getElementById("memberCountBadge");
+    const bodyEl = document.getElementById("memberBody");
+
+    if (!ev) {
+      headerTitle.textContent = "참여자 목록";
+      countBadge.textContent = "0명";
+      bodyEl.innerHTML = `<div class="empty-msg">레이드를 선택해 주세요</div>`;
+      return;
+    }
+
+    headerTitle.textContent = ev.title;
+    bodyEl.innerHTML = "";
+
+    const groups = parseParticipantGroups(ev.members);
+    const totalCount = groups ? (groups.dealer.length + groups.supporter.length) : 0;
+    countBadge.textContent = `${totalCount}명`;
+
+    if (totalCount === 0) {
+      const emptyEl = document.createElement("div");
+      emptyEl.className = "empty-apply";
+      emptyEl.textContent = "신청없음";
+      bodyEl.appendChild(emptyEl);
+    } else {
+      const buildGroup = (roleKey, labelText) => {
+        const list = groups[roleKey];
+        if (!list || list.length === 0) return;
+        const gWrap = document.createElement("div");
+        gWrap.className = "role-group";
+
+        const badge = document.createElement("div");
+        badge.className = `role-badge ${roleKey}`;
+        badge.textContent = `${labelText} ${list.length}`;
+        gWrap.appendChild(badge);
+
+        list.forEach(p => {
+          const pCard = document.createElement("div");
+          pCard.className = "p-card";
+
+          const pTop = document.createElement("div");
+          pTop.className = "p-top";
+          const pName = document.createElement("span");
+          pName.className = "p-name";
+          pName.textContent = p.name;
+          pTop.appendChild(pName);
+
+          if (p.isFriend) {
+            const fTag = document.createElement("span");
+            fTag.className = "p-friend";
+            fTag.textContent = "지인";
+            pTop.appendChild(fTag);
+          }
+          pCard.appendChild(pTop);
+
+          if (p.spec) {
+            const pSpec = document.createElement("div");
+            pSpec.className = "p-spec";
+            pSpec.textContent = p.spec;
+            pCard.appendChild(pSpec);
+          }
+
+          if (p.memo) {
+            const pMemo = document.createElement("div");
+            pMemo.className = "p-memo";
+            pMemo.textContent = p.memo;
+            pCard.appendChild(pMemo);
+          }
+
+          gWrap.appendChild(pCard);
+        });
+
+        bodyEl.appendChild(gWrap);
+      };
+
+      buildGroup("dealer", "⚔️ 딜러");
+      buildGroup("supporter", "💚 서포터");
+    }
+
+    if ((ev.memo || "").trim()) {
+      const gMemo = document.createElement("div");
+      gMemo.className = "general-memo";
+      gMemo.textContent = ev.memo.trim();
+      bodyEl.appendChild(gMemo);
+    }
+  }
+
+  /* 2열: 해당 날짜 레이드 목록 렌더링 */
   function renderDetails() {
     document.getElementById("detailDate").textContent = selectedDate;
     const listEl = document.getElementById("eventList");
@@ -486,15 +610,29 @@
 
     if (dayEvents.length === 0) {
       listEl.innerHTML = `<div class="empty-msg">선택한 날짜에 일정이 없어요</div>`;
+      renderMembers(null);
       return;
+    }
+
+    // 현재 선택된 레이드가 목록에 없으면 첫 번째 레이드 자동 선택
+    if (!selectedPageId || !dayEvents.some(e => e.pageId === selectedPageId)) {
+      selectedPageId = dayEvents[0].pageId;
     }
 
     listEl.innerHTML = "";
 
     dayEvents.forEach((ev) => {
       const cleared = isClearedStatus(ev.status);
+      const isSelected = ev.pageId === selectedPageId;
+
       const card = document.createElement("div");
-      card.className = `ev-item ${getCardBgClass(ev.difficulty)}${cleared ? " cleared" : ""}`;
+      card.className = `ev-item ${getCardBgClass(ev.difficulty)}${cleared ? " cleared" : ""}${isSelected ? " active-raid" : ""}`;
+
+      // 레이드 카드 클릭 시 오른쪽 3열에 참여자 목록 표시
+      card.onclick = () => {
+        selectedPageId = ev.pageId;
+        renderDetails();
+      };
 
       const top = document.createElement("div");
       top.className = "ev-top";
@@ -506,15 +644,12 @@
       title.className = "ev-title";
       title.textContent = ev.title;
 
-      const accBtn = document.createElement("button");
-      accBtn.type = "button";
-      accBtn.className = "acc-btn";
-      accBtn.textContent = "▾";
-      accBtn.title = "참여자 및 메모 펼치기";
+      const arrowHint = document.createElement("span");
+      arrowHint.className = "arrow-hint";
+      arrowHint.textContent = "›";
 
       titleArea.appendChild(title);
-      titleArea.appendChild(accBtn);
-      titleArea.onclick = () => card.classList.toggle("open");
+      titleArea.appendChild(arrowHint);
 
       const rightBox = document.createElement("div");
       rightBox.className = "ev-right";
@@ -572,7 +707,9 @@
         if (opt === ev.proficiency) o.selected = true;
         sel.appendChild(o);
       });
-      sel.onchange = async () => {
+      sel.onclick = (e) => e.stopPropagation();
+      sel.onchange = async (e) => {
+        e.stopPropagation();
         ev.proficiency = sel.value;
         sel.className = `prof-select ${getProfClass(sel.value)}`;
         await fetch(API_URL, {
@@ -584,82 +721,11 @@
       tags.appendChild(sel);
       card.appendChild(tags);
 
-      const drawer = document.createElement("div");
-      drawer.className = "ev-drawer";
-
-      const groups = parseParticipantGroups(ev.members);
-      const hasAnyMember = groups && (groups.dealer.length > 0 || groups.supporter.length > 0);
-
-      if (!hasAnyMember) {
-        const emptyEl = document.createElement("div");
-        emptyEl.className = "empty-apply";
-        emptyEl.textContent = "신청없음";
-        drawer.appendChild(emptyEl);
-      } else {
-        const buildGroup = (roleKey, labelText) => {
-          const list = groups[roleKey];
-          if (!list || list.length === 0) return;
-          const gWrap = document.createElement("div");
-          gWrap.className = "role-group";
-
-          const badge = document.createElement("div");
-          badge.className = `role-badge ${roleKey}`;
-          badge.textContent = `${labelText} ${list.length}`;
-          gWrap.appendChild(badge);
-
-          list.forEach(p => {
-            const pCard = document.createElement("div");
-            pCard.className = "p-card";
-
-            const pTop = document.createElement("div");
-            pTop.className = "p-top";
-            const pName = document.createElement("span");
-            pName.className = "p-name";
-            pName.textContent = p.name;
-            pTop.appendChild(pName);
-
-            if (p.isFriend) {
-              const fTag = document.createElement("span");
-              fTag.className = "p-friend";
-              fTag.textContent = "지인";
-              pTop.appendChild(fTag);
-            }
-            pCard.appendChild(pTop);
-
-            if (p.spec) {
-              const pSpec = document.createElement("div");
-              pSpec.className = "p-spec";
-              pSpec.textContent = p.spec;
-              pCard.appendChild(pSpec);
-            }
-
-            if (p.memo) {
-              const pMemo = document.createElement("div");
-              pMemo.className = "p-memo";
-              pMemo.textContent = p.memo;
-              pCard.appendChild(pMemo);
-            }
-
-            gWrap.appendChild(pCard);
-          });
-
-          drawer.appendChild(gWrap);
-        };
-
-        buildGroup("dealer", "⚔️ 딜러");
-        buildGroup("supporter", "💚 서포터");
-      }
-
-      if ((ev.memo || "").trim()) {
-        const gMemo = document.createElement("div");
-        gMemo.className = "general-memo";
-        gMemo.textContent = ev.memo.trim();
-        drawer.appendChild(gMemo);
-      }
-
-      card.appendChild(drawer);
       listEl.appendChild(card);
     });
+
+    const selectedEv = dayEvents.find(e => e.pageId === selectedPageId) || dayEvents[0];
+    renderMembers(selectedEv);
   }
 
   document.getElementById("prevBtn").onclick = () => { current.setMonth(current.getMonth() - 1); renderCalendar(); };
