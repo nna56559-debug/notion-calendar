@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: transparent;
+    width: 100%;
+    overflow-x: hidden;
+  }
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 6px;
+  }
+
+  /* 첨부 사진(image_295beb.png)과 동일한 슬림 세로형 레이아웃 */
+  .slim-wrap {
+    width: 158px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* 상단 카운트다운 시계 영역 */
+  .clock-area {
+    text-align: center;
+    margin-bottom: 12px;
+    width: 100%;
+  }
+  .clock-label {
+    font-size: 9.5px;
+    font-weight: 800;
+    color: #9E9693;
+    letter-spacing: 0.8px;
+    margin-bottom: 2px;
+  }
+  .clock-time {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 2px;
+    color: #6B6563;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .clock-dash {
+    font-size: 13px;
+    color: #B5AEAB;
+    margin-right: 2px;
+  }
+  .clock-num {
+    font-size: 23px;
+    letter-spacing: -0.5px;
+  }
+  .clock-unit {
+    font-size: 10px;
+    font-weight: 700;
+    color: #9E9693;
+    margin-right: 3px;
+  }
+
+  /* 하단 연분홍 필(Pill) 모험섬 카드 */
+  .island-panel {
+    width: 100%;
+    background: #FDF4F6;
+    border: 1.5px solid #F9E5E9;
+    border-radius: 26px;
+    padding: 16px 11px 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 4px 16px rgba(244, 182, 198, 0.12);
+  }
+
+  .day-header {
+    font-size: 12px;
+    font-weight: 800;
+    color: #786E6B;
+    letter-spacing: 0.6px;
+    margin-bottom: 10px;
+  }
+
+  /* 주말 오전/오후 탐 전환 탭 (토·일요일에만 표시) */
+  .session-tabs {
+    display: none;
+    gap: 4px;
+    margin-bottom: 10px;
+    background: #FFFFFF;
+    padding: 2.5px;
+    border-radius: 999px;
+    border: 1px solid #F6DCE2;
+  }
+  .session-tabs.show { display: flex; }
+  .s-tab {
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 9px;
+    font-weight: 700;
+    color: #9E9491;
+    padding: 2.5px 8px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .s-tab.active {
+    background: #F6B4CA;
+    color: #FFFFFF;
+  }
+
+  /* 모험섬 카드 리스트 */
+  .island-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .isl-card {
+    width: 100%;
+    background: #FFFFFF;
+    border: 1px solid #F6E3E8;
+    border-radius: 15px;
+    padding: 9px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: transform 0.15s ease;
+  }
+  /* 골드 섬은 은은한 핑크 틴트 강조 */
+  .isl-card.is-gold {
+    background: #FBE4EC;
+    border-color: #F6C5D5;
+  }
+  /* 카드/특수 보상은 파우더 블루 틴트 */
+  .isl-card.is-card {
+    background: #EAF2FB;
+    border-color: #D3E4F7;
+  }
+
+  .isl-name {
+    font-size: 11px;
+    font-weight: 800;
+    color: #5C5350;
+    line-height: 1.25;
+    margin-bottom: 4px;
+    word-break: keep-all;
+  }
+
+  .reward-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 9.5px;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: #F7F3F4;
+    color: #7C7370;
+  }
+  .isl-card.is-gold .reward-pill {
+    background: #FFFFFF;
+    color: #C95B7A;
+  }
+  .isl-card.is-card .reward-pill {
+    background: #FFFFFF;
+    color: #4B79A8;
+  }
+  .reward-pill.r-coin {
+    background: #EBF7F0;
+    color: #3D7D59;
+  }
+  .reward-pill.r-shilling {
+    background: #FAF3DC;
+    color: #8C7335;
+  }
+
+  .status-msg {
+    font-size: 10px;
+    font-weight: 600;
+    color: #A69D9A;
+    padding: 24px 0;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+<div class="slim-wrap">
+  <!-- 상단 NEXT 카운트다운 시계 -->
+  <div class="clock-area">
+    <div class="clock-label" id="clockLabel">NEXT</div>
+    <div class="clock-time" id="clockTime">
+      <span class="clock-dash">-</span>
+      <span class="clock-num" id="remH">00</span><span class="clock-unit">H</span>
+      <span class="clock-num" id="remM">00</span><span class="clock-unit">M</span>
+    </div>
+  </div>
+
+  <!-- 하단 연분홍 모험섬 패널 -->
+  <div class="island-panel">
+    <div class="day-header" id="dayHeader">WED</div>
+
+    <!-- 주말 오전/오후 선택 탭 -->
+    <div class="session-tabs" id="sessionTabs">
+      <button type="button" class="s-tab active" data-slot="am">오전</button>
+      <button type="button" class="s-tab" data-slot="pm">오후</button>
+    </div>
+
+    <div class="island-list" id="islandList">
+      <div class="status-msg">불러오는 중...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API_URL = "https://notion-cal.binhaha329.workers.dev/island";
+  const DAYS_ENG = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+
+  let rawIslands = [];
+  let selectedSlot = "am"; // 주말용: 'am' (09/11/13) | 'pm' (19/21/23)
+
+  function getKstNow() {
+    const now = new Date();
+    return new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
+  }
+
+  function formatYMD(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  }
+
+  // 다음 모험섬 출현 시간까지 남은 카운트다운 시계
+  function updateCountdown() {
+    const kst = getKstNow();
+    document.getElementById("dayHeader").textContent = DAYS_ENG[kst.getDay()];
+
+    const dow = kst.getDay();
+    const isWeekend = (dow === 0 || dow === 6);
+    const hours = isWeekend ? [9, 11, 13, 19, 21, 23] : [11, 13, 19, 21, 23];
+
+    let nextTarget = null;
+    for (const h of hours) {
+      const cand = new Date(kst);
+      cand.setHours(h, 0, 0, 0);
+      if (cand > kst) {
+        nextTarget = cand;
+        break;
+      }
+    }
+
+    // 오늘 23시 이후라면 내일 첫 탐 시간 계산
+    if (!nextTarget) {
+      const tomorrow = new Date(kst);
+      tomorrow.setDate(kst.getDate() + 1);
+      const tDow = tomorrow.getDay();
+      const firstHour = (tDow === 0 || tDow === 6) ? 9 : 11;
+      tomorrow.setHours(firstHour, 0, 0, 0);
+      nextTarget = tomorrow;
+    }
+
+    const diffMs = Math.max(0, nextTarget - kst);
+    const totalMins = Math.ceil(diffMs / 60000);
+    const hh = String(Math.floor(totalMins / 60)).padStart(2, "0");
+    const mm = String(totalMins % 60).padStart(2, "0");
+
+    document.getElementById("remH").textContent = hh;
+    document.getElementById("remM").textContent = mm;
+  }
+
+  // 보상 아이템 목록에서 핵심 보상 1순위 추출
+  function classifyReward(rewardItems) {
+    if (!Array.isArray(rewardItems) || rewardItems.length === 0) {
+      return { label: "실링", type: "shilling", cardClass: "" };
+    }
+    const names = rewardItems.map(r => r.Name || "").join(" ");
+    if (names.includes("골드")) {
+      return { label: "골드", type: "gold", cardClass: "is-gold" };
+    }
+    if (names.includes("카드")) {
+      return { label: "카드팩", type: "card", cardClass: "is-card" };
+    }
+    if (names.includes("주화")) {
+      return { label: "해적주화", type: "coin", cardClass: "" };
+    }
+    return { label: "실링", type: "shilling", cardClass: "" };
+  }
+
+  function renderIslands() {
+    const kst = getKstNow();
+    const dow = kst.getDay();
+    const isWeekend = (dow === 0 || dow === 6);
+    const todayStr = formatYMD(kst);
+
+    const tabsEl = document.getElementById("sessionTabs");
+    tabsEl.classList.toggle("show", isWeekend);
+
+    // 오늘 날짜에 출현하는 모험섬 필터링
+    const todayIslands = rawIslands.filter(isl => {
+      if (!Array.isArray(isl.StartTimes)) return false;
+      return isl.StartTimes.some(st => {
+        if (!st.startsWith(todayStr)) return false;
+        if (!isWeekend) return true;
+        const hour = parseInt(st.slice(11, 13), 10);
+        return selectedSlot === "am" ? hour < 15 : hour >= 15;
+      });
+    });
+
+    const listEl = document.getElementById("islandList");
+    if (todayIslands.length === 0) {
+      listEl.innerHTML = `<div class="status-msg">출현 정보 없음</div>`;
+      return;
+    }
+
+    // 골드 → 카드팩 → 주화 → 실링 순으로 정렬
+    const priority = { gold: 1, card: 2, coin: 3, shilling: 4 };
+    const enriched = todayIslands.map(isl => ({
+      name: isl.ContentsName,
+      reward: classifyReward(isl.RewardItems)
+    })).sort((a, b) => priority[a.reward.type] - priority[b.reward.type]);
+
+    listEl.innerHTML = "";
+    enriched.slice(0, 3).forEach(item => {
+      const card = document.createElement("div");
+      card.className = `isl-card ${item.reward.cardClass}`;
+
+      const nameEl = document.createElement("div");
+      nameEl.className = "isl-name";
+      nameEl.textContent = item.name;
+
+      const badge = document.createElement("span");
+      badge.className = `reward-pill r-${item.reward.type}`;
+      badge.textContent = item.reward.label;
+
+      card.appendChild(nameEl);
+      card.appendChild(badge);
+      listEl.appendChild(card);
+    });
+  }
+
+  document.querySelectorAll(".s-tab").forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll(".s-tab").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      selectedSlot = btn.dataset.slot;
+      renderIslands();
+    };
+  });
+
+  async function init() {
+    const kst = getKstNow();
+    // 주말 14시 이후 접속 시 자동으로 '오후' 탭 선택
+    if ((kst.getDay() === 0 || kst.getDay() === 6) && kst.getHours() >= 14) {
+      selectedSlot = "pm";
+      document.querySelectorAll(".s-tab").forEach(b => {
+        b.classList.toggle("active", b.dataset.slot === "pm");
+      });
+    }
+
+    updateCountdown();
+    setInterval(updateCountdown, 15000);
+
+    try {
+      const res = await fetch(API_URL);
+      rawIslands = await res.json();
+    } catch (e) {
+      rawIslands = [];
+    }
+    renderIslands();
+  }
+
+  init();
+</script>
+</body>
+</html>
