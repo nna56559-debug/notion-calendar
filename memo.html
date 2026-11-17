@@ -19,7 +19,6 @@
     padding: 6px;
   }
 
-  /* 모험섬 위젯과 어울리는 아담한 2열 미니 보드 */
   .board-wrap {
     display: flex;
     flex-wrap: wrap;
@@ -38,13 +37,11 @@
     flex-direction: column;
     gap: 7px;
   }
-  /* 쿠폰 컬럼: 베이비 핑크 톤 */
   .col-panel.pink {
     background: #FDF4F6;
     border: 1.5px solid #F9E5E9;
     box-shadow: 0 4px 14px rgba(244, 182, 198, 0.1);
   }
-  /* 교환 컬럼: 세이지 그린 톤 */
   .col-panel.green {
     background: #F3F8F5;
     border: 1.5px solid #E1EFE6;
@@ -161,11 +158,25 @@
     color: #B5AEAB;
     padding: 12px 0;
   }
+  .warn-banner {
+    width: 100%;
+    text-align: center;
+    font-size: 9.5px;
+    font-weight: 700;
+    color: #C95B7A;
+    background: #FFF0F4;
+    border: 1px solid #F7D6E0;
+    border-radius: 10px;
+    padding: 6px 8px;
+    display: none;
+  }
+  .warn-banner.show { display: block; }
 </style>
 </head>
 <body>
 <div class="board-wrap">
-  <!-- 쿠폰 미니 카드 -->
+  <div class="warn-banner" id="warnBanner">노션 '잊지말기' DB에 연결(Integration)을 추가해 주세요!</div>
+
   <div class="col-panel pink">
     <div class="col-head">
       <span class="col-badge">쿠폰</span>
@@ -176,7 +187,6 @@
     </div>
   </div>
 
-  <!-- 교환 미니 카드 -->
   <div class="col-panel green">
     <div class="col-head">
       <span class="col-badge">교환</span>
@@ -196,6 +206,7 @@
     try {
       const res = await fetch(API_URL);
       const data = await res.json();
+      document.getElementById("warnBanner").classList.toggle("show", data.ok === false);
       memoItems = data.items || [];
     } catch (e) {
       memoItems = [];
@@ -221,11 +232,13 @@
       const nextVal = titleEl.textContent.trim();
       if (nextVal && nextVal !== item.title) {
         item.title = nextVal;
-        await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "update", pageId: item.pageId, title: nextVal })
-        });
+        if (!String(item.pageId).startsWith("temp-")) {
+          await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "update", pageId: item.pageId, title: nextVal })
+          });
+        }
       }
     };
 
@@ -237,11 +250,13 @@
     delBtn.onclick = async () => {
       memoItems = memoItems.filter(m => m.pageId !== item.pageId);
       renderBoards();
-      await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "delete", pageId: item.pageId })
-      });
+      if (!String(item.pageId).startsWith("temp-")) {
+        await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "delete", pageId: item.pageId })
+        });
+      }
     };
 
     top.appendChild(titleEl);
@@ -258,11 +273,13 @@
       const nextNote = noteEl.textContent.trim();
       if (nextNote !== item.note) {
         item.note = nextNote;
-        await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "update", pageId: item.pageId, note: nextNote })
-        });
+        if (!String(item.pageId).startsWith("temp-")) {
+          await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "update", pageId: item.pageId, note: nextNote })
+          });
+        }
       }
     };
 
@@ -294,10 +311,19 @@
       const res = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "create", title: "새 항목", group: groupName, note: "" })
+        body: JSON.stringify({ action: "create", title: tempItem.title, group: groupName, note: tempItem.note })
       });
       const data = await res.json();
-      if (data.pageId) tempItem.pageId = data.pageId;
+      if (data.ok && data.pageId) {
+        tempItem.pageId = data.pageId;
+        await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "update", pageId: tempItem.pageId, title: tempItem.title, note: tempItem.note })
+        });
+      } else {
+        document.getElementById("warnBanner").classList.add("show");
+      }
     } catch (e) {}
   }
 
