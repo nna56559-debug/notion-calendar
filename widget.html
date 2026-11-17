@@ -295,7 +295,7 @@
       <span class="reset-label" id="resetTimer" title="매주 수요일 06:00 주간 초기화">D-1</span>
       <div class="nav-btns">
         <button class="nav-btn" id="prevBtn" title="이전 달">←</button>
-        <button class="nav-btn" id="refreshBtn" title="새로고침">↻</button>
+        <button class="nav-btn" id="refreshBtn" title="오늘 날짜로 복귀 및 새로고침">↻</button>
         <button class="nav-btn" id="nextBtn" title="다음 달">→</button>
       </div>
     </div>
@@ -323,7 +323,7 @@
 
   let allEvents = [];
   let current = new Date();
-  const todayStr = formatDate(new Date());
+  let todayStr = formatDate(new Date());
   let selectedDate = todayStr;
   let activeRaidId = null;
 
@@ -530,7 +530,6 @@
     return groups;
   }
 
-  /* 우측 패널: 일정 목록 OR 선택된 레이드의 명단 */
   function renderRightPanel() {
     const backBtn = document.getElementById("backBtn");
     const titleEl = document.getElementById("rightTitle");
@@ -540,7 +539,6 @@
     const dayEvents = allEvents.filter(e => e.date === selectedDate);
     const activeEv = activeRaidId ? dayEvents.find(e => e.pageId === activeRaidId) : null;
 
-    // 1) 레이드가 선택된 상태 → '명단' 표시
     if (activeEv) {
       backBtn.style.display = "inline-flex";
       titleEl.textContent = "명단";
@@ -635,7 +633,6 @@
       return;
     }
 
-    // 2) 기본 상태 → 해당 날짜의 레이드 일정 목록 렌더링
     backBtn.style.display = "none";
     titleEl.textContent = selectedDate;
     titleEl.title = "";
@@ -759,7 +756,18 @@
   };
   document.getElementById("prevBtn").onclick = () => { current.setMonth(current.getMonth() - 1); renderCalendar(); };
   document.getElementById("nextBtn").onclick = () => { current.setMonth(current.getMonth() + 1); renderCalendar(); };
-  document.getElementById("refreshBtn").onclick = () => loadEvents();
+
+  // ↻ 새로고침 버튼: 현재 달 & 오늘 날짜로 즉시 복귀 + 최신 데이터 동기화
+  document.getElementById("refreshBtn").onclick = () => {
+    const now = new Date();
+    current = new Date(now.getFullYear(), now.getMonth(), 1);
+    todayStr = formatDate(now);
+    selectedDate = todayStr;
+    activeRaidId = null;
+    renderCalendar();
+    renderRightPanel();
+    loadEvents();
+  };
 
   loadEvents();
 </script>
