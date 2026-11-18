@@ -132,9 +132,7 @@
     flex-shrink: 0;
     transition: all 0.15s ease;
   }
-  .roster-del-btn:hover {
-    background: #FCE6ED;
-  }
+  .roster-del-btn:hover { background: #FCE6ED; }
   .roster-del-btn.confirming {
     background: #F28BA8;
     border-color: #E36B8E;
@@ -280,7 +278,7 @@
     <div class="r-head">
       <div class="r-left">
         <span class="r-badge">레이드</span>
-        <span class="r-pct" id="progVal">0% (0/0)</span>
+        <span class="r-pct" id="progVal">0% (0/18)</span>
         <button type="button" class="r-reset" id="resetBtn" onclick="handleManualReset()" title="현재 원정대 하트 초기화">↻</button>
       </div>
     </div>
@@ -305,7 +303,8 @@
 
 <script>
   const API_BASE = "https://notion-cal.binhaha329.workers.dev";
-  const STORAGE_KEY = "lostark_pastel_rosters_v7";
+  const STORAGE_KEY = "lostark_pastel_rosters_v8";
+  const MAX_HEARTS = 18; // 하트 18개 체크 시 100%
 
   const DEFAULT_ROSTERS = [
     {
@@ -327,7 +326,7 @@
     const now = new Date();
     const kst = new Date(now.getTime() + (9 * 60 + now.getTimezoneOffset()) * 60000);
     const shifted = new Date(kst.getTime() - 6 * 3600 * 1000);
-    const day = shifted.getDay(); // 0:일, 1:월, 2:화, 3:수, 4:목, 5:금, 6:토
+    const day = shifted.getDay();
     const diffToWed = (day + 4) % 7;
     shifted.setDate(shifted.getDate() - diffToWed);
     return `${shifted.getFullYear()}-${String(shifted.getMonth() + 1).padStart(2, "0")}-${String(shifted.getDate()).padStart(2, "0")}`;
@@ -353,7 +352,6 @@
       return null;
     }
 
-    // 수요일 오전 06:00 경과 시 원정대·캐릭터는 유지하고 체크 상태만 초기화
     let weekChanged = false;
     if (raw.weekKey !== currentWeek) {
       rosters.forEach(r => {
@@ -371,7 +369,6 @@
     };
   }
 
-  // 위젯을 켜둔 채 수요일 오전 6시를 넘겨도 30초마다 감지하여 체크만 자동 초기화
   function checkWeeklyAutoReset() {
     const currentWeek = getCurrentWeekKey();
     if (state.weekKey !== currentWeek) {
@@ -386,6 +383,41 @@
     }
   }
   setInterval(checkWeeklyAutoReset, 30000);
+
+  // 현재 선택된 원정대의 전체 캐릭터 목록을 API에서 자동 동기화 (기존 체크 상태 보존)
+  async function syncActiveRosterFullChars() {
+    const active = getActiveRoster();
+    if (!active) return;
+    const queryName = active.chars?.[0]?.name || active.id;
+    if (!queryName) return;
+
+    try {
+      const res = await fetch(`${API_BASE}/siblings?name=${encodeURIComponent(queryName)}&t=${Date.now()}`);
+      const list = await res.json();
+      if (!Array.isArray(list) || list.length === 0) return;
+
+      const prevMap = {};
+      active.chars.forEach(c => { prevMap[c.name] = c.checks; });
+
+      const newChars = list.map(item => ({
+        name: item.name,
+        lvText: item.lvText,
+        checks: prevMap[item.name] || [false, false, false]
+      }));
+
+      const oldNames = active.chars.map(c => `${c.name}:${c.lvText}`).join("|");
+      const newNames = newChars.map(c => `${c.name}:${c.lvText}`).join("|");
+
+      if (oldNames !== newNames) {
+        active.chars = newChars;
+        active.id = list[0].name;
+        active.label = list[0].name;
+        state.activeId = active.id;
+        render();
+        saveState();
+      }
+    } catch (e) {}
+  }
 
   async function loadState() {
     try {
@@ -408,6 +440,9 @@
         if (resNorm.weekChanged) saveState();
       }
     } catch (e) {}
+
+    // 저장된 상태 로드 직후 해당 서버 원정대 전체 캐릭터 자동 동기화
+    syncActiveRosterFullChars();
   }
 
   let saveTimer = null;
@@ -450,9 +485,9 @@
     state.activeId = id;
     render();
     saveState();
+    syncActiveRosterFullChars();
   }
 
-  // 노션 iframe에서 차단되는 confirm() 대신 2단계 클릭으로 즉시 삭제
   function handleDeleteRoster() {
     if (state.rosters.length <= 1) return;
     const delBtn = document.getElementById("rosterDelBtn");
@@ -476,7 +511,6 @@
     saveState();
   }
 
-  // 2단계 클릭으로 현재 원정대 하트만 초기화
   function handleManualReset() {
     const resetBtn = document.getElementById("resetBtn");
     if (!resetBtn.classList.contains("confirming")) {
@@ -509,7 +543,7 @@
     btn.disabled = true;
 
     try {
-      const res = await fetch(`${API_BASE}/siblings?name=${encodeURIComponent(keyword)}`);
+      const res = await fetch(`${API_BASE}/siblings?name=${encodeURIComponent(keyword)}&t=${Date.now()}`);
       const list = await res.json();
 
       if (!Array.isArray(list) || list.length === 0) {
@@ -592,12 +626,10 @@
     const activeRoster = getActiveRoster();
     if (!activeRoster) return;
 
-    let total = 0;
     let done = 0;
 
     activeRoster.chars.forEach((ch, cIdx) => {
       const cDone = ch.checks.filter(Boolean).length;
-      total += 3;
       done += cDone;
 
       const row = document.createElement("div");
@@ -639,8 +671,9 @@
       listEl.appendChild(row);
     });
 
-    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-    document.getElementById("progVal").textContent = `${pct}% (${done}/${total})`;
+    // 하트 18개 체크 시 100% 도달
+    const pct = Math.min(100, Math.round((done / MAX_HEARTS) * 100));
+    document.getElementById("progVal").textContent = `${pct}% (${done}/${MAX_HEARTS})`;
     document.getElementById("progFill").style.width = `${pct}%`;
   }
 
