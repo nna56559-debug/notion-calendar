@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: transparent;
+    width: 100%;
+    overflow-x: hidden;
+  }
+  body {
+    display: flex;
+    justify-content: center;
+    padding: 4px;
+  }
+  .link-card {
+    width: 100%;
+    background: #FFFFFF;
+    border: 1.5px solid #F9E5E9;
+    border-radius: 20px;
+    padding: 11px 12px;
+    box-shadow: 0 4px 14px rgba(244, 182, 198, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .l-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .l-badge {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2.5px 8px;
+    border-radius: 7px;
+    background: #E4F1FA;
+    color: #3D7496;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .q-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-size: 10.5px;
+    font-weight: 800;
+    padding: 7px 6px;
+    border-radius: 11px;
+    transition: transform 0.14s ease, filter 0.14s ease;
+  }
+  .q-btn:hover {
+    transform: translateY(-1px);
+    filter: brightness(0.97);
+  }
+  .q-pink { background: #FDF3F6; border: 1px solid #F5DCE3; color: #C95B7A; }
+  .q-blue { background: #F3F9FD; border: 1px solid #DCECF7; color: #3D7496; }
+  .q-mint { background: #F3FAF6; border: 1px solid #DCEEE3; color: #3D7A56; }
+  .q-gold { background: #FCF8EE; border: 1px solid #F2E6C8; color: #A87620; }
+</style>
+</head>
+<body>
+  <div class="link-card">
+    <div class="l-head">
+      <span class="l-badge">바로가기</span>
+    </div>
+    <div class="grid">
+      <a class="q-btn q-pink" href="https://loawa.com" target="_blank" rel="noopener noreferrer">로아와</a>
+      <a class="q-btn q-blue" href="https://loa.icepeng.com" target="_blank" rel="noopener noreferrer">아이스펭</a>
+      <a class="q-btn q-mint" href="https://lostark.inven.co.kr" target="_blank" rel="noopener noreferrer">로아 인벤</a>
+      <a class="q-btn q-gold" href="https://lostark.game.onstove.com" target="_blank" rel="noopener noreferrer">공식홈</a>
+    </div>
+  </div>
+</body>
+</html>
