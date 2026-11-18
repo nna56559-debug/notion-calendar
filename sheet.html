@@ -55,7 +55,6 @@
   }
   .s-refresh:hover { color: #E58FA7; }
 
-  /* 상단 요약 2칸 (상위 3개 레이드 진행률 / 주간 골드) */
   .summary-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -88,7 +87,6 @@
     color: #B88428;
   }
 
-  /* 전체 진행률 바 */
   .prog-track {
     width: 100%;
     height: 4.5px;
@@ -104,7 +102,6 @@
     transition: width 0.3s ease;
   }
 
-  /* 캐릭터별 상위 3개 레이드 진행 리스트 */
   .char-list {
     display: flex;
     flex-direction: column;
@@ -195,15 +192,13 @@
     </div>
 
     <div class="char-list" id="charList">
-      <div class="empty-txt">시트 주소를 연결하면<br>진행률이 표시됩니다</div>
+      <div class="empty-txt">불러오는 중...</div>
     </div>
   </div>
 
 <script>
-  // ★ 구글 시트 [파일 -> 공유 -> 웹에 게시 -> .csv] 주소를 따옴표 안에 넣어주세요 ★
   const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQB78npcV_7wD3up_SU2gpLBlNJ-HvNMLZb3kvM6k_UGRWpR7NvQbQ-YcafMzE-baZqIgeqvRBhw3AP/pub?gid=1409386821&single=true&output=csv";
 
-  // 시트 열 기준 상위 레이드 우선순위 (G:벨가르딘, H:세르카, I:지평, J/K:종막, L:4막)
   const RAID_COLS = [
     { idx: 6, gold: 45000 }, // G: 벨가르딘
     { idx: 7, gold: 38000 }, // H: 세르카
@@ -230,11 +225,8 @@
 
   async function loadSheet() {
     const listEl = document.getElementById("charList");
-    if (!SHEET_CSV_URL || SHEET_CSV_URL.startsWith("여기에")) return;
-
     try {
-      const sep = SHEET_CSV_URL.includes("?") ? "&" : "?";
-      const res = await fetch(SHEET_CSV_URL + sep + "t=" + Date.now());
+      const res = await fetch(SHEET_CSV_URL + "&t=" + Date.now());
       const csvText = await res.text();
       const rows = parseCSV(csvText);
 
@@ -244,7 +236,6 @@
       let estimatedGold = 0;
       const chars = [];
 
-      // 상단 요약 행(1~3행)이나 우측에 총 주간 골드 셀이 있는지 탐색
       for (let r = 0; r < rows.length; r++) {
         const rowStr = rows[r].join(" ");
         if (rowStr.includes("주간") && rowStr.includes("골드")) {
@@ -256,14 +247,12 @@
         }
       }
 
-      // 5행(인덱스 4)부터 캐릭터별 최상위 레이드 3개 추출
       for (let r = 4; r < rows.length; r++) {
         const cols = rows[r];
         const name = (cols[2] || "").trim();
         const job = (cols[3] || "").trim();
         if (!name || name === "닉네임") continue;
 
-        // 해당 캐릭터에 체크박스가 존재하는 레이드 중 가장 높은 3개만 선택
         const activeRaids = [];
         for (const rc of RAID_COLS) {
           const val = (cols[rc.idx] || "").trim().toUpperCase();
@@ -279,7 +268,6 @@
         totalTop3 += activeRaids.length;
         doneTop3 += doneCount;
 
-        // 골드 획득 지정 캐릭터(상위 6캐릭 기준) 완료 골드 합산
         if (chars.length < 6) {
           activeRaids.forEach(x => {
             if (x.done) estimatedGold += x.gold;
