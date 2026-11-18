@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: transparent;
+    width: 100%;
+    overflow-x: hidden;
+  }
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 4px;
+  }
+
+  .sheet-card {
+    width: 100%;
+    background: #FFFFFF;
+    border: 1.5px solid #F9E5E9;
+    border-radius: 22px;
+    padding: 13px 14px 12px;
+    box-shadow: 0 4px 16px rgba(244, 182, 198, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .s-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .s-badge {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2.5px 8px;
+    border-radius: 7px;
+    background: #E4F1FA;
+    color: #3D7496;
+  }
+  .s-refresh {
+    border: none;
+    background: transparent;
+    color: #AED9EB;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    padding: 0 3px;
+  }
+  .s-refresh:hover { color: #E58FA7; }
+
+  /* 상단 요약 2칸 (주간 숙제 진행률 / 획득 골드) */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .sum-box {
+    background: #FDF7F9;
+    border: 1px solid #F6E2E7;
+    border-radius: 12px;
+    padding: 7px 8px;
+    text-align: center;
+  }
+  .sum-box.gold {
+    background: #FCF9EE;
+    border-color: #F3E7C3;
+  }
+  .sum-label {
+    font-size: 9px;
+    font-weight: 700;
+    color: #9A908C;
+    margin-bottom: 2px;
+  }
+  .sum-val {
+    font-size: 12.5px;
+    font-weight: 900;
+    color: #D96B8A;
+  }
+  .sum-box.gold .sum-val {
+    color: #B88428;
+  }
+
+  /* 캐릭터별 미니 진행 리스트 */
+  .char-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4.5px;
+  }
+  .c-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    background: #FDFBFC;
+    border: 1px solid #F5E8EC;
+    border-radius: 9px;
+    padding: 4.5px 8px;
+  }
+  .c-left {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+  }
+  .c-name {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: #4A4442;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .c-lv {
+    font-size: 9px;
+    font-weight: 700;
+    color: #8C827E;
+    background: #F4F0F1;
+    padding: 1px 5px;
+    border-radius: 5px;
+  }
+  .c-status {
+    font-size: 9.5px;
+    font-weight: 800;
+    padding: 1.5px 6px;
+    border-radius: 6px;
+    background: #FCE8EE;
+    color: #C95B7A;
+    flex-shrink: 0;
+  }
+  .c-status.done {
+    background: #DDF2E6;
+    color: #367852;
+  }
+
+  .empty-txt {
+    text-align: center;
+    font-size: 10px;
+    color: #B5AEAB;
+    padding: 14px 0;
+    line-height: 1.4;
+  }
+</style>
+</head>
+<body>
+  <div class="sheet-card">
+    <div class="s-head">
+      <span class="s-badge">주간 원정대 현황</span>
+      <button type="button" class="s-refresh" onclick="loadSheet()" title="시트 새로고침">↻</button>
+    </div>
+
+    <div class="summary-grid">
+      <div class="sum-box">
+        <div class="sum-label">주간 숙제</div>
+        <div class="sum-val" id="progVal">- %</div>
+      </div>
+      <div class="sum-box gold">
+        <div class="sum-label">주간 골드</div>
+        <div class="sum-val" id="goldVal">- G</div>
+      </div>
+    </div>
+
+    <div class="char-list" id="charList">
+      <div class="empty-txt">시트 주소를 연결하면<br>캐릭터 현황이 표시됩니다</div>
+    </div>
+  </div>
+
+<script>
+  // ★ 1단계에서 복사한 구글 시트 CSV 주소를 아래 따옴표 안에 붙여넣어 주세요 ★
+  const SHEET_CSV_URL = "<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: transparent;
+    width: 100%;
+    overflow-x: hidden;
+  }
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 4px;
+  }
+
+  .sheet-card {
+    width: 100%;
+    background: #FFFFFF;
+    border: 1.5px solid #F9E5E9;
+    border-radius: 22px;
+    padding: 13px 14px 12px;
+    box-shadow: 0 4px 16px rgba(244, 182, 198, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .s-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .s-badge {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2.5px 8px;
+    border-radius: 7px;
+    background: #E4F1FA;
+    color: #3D7496;
+  }
+  .s-refresh {
+    border: none;
+    background: transparent;
+    color: #AED9EB;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    padding: 0 3px;
+  }
+  .s-refresh:hover { color: #E58FA7; }
+
+  /* 상단 요약 2칸 (주간 숙제 진행률 / 획득 골드) */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .sum-box {
+    background: #FDF7F9;
+    border: 1px solid #F6E2E7;
+    border-radius: 12px;
+    padding: 7px 8px;
+    text-align: center;
+  }
+  .sum-box.gold {
+    background: #FCF9EE;
+    border-color: #F3E7C3;
+  }
+  .sum-label {
+    font-size: 9px;
+    font-weight: 700;
+    color: #9A908C;
+    margin-bottom: 2px;
+  }
+  .sum-val {
+    font-size: 12.5px;
+    font-weight: 900;
+    color: #D96B8A;
+  }
+  .sum-box.gold .sum-val {
+    color: #B88428;
+  }
+
+  /* 캐릭터별 미니 진행 리스트 */
+  .char-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4.5px;
+  }
+  .c-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    background: #FDFBFC;
+    border: 1px solid #F5E8EC;
+    border-radius: 9px;
+    padding: 4.5px 8px;
+  }
+  .c-left {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+  }
+  .c-name {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: #4A4442;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .c-lv {
+    font-size: 9px;
+    font-weight: 700;
+    color: #8C827E;
+    background: #F4F0F1;
+    padding: 1px 5px;
+    border-radius: 5px;
+  }
+  .c-status {
+    font-size: 9.5px;
+    font-weight: 800;
+    padding: 1.5px 6px;
+    border-radius: 6px;
+    background: #FCE8EE;
+    color: #C95B7A;
+    flex-shrink: 0;
+  }
+  .c-status.done {
+    background: #DDF2E6;
+    color: #367852;
+  }
+
+  .empty-txt {
+    text-align: center;
+    font-size: 10px;
+    color: #B5AEAB;
+    padding: 14px 0;
+    line-height: 1.4;
+  }
+</style>
+</head>
+<body>
+  <div class="sheet-card">
+    <div class="s-head">
+      <span class="s-badge">주간 원정대 현황</span>
+      <button type="button" class="s-refresh" onclick="loadSheet()" title="시트 새로고침">↻</button>
+    </div>
+
+    <div class="summary-grid">
+      <div class="sum-box">
+        <div class="sum-label">주간 숙제</div>
+        <div class="sum-val" id="progVal">- %</div>
+      </div>
+      <div class="sum-box gold">
+        <div class="sum-label">주간 골드</div>
+        <div class="sum-val" id="goldVal">- G</div>
+      </div>
+    </div>
+
+    <div class="char-list" id="charList">
+      <div class="empty-txt">시트 주소를 연결하면<br>캐릭터 현황이 표시됩니다</div>
+    </div>
+  </div>
+
+<script>
+  // ★ 1단계에서 복사한 구글 시트 CSV 주소를 아래 따옴표 안에 붙여넣어 주세요 ★
+  const SHEET_CSV_URL = "<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: transparent;
+    width: 100%;
+    overflow-x: hidden;
+  }
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 4px;
+  }
+
+  .sheet-card {
+    width: 100%;
+    background: #FFFFFF;
+    border: 1.5px solid #F9E5E9;
+    border-radius: 22px;
+    padding: 13px 14px 12px;
+    box-shadow: 0 4px 16px rgba(244, 182, 198, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .s-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .s-badge {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2.5px 8px;
+    border-radius: 7px;
+    background: #E4F1FA;
+    color: #3D7496;
+  }
+  .s-refresh {
+    border: none;
+    background: transparent;
+    color: #AED9EB;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    padding: 0 3px;
+  }
+  .s-refresh:hover { color: #E58FA7; }
+
+  /* 상단 요약 2칸 (주간 숙제 진행률 / 획득 골드) */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .sum-box {
+    background: #FDF7F9;
+    border: 1px solid #F6E2E7;
+    border-radius: 12px;
+    padding: 7px 8px;
+    text-align: center;
+  }
+  .sum-box.gold {
+    background: #FCF9EE;
+    border-color: #F3E7C3;
+  }
+  .sum-label {
+    font-size: 9px;
+    font-weight: 700;
+    color: #9A908C;
+    margin-bottom: 2px;
+  }
+  .sum-val {
+    font-size: 12.5px;
+    font-weight: 900;
+    color: #D96B8A;
+  }
+  .sum-box.gold .sum-val {
+    color: #B88428;
+  }
+
+  /* 캐릭터별 미니 진행 리스트 */
+  .char-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4.5px;
+  }
+  .c-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    background: #FDFBFC;
+    border: 1px solid #F5E8EC;
+    border-radius: 9px;
+    padding: 4.5px 8px;
+  }
+  .c-left {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+  }
+  .c-name {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: #4A4442;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .c-lv {
+    font-size: 9px;
+    font-weight: 700;
+    color: #8C827E;
+    background: #F4F0F1;
+    padding: 1px 5px;
+    border-radius: 5px;
+  }
+  .c-status {
+    font-size: 9.5px;
+    font-weight: 800;
+    padding: 1.5px 6px;
+    border-radius: 6px;
+    background: #FCE8EE;
+    color: #C95B7A;
+    flex-shrink: 0;
+  }
+  .c-status.done {
+    background: #DDF2E6;
+    color: #367852;
+  }
+
+  .empty-txt {
+    text-align: center;
+    font-size: 10px;
+    color: #B5AEAB;
+    padding: 14px 0;
+    line-height: 1.4;
+  }
+</style>
+</head>
+<body>
+  <div class="sheet-card">
+    <div class="s-head">
+      <span class="s-badge">주간 원정대 현황</span>
+      <button type="button" class="s-refresh" onclick="loadSheet()" title="시트 새로고침">↻</button>
+    </div>
+
+    <div class="summary-grid">
+      <div class="sum-box">
+        <div class="sum-label">주간 숙제</div>
+        <div class="sum-val" id="progVal">- %</div>
+      </div>
+      <div class="sum-box gold">
+        <div class="sum-label">주간 골드</div>
+        <div class="sum-val" id="goldVal">- G</div>
+      </div>
+    </div>
+
+    <div class="char-list" id="charList">
+      <div class="empty-txt">시트 주소를 연결하면<br>캐릭터 현황이 표시됩니다</div>
+    </div>
+  </div>
+
+<script>
+  // ★ 1단계에서 복사한 구글 시트 CSV 주소를 아래 따옴표 안에 붙여넣어 주세요 ★
+  const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQB78npcV_7wD3up_SU2gpLBlNJ-HvNMLZb3kvM6k_UGRWpR7NvQbQ-YcafMzE-baZqIgeqvRBhw3AP/pub?gid=1409386821&single=true&output=csv";
+
+  function parseCSV(text) {
+    return text.trim().split(/\r?\n/).map(line => {
+      const cells = [];
+      let cur = "", inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') { inQuotes = !inQuotes; }
+        else if (ch === ',' && !inQuotes) { cells.push(cur.trim()); cur = ""; }
+        else { cur += ch; }
+      }
+      cells.push(cur.trim());
+      return cells;
+    });
+  }
+
+  async function loadSheet() {
+    const listEl = document.getElementById("charList");
+    if (!SHEET_CSV_URL || SHEET_CSV_URL.startsWith("여기에")) return;
+
+    try {
+      const res = await fetch(SHEET_CSV_URL + "&t=" + Date.now());
+      const csvText = await res.text();
+      const rows = parseCSV(csvText);
+
+      let totalChecks = 0;
+      let doneChecks = 0;
+      let totalGold = 0;
+      const chars = [];
+
+      rows.forEach((cols, idx) => {
+        if (idx === 0) return; // 헤더 행 건너뛰기
+        const rowStr = cols.join(" ");
+
+        // 체크박스(TRUE/FALSE) 집계
+        const checks = cols.filter(c => c === "TRUE" || c === "FALSE");
+        const trues = checks.filter(c => c === "TRUE").length;
+        totalChecks += checks.length;
+        doneChecks += trues;
+
+        // 아이템 레벨(1400~1800대 숫자) 탐색
+        const lvCell = cols.find(c => /^1[4-8]\d{2}(\.\d+)?$/.test(c.replace(/,/g, "")));
+
+        // 골드(만 단위 이상 숫자 또는 G 포함 셀) 탐색
+        const goldCell = cols.find(c => /[\d,]{4,}\s*G?$/i.test(c) && c !== lvCell);
+        if (goldCell) {
+          const num = parseInt(goldCell.replace(/[^0-9]/g, ""), 10);
+          if (!isNaN(num) && num >= 1000 && num < 5000000) totalGold += num;
+        }
+
+        // 캐릭터 이름이 있는 행 추출 (한글/영문 2~12자 + 레벨 또는 체크박스 존재)
+        const nameCell = cols.find(c => /^[가-힣a-zA-Z0-9]{2,12}$/.test(c) && c !== "TRUE" && c !== "FALSE");
+        if (nameCell && (lvCell || checks.length > 0)) {
+          chars.push({
+            name: nameCell,
+            lv: lvCell ? lvCell.split(".")[0] : "",
+            done: trues,
+            total: checks.length
+          });
+        }
+      });
+
+      const pct = totalChecks > 0 ? Math.round((doneChecks / totalChecks) * 100) : 0;
+      document.getElementById("progVal").textContent = totalChecks > 0 ? `${pct}% (${doneChecks}/${totalChecks})` : "-";
+      document.getElementById("goldVal").textContent = totalGold > 0 ? `${totalGold.toLocaleString()} G` : "-";
+
+      if (chars.length === 0) {
+        listEl.innerHTML = `<div class="empty-txt">표시할 캐릭터 행을 찾지 못했습니다</div>`;
+        return;
+      }
+
+      listEl.innerHTML = "";
+      chars.slice(0, 4).forEach(ch => {
+        const isAllDone = ch.total > 0 && ch.done === ch.total;
+        const row = document.createElement("div");
+        row.className = "c-row";
+        row.innerHTML = `
+          <div class="c-left">
+            <span class="c-name">${ch.name}</span>
+            ${ch.lv ? `<span class="c-lv">${ch.lv}</span>` : ""}
+          </div>
+          <span class="c-status ${isAllDone ? "done" : ""}">
+            ${ch.total > 0 ? (isAllDone ? "완료" : `${ch.done}/${ch.total}`) : "대기"}
+          </span>
+        `;
+        listEl.appendChild(row);
+      });
+    } catch (e) {
+      listEl.innerHTML = `<div class="empty-txt">시트 데이터를 불러오지 못했습니다</div>`;
+    }
+  }
+
+  loadSheet();
+</script>
+</body>
+</html>";
+
+  function parseCSV(text) {
+    return text.trim().split(/\r?\n/).map(line => {
+      const cells = [];
+      let cur = "", inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') { inQuotes = !inQuotes; }
+        else if (ch === ',' && !inQuotes) { cells.push(cur.trim()); cur = ""; }
+        else { cur += ch; }
+      }
+      cells.push(cur.trim());
+      return cells;
+    });
+  }
+
+  async function loadSheet() {
+    const listEl = document.getElementById("charList");
+    if (!SHEET_CSV_URL || SHEET_CSV_URL.startsWith("여기에")) return;
+
+    try {
+      const res = await fetch(SHEET_CSV_URL + "&t=" + Date.now());
+      const csvText = await res.text();
+      const rows = parseCSV(csvText);
+
+      let totalChecks = 0;
+      let doneChecks = 0;
+      let totalGold = 0;
+      const chars = [];
+
+      rows.forEach((cols, idx) => {
+        if (idx === 0) return; // 헤더 행 건너뛰기
+        const rowStr = cols.join(" ");
+
+        // 체크박스(TRUE/FALSE) 집계
+        const checks = cols.filter(c => c === "TRUE" || c === "FALSE");
+        const trues = checks.filter(c => c === "TRUE").length;
+        totalChecks += checks.length;
+        doneChecks += trues;
+
+        // 아이템 레벨(1400~1800대 숫자) 탐색
+        const lvCell = cols.find(c => /^1[4-8]\d{2}(\.\d+)?$/.test(c.replace(/,/g, "")));
+
+        // 골드(만 단위 이상 숫자 또는 G 포함 셀) 탐색
+        const goldCell = cols.find(c => /[\d,]{4,}\s*G?$/i.test(c) && c !== lvCell);
+        if (goldCell) {
+          const num = parseInt(goldCell.replace(/[^0-9]/g, ""), 10);
+          if (!isNaN(num) && num >= 1000 && num < 5000000) totalGold += num;
+        }
+
+        // 캐릭터 이름이 있는 행 추출 (한글/영문 2~12자 + 레벨 또는 체크박스 존재)
+        const nameCell = cols.find(c => /^[가-힣a-zA-Z0-9]{2,12}$/.test(c) && c !== "TRUE" && c !== "FALSE");
+        if (nameCell && (lvCell || checks.length > 0)) {
+          chars.push({
+            name: nameCell,
+            lv: lvCell ? lvCell.split(".")[0] : "",
+            done: trues,
+            total: checks.length
+          });
+        }
+      });
+
+      const pct = totalChecks > 0 ? Math.round((doneChecks / totalChecks) * 100) : 0;
+      document.getElementById("progVal").textContent = totalChecks > 0 ? `${pct}% (${doneChecks}/${totalChecks})` : "-";
+      document.getElementById("goldVal").textContent = totalGold > 0 ? `${totalGold.toLocaleString()} G` : "-";
+
+      if (chars.length === 0) {
+        listEl.innerHTML = `<div class="empty-txt">표시할 캐릭터 행을 찾지 못했습니다</div>`;
+        return;
+      }
+
+      listEl.innerHTML = "";
+      chars.slice(0, 4).forEach(ch => {
+        const isAllDone = ch.total > 0 && ch.done === ch.total;
+        const row = document.createElement("div");
+        row.className = "c-row";
+        row.innerHTML = `
+          <div class="c-left">
+            <span class="c-name">${ch.name}</span>
+            ${ch.lv ? `<span class="c-lv">${ch.lv}</span>` : ""}
+          </div>
+          <span class="c-status ${isAllDone ? "done" : ""}">
+            ${ch.total > 0 ? (isAllDone ? "완료" : `${ch.done}/${ch.total}`) : "대기"}
+          </span>
+        `;
+        listEl.appendChild(row);
+      });
+    } catch (e) {
+      listEl.innerHTML = `<div class="empty-txt">시트 데이터를 불러오지 못했습니다</div>`;
+    }
+  }
+
+  loadSheet();
+</script>
+</body>
+</html>";
+
+  function parseCSV(text) {
+    return text.trim().split(/\r?\n/).map(line => {
+      const cells = [];
+      let cur = "", inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') { inQuotes = !inQuotes; }
+        else if (ch === ',' && !inQuotes) { cells.push(cur.trim()); cur = ""; }
+        else { cur += ch; }
+      }
+      cells.push(cur.trim());
+      return cells;
+    });
+  }
+
+  async function loadSheet() {
+    const listEl = document.getElementById("charList");
+    if (!SHEET_CSV_URL || SHEET_CSV_URL.startsWith("여기에")) return;
+
+    try {
+      const res = await fetch(SHEET_CSV_URL + "&t=" + Date.now());
+      const csvText = await res.text();
+      const rows = parseCSV(csvText);
+
+      let totalChecks = 0;
+      let doneChecks = 0;
+      let totalGold = 0;
+      const chars = [];
+
+      rows.forEach((cols, idx) => {
+        if (idx === 0) return; // 헤더 행 건너뛰기
+        const rowStr = cols.join(" ");
+
+        // 체크박스(TRUE/FALSE) 집계
+        const checks = cols.filter(c => c === "TRUE" || c === "FALSE");
+        const trues = checks.filter(c => c === "TRUE").length;
+        totalChecks += checks.length;
+        doneChecks += trues;
+
+        // 아이템 레벨(1400~1800대 숫자) 탐색
+        const lvCell = cols.find(c => /^1[4-8]\d{2}(\.\d+)?$/.test(c.replace(/,/g, "")));
+
+        // 골드(만 단위 이상 숫자 또는 G 포함 셀) 탐색
+        const goldCell = cols.find(c => /[\d,]{4,}\s*G?$/i.test(c) && c !== lvCell);
+        if (goldCell) {
+          const num = parseInt(goldCell.replace(/[^0-9]/g, ""), 10);
+          if (!isNaN(num) && num >= 1000 && num < 5000000) totalGold += num;
+        }
+
+        // 캐릭터 이름이 있는 행 추출 (한글/영문 2~12자 + 레벨 또는 체크박스 존재)
+        const nameCell = cols.find(c => /^[가-힣a-zA-Z0-9]{2,12}$/.test(c) && c !== "TRUE" && c !== "FALSE");
+        if (nameCell && (lvCell || checks.length > 0)) {
+          chars.push({
+            name: nameCell,
+            lv: lvCell ? lvCell.split(".")[0] : "",
+            done: trues,
+            total: checks.length
+          });
+        }
+      });
+
+      const pct = totalChecks > 0 ? Math.round((doneChecks / totalChecks) * 100) : 0;
+      document.getElementById("progVal").textContent = totalChecks > 0 ? `${pct}% (${doneChecks}/${totalChecks})` : "-";
+      document.getElementById("goldVal").textContent = totalGold > 0 ? `${totalGold.toLocaleString()} G` : "-";
+
+      if (chars.length === 0) {
+        listEl.innerHTML = `<div class="empty-txt">표시할 캐릭터 행을 찾지 못했습니다</div>`;
+        return;
+      }
+
+      listEl.innerHTML = "";
+      chars.slice(0, 4).forEach(ch => {
+        const isAllDone = ch.total > 0 && ch.done === ch.total;
+        const row = document.createElement("div");
+        row.className = "c-row";
+        row.innerHTML = `
+          <div class="c-left">
+            <span class="c-name">${ch.name}</span>
+            ${ch.lv ? `<span class="c-lv">${ch.lv}</span>` : ""}
+          </div>
+          <span class="c-status ${isAllDone ? "done" : ""}">
+            ${ch.total > 0 ? (isAllDone ? "완료" : `${ch.done}/${ch.total}`) : "대기"}
+          </span>
+        `;
+        listEl.appendChild(row);
+      });
+    } catch (e) {
+      listEl.innerHTML = `<div class="empty-txt">시트 데이터를 불러오지 못했습니다</div>`;
+    }
+  }
+
+  loadSheet();
+</script>
+</body>
+</html>
