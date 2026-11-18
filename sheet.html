@@ -36,11 +36,6 @@
     align-items: center;
     justify-content: space-between;
   }
-  .s-left {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
   .s-badge {
     font-size: 10px;
     font-weight: 800;
@@ -48,11 +43,6 @@
     border-radius: 7px;
     background: #E4F1FA;
     color: #3D7496;
-  }
-  .s-pct {
-    font-size: 10.5px;
-    font-weight: 900;
-    color: #D96B8A;
   }
   .s-refresh {
     border: none;
@@ -65,10 +55,43 @@
   }
   .s-refresh:hover { color: #E58FA7; }
 
+  /* 상단 요약 2칸 (상위 3개 레이드 진행률 / 주간 골드) */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .sum-box {
+    background: #FDF7F9;
+    border: 1px solid #F6E2E7;
+    border-radius: 12px;
+    padding: 7px 6px;
+    text-align: center;
+  }
+  .sum-box.gold {
+    background: #FCF9EE;
+    border-color: #F3E7C3;
+  }
+  .sum-label {
+    font-size: 9px;
+    font-weight: 700;
+    color: #9A908C;
+    margin-bottom: 2px;
+  }
+  .sum-val {
+    font-size: 12px;
+    font-weight: 900;
+    color: #D96B8A;
+    white-space: nowrap;
+  }
+  .sum-box.gold .sum-val {
+    color: #B88428;
+  }
+
   /* 전체 진행률 바 */
   .prog-track {
     width: 100%;
-    height: 5px;
+    height: 4.5px;
     background: #F8EEF1;
     border-radius: 999px;
     overflow: hidden;
@@ -81,12 +104,12 @@
     transition: width 0.3s ease;
   }
 
-  /* 캐릭터별 미니 리스트 */
+  /* 캐릭터별 상위 3개 레이드 진행 리스트 */
   .char-list {
     display: flex;
     flex-direction: column;
     gap: 4.5px;
-    max-height: 148px;
+    max-height: 132px;
     overflow-y: auto;
     padding-right: 2px;
   }
@@ -152,11 +175,19 @@
 <body>
   <div class="sheet-card">
     <div class="s-head">
-      <div class="s-left">
-        <span class="s-badge">주간 숙제</span>
-        <span class="s-pct" id="progVal">- %</span>
-      </div>
+      <span class="s-badge">주간 레이드 · 골드</span>
       <button type="button" class="s-refresh" onclick="loadSheet()" title="시트 새로고침">↻</button>
+    </div>
+
+    <div class="summary-grid">
+      <div class="sum-box">
+        <div class="sum-label">상위 3레이드</div>
+        <div class="sum-val" id="progVal">- %</div>
+      </div>
+      <div class="sum-box gold">
+        <div class="sum-label">주간 골드</div>
+        <div class="sum-val" id="goldVal">- G</div>
+      </div>
     </div>
 
     <div class="prog-track">
@@ -164,13 +195,23 @@
     </div>
 
     <div class="char-list" id="charList">
-      <div class="empty-txt">시트 주소를 연결하면<br>캐릭터 숙제가 표시됩니다</div>
+      <div class="empty-txt">시트 주소를 연결하면<br>진행률이 표시됩니다</div>
     </div>
   </div>
 
 <script>
   // ★ 구글 시트 [파일 -> 공유 -> 웹에 게시 -> .csv] 주소를 따옴표 안에 넣어주세요 ★
-  const SHEET_CSV_URL = "여기에_복사한_CSV_주소_붙여넣기";
+  const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQB78npcV_7wD3up_SU2gpLBlNJ-HvNMLZb3kvM6k_UGRWpR7NvQbQ-YcafMzE-baZqIgeqvRBhw3AP/pub?gid=1409386821&single=true&output=csv";
+
+  // 시트 열 기준 상위 레이드 우선순위 (G:벨가르딘, H:세르카, I:지평, J/K:종막, L:4막)
+  const RAID_COLS = [
+    { idx: 6, gold: 45000 }, // G: 벨가르딘
+    { idx: 7, gold: 38000 }, // H: 세르카
+    { idx: 8, gold: 35000 }, // I: 지평
+    { idx: 9, gold: 33000 }, // J: 종막(1)
+    { idx: 10, gold: 33000 }, // K: 종막(2)
+    { idx: 11, gold: 28000 }  // L: 4막
+  ];
 
   function parseCSV(text) {
     return text.trim().split(/\r?\n/).map(line => {
@@ -197,36 +238,68 @@
       const csvText = await res.text();
       const rows = parseCSV(csvText);
 
-      // 4행(인덱스 3) 헤더 및 5행(인덱스 4)부터 캐릭터 데이터 읽기
-      // C열(2): 닉네임, D열(3): 직업, G열(6)~N열(13): 주간 숙제 체크박스
-      let totalChecks = 0;
-      let doneChecks = 0;
+      let totalTop3 = 0;
+      let doneTop3 = 0;
+      let sheetExplicitGold = 0;
+      let estimatedGold = 0;
       const chars = [];
 
+      // 상단 요약 행(1~3행)이나 우측에 총 주간 골드 셀이 있는지 탐색
+      for (let r = 0; r < rows.length; r++) {
+        const rowStr = rows[r].join(" ");
+        if (rowStr.includes("주간") && rowStr.includes("골드")) {
+          const gCell = rows[r].find(c => /^[\d,]{4,}\s*G?$/i.test(c.trim()));
+          if (gCell) {
+            const val = parseInt(gCell.replace(/[^0-9]/g, ""), 10);
+            if (!isNaN(val)) sheetExplicitGold = val;
+          }
+        }
+      }
+
+      // 5행(인덱스 4)부터 캐릭터별 최상위 레이드 3개 추출
       for (let r = 4; r < rows.length; r++) {
         const cols = rows[r];
         const name = (cols[2] || "").trim();
         const job = (cols[3] || "").trim();
         if (!name || name === "닉네임") continue;
 
-        const taskCols = cols.slice(6, 14);
-        const validChecks = taskCols.filter(v => v === "TRUE" || v === "FALSE");
-        const doneCount = validChecks.filter(v => v === "TRUE").length;
+        // 해당 캐릭터에 체크박스가 존재하는 레이드 중 가장 높은 3개만 선택
+        const activeRaids = [];
+        for (const rc of RAID_COLS) {
+          const val = (cols[rc.idx] || "").trim().toUpperCase();
+          if (val === "TRUE" || val === "FALSE") {
+            activeRaids.push({ done: val === "TRUE", gold: rc.gold });
+            if (activeRaids.length === 3) break;
+          }
+        }
 
-        totalChecks += validChecks.length;
-        doneChecks += doneCount;
+        if (activeRaids.length === 0) continue;
+
+        const doneCount = activeRaids.filter(x => x.done).length;
+        totalTop3 += activeRaids.length;
+        doneTop3 += doneCount;
+
+        // 골드 획득 지정 캐릭터(상위 6캐릭 기준) 완료 골드 합산
+        if (chars.length < 6) {
+          activeRaids.forEach(x => {
+            if (x.done) estimatedGold += x.gold;
+          });
+        }
 
         chars.push({
           name,
           job,
           done: doneCount,
-          total: validChecks.length
+          total: activeRaids.length
         });
       }
 
-      const pct = totalChecks > 0 ? Math.round((doneChecks / totalChecks) * 100) : 0;
-      document.getElementById("progVal").textContent = totalChecks > 0 ? `${pct}% (${doneChecks}/${totalChecks})` : "-";
+      const pct = totalTop3 > 0 ? Math.round((doneTop3 / totalTop3) * 100) : 0;
+      document.getElementById("progVal").textContent = totalTop3 > 0 ? `${pct}% (${doneTop3}/${totalTop3})` : "-";
       document.getElementById("progFill").style.width = `${pct}%`;
+
+      const displayGold = sheetExplicitGold > 0 ? sheetExplicitGold : estimatedGold;
+      document.getElementById("goldVal").textContent = `${displayGold.toLocaleString()} G`;
 
       if (chars.length === 0) {
         listEl.innerHTML = `<div class="empty-txt">캐릭터 데이터를 찾지 못했습니다</div>`;
@@ -235,7 +308,7 @@
 
       listEl.innerHTML = "";
       chars.forEach(ch => {
-        const isAllDone = ch.total > 0 && ch.done === ch.total;
+        const isAllDone = ch.done === ch.total;
         const row = document.createElement("div");
         row.className = "c-row";
         row.innerHTML = `
@@ -244,7 +317,7 @@
             ${ch.job ? `<span class="c-job">${ch.job}</span>` : ""}
           </div>
           <span class="c-status ${isAllDone ? "done" : ""}">
-            ${ch.total > 0 ? (isAllDone ? "완료" : `${ch.done}/${ch.total}`) : "-"}
+            ${isAllDone ? "완료" : `${ch.done}/${ch.total}`}
           </span>
         `;
         listEl.appendChild(row);
