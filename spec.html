@@ -184,20 +184,28 @@
   .opt-mid  { background: #F5EEFF; border: 1px solid #E0CEF7; color: #6E42A8; } /* 중: 보라 */
   .opt-low  { background: #EAF6FF; border: 1px solid #CBE6FA; color: #2E6F9E; } /* 하: 하늘 */
 
-  /* 아크 그리드 */
+  /* 아크 그리드 젬 레벨 */
   .grid-pill {
     font-size: 9px;
     font-weight: 800;
     padding: 2px 6.5px;
     border-radius: 6px;
-    background: #F7F4FD;
-    border: 1px solid #E6DDF7;
-    color: #63499E;
+    background: #F0F9FF;
+    border: 1px solid #CBE8FA;
+    color: #266A99;
+    display: inline-flex;
+    align-items: center;
+    gap: 3.5px;
   }
-  .grid-pill.ancient {
-    background: #FCF8EE;
-    border-color: #F2E2B8;
-    color: #9C6D14;
+  .grid-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #38BDF8;
+    flex-shrink: 0;
+  }
+  .grid-pill b {
+    color: #1A4E75;
   }
 
   /* 보석 */
@@ -282,12 +290,10 @@
             }).join("")
           : `<div class="acc-item"><span class="acc-part">장착 악세 없음</span></div>`;
 
-        const gridHtml = (data.arkGrid || []).length > 0
-          ? data.arkGrid.map(g => {
-              const isAnc = g.grade === "고대";
-              const gShort = g.grade ? g.grade.slice(0, 1) : "";
-              return `<span class="grid-pill ${isAnc ? "ancient" : ""}">${g.name} ${gShort}${g.point}P</span>`;
-            }).join("")
+        const gridHtml = (data.arkGridEffects || []).length > 0
+          ? data.arkGridEffects.map(g =>
+              `<span class="grid-pill"><span class="grid-dot"></span>${g.name} <b>Lv.${g.level}</b></span>`
+            ).join("")
           : `<span class="grid-pill">미적용</span>`;
 
         const gemHtml = (data.gems || []).length > 0
