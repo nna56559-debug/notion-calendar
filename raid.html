@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: transparent;
+    width: 100%;
+    overflow-x: hidden;
+  }
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 4px;
+  }
+
+  .raid-card {
+    width: 100%;
+    background: #FFFFFF;
+    border: 1.5px solid #F9E5E9;
+    border-radius: 22px;
+    padding: 12px 14px 12px;
+    box-shadow: 0 4px 16px rgba(244, 182, 198, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .r-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+  }
+  .r-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .r-badge {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2.5px 8px;
+    border-radius: 7px;
+    background: #FCE6ED;
+    color: #C95B7A;
+  }
+  .r-pct {
+    font-size: 10.5px;
+    font-weight: 900;
+    color: #D96B8A;
+  }
+
+  /* 닉네임 검색 미니 바 */
+  .search-box {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+    justify-content: flex-end;
+    min-width: 0;
+  }
+  .search-input {
+    width: 96px;
+    max-width: 100%;
+    border: 1px solid #F2DCE2;
+    background: #FDFBFC;
+    border-radius: 7px;
+    padding: 2.5px 7px;
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 700;
+    color: #4A4442;
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+  .search-input::placeholder {
+    color: #BEB5B2;
+    font-weight: 600;
+  }
+  .search-input:focus {
+    border-color: #F29CB4;
+    background: #FFFFFF;
+  }
+  .search-btn {
+    border: none;
+    background: #E4F1FA;
+    color: #3D7496;
+    font-family: inherit;
+    font-size: 9.5px;
+    font-weight: 800;
+    padding: 3px 7px;
+    border-radius: 7px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s ease;
+  }
+  .search-btn:hover {
+    background: #D0E8F7;
+  }
+  .r-reset {
+    border: none;
+    background: transparent;
+    color: #AED9EB;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    padding: 0 2px;
+    flex-shrink: 0;
+  }
+  .r-reset:hover { color: #E58FA7; }
+
+  .prog-track {
+    width: 100%;
+    height: 4.5px;
+    background: #F8EEF1;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .prog-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #F6B4CA, #AED9EB);
+    border-radius: 999px;
+    transition: width 0.25s ease;
+  }
+
+  .char-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4.5px;
+  }
+
+  .c-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    background: #FDFBFC;
+    border: 1px solid #F5E8EC;
+    border-radius: 10px;
+    padding: 4.5px 10px;
+    transition: all 0.15s ease;
+  }
+  .c-row.all-done {
+    background: #F7FCF9;
+    border-color: #DCEFE3;
+  }
+
+  .c-info {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+  }
+  .c-name {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: #4A4442;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .c-lv {
+    font-size: 8.5px;
+    font-weight: 700;
+    color: #938985;
+    background: #F4EFF1;
+    padding: 1px 5px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  .hearts {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .heart-btn {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .heart-btn:hover { transform: scale(1.18); }
+  .heart-btn:active { transform: scale(0.9); }
+  .heart-svg {
+    width: 14.5px;
+    height: 14.5px;
+    fill: #F7E8EC;
+    stroke: #E9B8C6;
+    stroke-width: 1.8;
+    transition: all 0.18s ease;
+  }
+  .heart-btn.checked .heart-svg {
+    fill: #F28BA8;
+    stroke: #E36B8E;
+    filter: drop-shadow(0 2px 4px rgba(242, 139, 168, 0.35));
+  }
+
+  .empty-txt {
+    text-align: center;
+    font-size: 10px;
+    color: #B5AEAB;
+    padding: 20px 0;
+  }
+</style>
+</head>
+<body>
+  <div class="raid-card">
+    <div class="r-head">
+      <div class="r-left">
+        <span class="r-badge">레이드</span>
+        <span class="r-pct" id="progVal">0% (0/18)</span>
+      </div>
+      <div class="search-box">
+        <input type="text" class="search-input" id="searchInput" placeholder="닉네임 검색" onkeydown="if(event.key==='Enter') searchRoster()">
+        <button type="button" class="search-btn" id="searchBtn" onclick="searchRoster()">검색</button>
+        <button type="button" class="r-reset" onclick="manualReset()" title="하트 전체 초기화">↻</button>
+      </div>
+    </div>
+
+    <div class="prog-track">
+      <div class="prog-fill" id="progFill"></div>
+    </div>
+
+    <div class="char-list" id="charList"></div>
+  </div>
+
+<script>
+  const API_BASE = "https://notion-cal.binhaha329.workers.dev";
+  const STORAGE_KEY = "lostark_pastel_hearts_v2";
+
+  const DEFAULT_CHARS = [
+    { name: "양녕하새오", lvText: "1,783", checks: [false, false, false] },
+    { name: "치즈보끔바", lvText: "1,772", checks: [false, false, false] },
+    { name: "맘념하새모", lvText: "1,770", checks: [false, false, false] },
+    { name: "해피무",     lvText: "1,765", checks: [false, false, false] },
+    { name: "아령하새오", lvText: "1,756", checks: [false, false, false] },
+    { name: "저리치와와", lvText: "1,740", checks: [false, false, false] }
+  ];
+
+  function getCurrentWeekKey() {
+    const now = new Date();
+    const kst = new Date(now.getTime() + (9 * 60 + now.getTimezoneOffset()) * 60000);
+    const shifted = new Date(kst.getTime() - 6 * 3600 * 1000);
+    const day = shifted.getDay();
+    const diffToWed = (day + 4) % 7;
+    shifted.setDate(shifted.getDate() - diffToWed);
+    return `${shifted.getFullYear()}-${shifted.getMonth() + 1}-${shifted.getDate()}`;
+  }
+
+  function loadState() {
+    const weekKey = getCurrentWeekKey();
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      if (saved && Array.isArray(saved.chars)) {
+        if (saved.weekKey !== weekKey) {
+          saved.chars.forEach(c => c.checks = [false, false, false]);
+          saved.weekKey = weekKey;
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+        }
+        return saved;
+      }
+    } catch (e) {}
+    const init = { weekKey, chars: JSON.parse(JSON.stringify(DEFAULT_CHARS)) };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(init));
+    return init;
+  }
+
+  let state = loadState();
+
+  function saveState() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  async function searchRoster() {
+    const input = document.getElementById("searchInput");
+    const btn = document.getElementById("searchBtn");
+    const keyword = input.value.trim();
+    if (!keyword) return;
+
+    btn.textContent = "조회중";
+    btn.disabled = true;
+
+    try {
+      const res = await fetch(`${API_BASE}/siblings?name=${encodeURIComponent(keyword)}`);
+      const list = await res.json();
+
+      if (!Array.isArray(list) || list.length === 0) {
+        alert("캐릭터를 찾을 수 없습니다. 닉네임을 확인해 주세요.");
+      } else {
+        // 기존 체크 상태가 있던 캐릭터는 하트 기록 유지
+        const prevMap = {};
+        state.chars.forEach(c => { prevMap[c.name] = c.checks; });
+
+        state.chars = list.map(item => ({
+          name: item.name,
+          lvText: item.lvText,
+          checks: prevMap[item.name] || [false, false, false]
+        }));
+        saveState();
+        render();
+        input.value = "";
+      }
+    } catch (e) {
+      alert("원정대 정보를 불러오는 중 오류가 발생했습니다.");
+    } finally {
+      btn.textContent = "검색";
+      btn.disabled = false;
+    }
+  }
+
+  function toggleHeart(charIdx, heartIdx) {
+    state.chars[charIdx].checks[heartIdx] = !state.chars[charIdx].checks[heartIdx];
+    saveState();
+    render();
+  }
+
+  function manualReset() {
+    if (!confirm("모든 캐릭터의 하트를 초기화할까요?")) return;
+    state.chars.forEach(c => c.checks = [false, false, false]);
+    saveState();
+    render();
+  }
+
+  function render() {
+    const listEl = document.getElementById("charList");
+    listEl.innerHTML = "";
+
+    let total = 0;
+    let done = 0;
+
+    state.chars.forEach((ch, cIdx) => {
+      const cDone = ch.checks.filter(Boolean).length;
+      total += 3;
+      done += cDone;
+
+      const row = document.createElement("div");
+      row.className = "c-row" + (cDone === 3 ? " all-done" : "");
+
+      const infoDiv = document.createElement("div");
+      infoDiv.className = "c-info";
+
+      const nameSpan = document.createElement("span");
+      nameSpan.className = "c-name";
+      nameSpan.textContent = ch.name;
+      infoDiv.appendChild(nameSpan);
+
+      if (ch.lvText) {
+        const lvSpan = document.createElement("span");
+        lvSpan.className = "c-lv";
+        lvSpan.textContent = ch.lvText;
+        infoDiv.appendChild(lvSpan);
+      }
+
+      const heartsDiv = document.createElement("div");
+      heartsDiv.className = "hearts";
+
+      ch.checks.forEach((checked, hIdx) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "heart-btn" + (checked ? " checked" : "");
+        btn.onclick = () => toggleHeart(cIdx, hIdx);
+        btn.innerHTML = `
+          <svg class="heart-svg" viewBox="0 0 24 24">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+          </svg>
+        `;
+        heartsDiv.appendChild(btn);
+      });
+
+      row.appendChild(infoDiv);
+      row.appendChild(heartsDiv);
+      listEl.appendChild(row);
+    });
+
+    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+    document.getElementById("progVal").textContent = `${pct}% (${done}/${total})`;
+    document.getElementById("progFill").style.width = `${pct}%`;
+  }
+
+  render();
+</script>
+</body>
+</html>
