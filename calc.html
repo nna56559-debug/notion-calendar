@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: transparent;
+    width: 100%;
+    overflow-x: hidden;
+  }
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 4px;
+  }
+
+  .calc-card {
+    width: 100%;
+    background: #FFFFFF;
+    border: 1.5px solid #F9E5E9;
+    border-radius: 20px;
+    padding: 11px 12px;
+    box-shadow: 0 4px 16px rgba(244, 182, 198, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .c-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .c-badge {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2.5px 7px;
+    border-radius: 7px;
+    background: #FCE6ED;
+    color: #C95B7A;
+  }
+  .c-clear {
+    border: none;
+    background: transparent;
+    color: #AED9EB;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
+    padding: 0 3px;
+  }
+  .c-clear:hover { color: #E58FA7; }
+
+  .input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .price-input {
+    width: 100%;
+    border: 1.2px solid #F2DCE2;
+    background: #FDFBFC;
+    border-radius: 9px;
+    padding: 5px 22px 5px 8px;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 800;
+    color: #4A4442;
+    text-align: right;
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+  .price-input::placeholder {
+    color: #C4BBB8;
+    font-weight: 600;
+    font-size: 10px;
+  }
+  .price-input:focus {
+    border-color: #F29CB4;
+    background: #FFFFFF;
+  }
+  .unit-g {
+    position: absolute;
+    right: 8px;
+    font-size: 9.5px;
+    font-weight: 800;
+    color: #B37E22;
+    pointer-events: none;
+  }
+
+  .party-box {
+    border-radius: 11px;
+    padding: 6px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .party-box.p4 {
+    background: #F6FBFE;
+    border: 1px solid #DFEEF7;
+  }
+  .party-box.p8 {
+    background: #FDF8FA;
+    border: 1px solid #F6E2E8;
+  }
+
+  .p-title {
+    font-size: 9.5px;
+    font-weight: 900;
+    letter-spacing: -0.2px;
+  }
+  .p4 .p-title { color: #3D7496; }
+  .p8 .p-title { color: #C95B7A; }
+
+  .res-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+    cursor: pointer;
+    padding: 1.5px 3px;
+    border-radius: 5px;
+    transition: background 0.12s ease;
+  }
+  .res-row:hover {
+    background: rgba(255, 255, 255, 0.85);
+  }
+  .res-label {
+    font-size: 9px;
+    font-weight: 700;
+    color: #8C8280;
+  }
+  .res-val {
+    font-size: 10.5px;
+    font-weight: 900;
+    color: #4A4442;
+    font-variant-numeric: tabular-nums;
+  }
+  .res-val.copied {
+    color: #3D7A56;
+    font-size: 9.5px;
+  }
+</style>
+</head>
+<body>
+  <div class="calc-card">
+    <div class="c-head">
+      <span class="c-badge">경매</span>
+      <button type="button" class="c-clear" onclick="resetCalc()" title="초기화">↻</button>
+    </div>
+
+    <div class="input-wrap">
+      <input type="text" inputmode="numeric" class="price-input" id="priceInput" placeholder="거래소 시세" oninput="onPriceInput(this)">
+      <span class="unit-g">G</span>
+    </div>
+
+    <div class="party-box p4">
+      <div class="p-title">4인</div>
+      <div class="res-row" onclick="copyNum('p4Profit')">
+        <span class="res-label">손익</span>
+        <span class="res-val" id="p4Profit">0</span>
+      </div>
+      <div class="res-row" onclick="copyNum('p4Equal')">
+        <span class="res-label">균등</span>
+        <span class="res-val" id="p4Equal">0</span>
+      </div>
+    </div>
+
+    <div class="party-box p8">
+      <div class="p-title">8인</div>
+      <div class="res-row" onclick="copyNum('p8Profit')">
+        <span class="res-label">손익</span>
+        <span class="res-val" id="p8Profit">0</span>
+      </div>
+      <div class="res-row" onclick="copyNum('p8Equal')">
+        <span class="res-label">균등</span>
+        <span class="res-val" id="p8Equal">0</span>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const values = { p4Profit: 0, p4Equal: 0, p8Profit: 0, p8Equal: 0 };
+
+  function onPriceInput(el) {
+    const raw = el.value.replace(/[^0-9]/g, "");
+    if (!raw) {
+      el.value = "";
+      updateValues(0);
+      return;
+    }
+    const num = parseInt(raw, 10);
+    el.value = num.toLocaleString();
+    updateValues(num);
+  }
+
+  function updateValues(price) {
+    // 4인: 균등 = 시세 * 0.95 * (3/4), 손익(선점가) = 균등 / 1.1
+    const eq4 = Math.floor(price * 0.95 * 0.75);
+    const pr4 = Math.floor(eq4 / 1.1);
+
+    // 8인: 균등 = 시세 * 0.95 * (7/8), 손익(선점가) = 균등 / 1.1
+    const eq8 = Math.floor(price * 0.95 * 0.875);
+    const pr8 = Math.floor(eq8 / 1.1);
+
+    values.p4Profit = pr4;
+    values.p4Equal = eq4;
+    values.p8Profit = pr8;
+    values.p8Equal = eq8;
+
+    document.getElementById("p4Profit").textContent = pr4.toLocaleString();
+    document.getElementById("p4Equal").textContent = eq4.toLocaleString();
+    document.getElementById("p8Profit").textContent = pr8.toLocaleString();
+    document.getElementById("p8Equal").textContent = eq8.toLocaleString();
+  }
+
+  function resetCalc() {
+    const input = document.getElementById("priceInput");
+    input.value = "";
+    updateValues(0);
+    input.focus();
+  }
+
+  function copyNum(key) {
+    const val = values[key];
+    if (!val) return;
+    const el = document.getElementById(key);
+    const orig = val.toLocaleString();
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(String(val)).catch(() => {});
+    }
+    el.textContent = "복사됨!";
+    el.classList.add("copied");
+    setTimeout(() => {
+      el.textContent = orig;
+      el.classList.remove("copied");
+    }, 900);
+  }
+</script>
+</body>
+</html>
