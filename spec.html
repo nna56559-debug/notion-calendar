@@ -76,10 +76,10 @@
     background: #FDFBFC;
     border: 1px solid #F5E8EC;
     border-radius: 12px;
-    padding: 8px 10px;
+    padding: 7px 10px;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 3px;
   }
   .prof-top {
     display: flex;
@@ -88,12 +88,12 @@
     gap: 6px;
   }
   .p-name {
-    font-size: 12px;
+    font-size: 11.5px;
     font-weight: 900;
     color: #4A4442;
   }
   .p-lv {
-    font-size: 10.5px;
+    font-size: 10px;
     font-weight: 900;
     color: #C95B7A;
     background: #FCE8EE;
@@ -104,7 +104,7 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 9.5px;
+    font-size: 9px;
     font-weight: 700;
     color: #8C8280;
     flex-wrap: wrap;
@@ -113,16 +113,16 @@
     color: #B37E22;
     background: #FCF6E3;
     border: 1px solid #F3E5BE;
-    padding: 1px 5px;
+    padding: 0.5px 5px;
     border-radius: 5px;
-    font-size: 9px;
+    font-size: 8.5px;
     font-weight: 800;
   }
 
   .sec-row {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 3.5px;
   }
   .sec-label {
     font-size: 9px;
@@ -134,19 +134,65 @@
     flex-wrap: wrap;
     gap: 4px;
   }
-  .ark-pill {
-    font-size: 9.5px;
+
+  .eq-pill {
+    font-size: 9px;
     font-weight: 800;
-    padding: 2.5px 7px;
+    padding: 2px 6.5px;
     border-radius: 6px;
     background: #F2F8FC;
     border: 1px solid #DCECF7;
     color: #3D7496;
   }
-  .gem-pill {
-    font-size: 9.5px;
-    font-weight: 800;
+  .eq-pill b { color: #265675; }
+
+  .acc-list {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .acc-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    font-size: 9px;
+    background: #FAF9FB;
+    border: 1px solid #EFEAF3;
+    border-radius: 7px;
     padding: 2.5px 7px;
+  }
+  .acc-left {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .acc-part {
+    font-weight: 800;
+    color: #5C5350;
+  }
+  .acc-qual {
+    font-size: 8px;
+    font-weight: 800;
+    padding: 0.5px 4px;
+    border-radius: 4px;
+    background: #FCF6E3;
+    color: #A87620;
+  }
+  .acc-opts {
+    font-weight: 700;
+    color: #6E59A8;
+    text-align: right;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .gem-pill {
+    font-size: 9px;
+    font-weight: 800;
+    padding: 2px 6.5px;
     border-radius: 6px;
     background: #FDF4F7;
     border: 1px solid #F5DCE3;
@@ -168,7 +214,7 @@
 <body>
   <div class="spec-card">
     <div class="s-head">
-      <span class="s-badge">스펙</span>
+      <span class="s-badge">캐릭터 조회</span>
       <div class="search-box">
         <input type="text" class="search-input" id="nameInput" placeholder="닉네임 조회" onkeydown="if(event.key==='Enter') fetchSpec()">
         <button type="button" class="search-btn" id="searchBtn" onclick="fetchSpec()">조회</button>
@@ -203,9 +249,28 @@
         const subParts = [data.server, data.job, data.guild ? `길드 ${data.guild}` : ""].filter(Boolean);
         const cpHtml = data.combatPower ? `<span class="cp-tag">전투력 ${data.combatPower}</span>` : "";
 
-        const arkHtml = (data.arkPoints || []).length > 0
-          ? data.arkPoints.map(a => `<span class="ark-pill">${a.name} ${a.value}</span>`).join("")
-          : `<span class="ark-pill">아크 패시브 미적용</span>`;
+        const eqHtml = (data.equipments || []).length > 0
+          ? data.equipments.map(e => {
+              const extraTxt = e.extra ? ` (${e.extra})` : "";
+              return `<span class="eq-pill">${e.part} <b>${e.hone}</b>${extraTxt}</span>`;
+            }).join("")
+          : `<span class="eq-pill">장착 장비 없음</span>`;
+
+        const accHtml = (data.accessories || []).length > 0
+          ? data.accessories.map(a => {
+              const qHtml = typeof a.quality === "number" ? `<span class="acc-qual">품${a.quality}</span>` : "";
+              const optTxt = (a.opts || []).length > 0 ? a.opts.join(" · ") : "연마 없음";
+              return `
+                <div class="acc-item">
+                  <div class="acc-left">
+                    <span class="acc-part">${a.part}</span>
+                    ${qHtml}
+                  </div>
+                  <span class="acc-opts">${optTxt}</span>
+                </div>
+              `;
+            }).join("")
+          : `<div class="acc-item"><span class="acc-part">장착 악세 없음</span></div>`;
 
         const gemHtml = (data.gems || []).length > 0
           ? data.gems.map(g => {
@@ -227,12 +292,17 @@
           </div>
 
           <div class="sec-row">
-            <span class="sec-label">아크 패시브</span>
-            <div class="tag-wrap">${arkHtml}</div>
+            <span class="sec-label">장비</span>
+            <div class="tag-wrap">${eqHtml}</div>
           </div>
 
           <div class="sec-row">
-            <span class="sec-label">보석 요약</span>
+            <span class="sec-label">악세</span>
+            <div class="acc-list">${accHtml}</div>
+          </div>
+
+          <div class="sec-row">
+            <span class="sec-label">보석</span>
             <div class="tag-wrap">${gemHtml}</div>
           </div>
         `;
