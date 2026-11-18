@@ -31,6 +31,7 @@
     gap: 7px;
   }
 
+  /* 1번째 줄: 레이드 진행률 + 골드 */
   .r-head {
     display: flex;
     align-items: center;
@@ -41,7 +42,7 @@
     display: flex;
     align-items: center;
     gap: 5px;
-    flex-shrink: 0;
+    flex-wrap: wrap;
   }
   .r-badge {
     font-size: 10px;
@@ -67,18 +68,94 @@
     color: #B37E22;
     white-space: nowrap;
   }
+  .r-reset {
+    border: none;
+    background: transparent;
+    color: #AED9EB;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
+    padding: 1px 4px;
+    border-radius: 5px;
+    flex-shrink: 0;
+  }
+  .r-reset:hover {
+    color: #E58FA7;
+    background: #FDF5F7;
+  }
+
+  /* 2번째 줄: 원정대 드롭다운(좌) + 닉네임 검색창(우) */
+  .sub-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+  }
+
+  .roster-select-wrap {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+  }
+  .roster-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-color: #FCE8EE;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23C95B7A' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    border: 1px solid #F3C3D1;
+    border-radius: 9px;
+    padding: 3px 22px 3px 9px;
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 800;
+    color: #C95B7A;
+    cursor: pointer;
+    outline: none;
+    max-width: 120px;
+    text-overflow: ellipsis;
+    transition: all 0.15s ease;
+  }
+  .roster-select:hover, .roster-select:focus {
+    background-color: #FADCE5;
+    border-color: #EB9FB5;
+  }
+  .roster-select option {
+    background: #FFFFFF;
+    color: #4A4442;
+    font-weight: 700;
+  }
+
+  .roster-del-btn {
+    border: none;
+    background: #FDF5F7;
+    color: #D49AA9;
+    font-size: 10px;
+    font-weight: 800;
+    width: 18px;
+    height: 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .roster-del-btn:hover {
+    background: #FCE6ED;
+    color: #C95B7A;
+  }
 
   .search-box {
     display: flex;
     align-items: center;
     gap: 4px;
-    flex: 1;
-    justify-content: flex-end;
-    min-width: 0;
+    flex-shrink: 0;
   }
   .search-input {
-    width: 82px;
-    max-width: 100%;
+    width: 84px;
     border: 1px solid #F2DCE2;
     background: #FDFBFC;
     border-radius: 7px;
@@ -105,74 +182,12 @@
     font-family: inherit;
     font-size: 9.5px;
     font-weight: 800;
-    padding: 3px 6.5px;
+    padding: 3px 7px;
     border-radius: 7px;
     cursor: pointer;
     flex-shrink: 0;
   }
   .search-btn:hover { background: #D0E8F7; }
-  .r-reset {
-    border: none;
-    background: transparent;
-    color: #AED9EB;
-    font-size: 12px;
-    font-weight: 800;
-    cursor: pointer;
-    padding: 0 2px;
-    flex-shrink: 0;
-  }
-  .r-reset:hover { color: #E58FA7; }
-
-  .roster-tabs {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    overflow-x: auto;
-    padding-bottom: 1px;
-  }
-  .roster-tabs::-webkit-scrollbar { height: 2px; }
-  .roster-tabs::-webkit-scrollbar-thumb { background: #F2DCE2; border-radius: 999px; }
-
-  .r-tab {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    border: 1px solid #F2E2E7;
-    background: #FDF9FA;
-    color: #8E8285;
-    font-family: inherit;
-    font-size: 9.5px;
-    font-weight: 700;
-    padding: 2.5px 8px;
-    border-radius: 8px;
-    cursor: pointer;
-    white-space: nowrap;
-    flex-shrink: 0;
-    transition: all 0.15s ease;
-  }
-  .r-tab:hover {
-    border-color: #EAB6C5;
-    color: #C95B7A;
-  }
-  .r-tab.active {
-    background: #FCE8EE;
-    border-color: #F3B8C9;
-    color: #C95B7A;
-    font-weight: 800;
-  }
-  .tab-del {
-    font-size: 10px;
-    line-height: 1;
-    color: #C7B3B9;
-    padding-left: 1px;
-    display: none;
-  }
-  .r-tab:hover .tab-del {
-    display: inline;
-  }
-  .tab-del:hover {
-    color: #D95374;
-  }
 
   .prog-track {
     width: 100%;
@@ -275,15 +290,20 @@
         <span class="r-badge">레이드</span>
         <span class="r-pct" id="progVal">0% (0/18)</span>
         <span class="r-gold" id="goldVal">0 G</span>
-      </div>
-      <div class="search-box">
-        <input type="text" class="search-input" id="searchInput" placeholder="닉네임 검색" onkeydown="if(event.key==='Enter') searchRoster()">
-        <button type="button" class="search-btn" id="searchBtn" onclick="searchRoster()">검색</button>
         <button type="button" class="r-reset" onclick="manualReset()" title="현재 원정대 하트 초기화">↻</button>
       </div>
     </div>
 
-    <div class="roster-tabs" id="rosterTabs"></div>
+    <div class="sub-bar">
+      <div class="roster-select-wrap">
+        <select class="roster-select" id="rosterSelect" onchange="selectRoster(this.value)" title="원정대 선택"></select>
+        <button type="button" class="roster-del-btn" id="rosterDelBtn" onclick="removeCurrentRoster()" title="현재 원정대 목록 삭제">×</button>
+      </div>
+      <div class="search-box">
+        <input type="text" class="search-input" id="searchInput" placeholder="닉네임 검색" onkeydown="if(event.key==='Enter') searchRoster()">
+        <button type="button" class="search-btn" id="searchBtn" onclick="searchRoster()">검색</button>
+      </div>
+    </div>
 
     <div class="prog-track">
       <div class="prog-fill" id="progFill"></div>
@@ -323,13 +343,11 @@
     return 13000;
   }
 
-  // 한국 시간(KST) 기준 매주 수요일 오전 06:00 주차 키 반환
   function getCurrentWeekKey() {
     const now = new Date();
     const kst = new Date(now.getTime() + (9 * 60 + now.getTimezoneOffset()) * 60000);
-    // 오전 6시를 자정(0시)처럼 취급해 수요일 06:00 전후로 주차가 갈리도록 계산
     const shifted = new Date(kst.getTime() - 6 * 3600 * 1000);
-    const day = shifted.getDay(); // 0:일, 1:월, 2:화, 3:수, 4:목, 5:금, 6:토
+    const day = shifted.getDay();
     const diffToWed = (day + 4) % 7;
     shifted.setDate(shifted.getDate() - diffToWed);
     return `${shifted.getFullYear()}-${String(shifted.getMonth() + 1).padStart(2, "0")}-${String(shifted.getDate()).padStart(2, "0")}`;
@@ -355,7 +373,6 @@
       return null;
     }
 
-    // 수요일 오전 06:00이 지나면 원정대·캐릭터는 유지하고 하트 체크만 false로 초기화
     let weekChanged = false;
     if (raw.weekKey !== currentWeek) {
       rosters.forEach(r => {
@@ -373,7 +390,6 @@
     };
   }
 
-  // 화면을 켜둔 상태로 수요일 오전 6시를 넘겨도 1분마다 감지해 하트만 초기화
   function checkWeeklyAutoReset() {
     const currentWeek = getCurrentWeekKey();
     if (state.weekKey !== currentWeek) {
@@ -435,17 +451,13 @@
     saveState();
   }
 
-  function removeRoster(e, id) {
-    e.stopPropagation();
-    if (state.rosters.length <= 1) {
-      alert("최소 1개의 원정대 목록은 유지되어야 합니다.");
-      return;
-    }
-    if (!confirm("이 원정대 탭을 목록에서 삭제할까요?")) return;
-    state.rosters = state.rosters.filter(r => r.id !== id);
-    if (state.activeId === id) {
-      state.activeId = state.rosters[0].id;
-    }
+  function removeCurrentRoster() {
+    if (state.rosters.length <= 1) return;
+    const current = getActiveRoster();
+    if (!current) return;
+    if (!confirm(`[${current.label}] 원정대 목록을 삭제할까요?`)) return;
+    state.rosters = state.rosters.filter(r => r.id !== current.id);
+    state.activeId = state.rosters[0].id;
     render();
     saveState();
   }
@@ -526,30 +538,20 @@
   }
 
   function render() {
-    const tabsEl = document.getElementById("rosterTabs");
-    tabsEl.innerHTML = "";
+    // 1) 원정대 드롭다운 렌더링
+    const selectEl = document.getElementById("rosterSelect");
+    const delBtnEl = document.getElementById("rosterDelBtn");
+    selectEl.innerHTML = "";
     state.rosters.forEach(r => {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "r-tab" + (r.id === state.activeId ? " active" : "");
-      btn.onclick = () => selectRoster(r.id);
-
-      const labelSpan = document.createElement("span");
-      labelSpan.textContent = r.label;
-      btn.appendChild(labelSpan);
-
-      if (state.rosters.length > 1) {
-        const delSpan = document.createElement("span");
-        delSpan.className = "tab-del";
-        delSpan.textContent = "×";
-        delSpan.title = "목록 삭제";
-        delSpan.onclick = (e) => removeRoster(e, r.id);
-        btn.appendChild(delSpan);
-      }
-
-      tabsEl.appendChild(btn);
+      const opt = document.createElement("option");
+      opt.value = r.id;
+      opt.textContent = r.label;
+      if (r.id === state.activeId) opt.selected = true;
+      selectEl.appendChild(opt);
     });
+    delBtnEl.style.display = state.rosters.length > 1 ? "flex" : "none";
 
+    // 2) 선택된 원정대 캐릭터 리스트 렌더링
     const listEl = document.getElementById("charList");
     listEl.innerHTML = "";
 
