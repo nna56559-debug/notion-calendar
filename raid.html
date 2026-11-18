@@ -31,7 +31,6 @@
     gap: 7px;
   }
 
-  /* 1번째 줄: 레이드 진행률 + 골드 */
   .r-head {
     display: flex;
     align-items: center;
@@ -84,7 +83,6 @@
     background: #FDF5F7;
   }
 
-  /* 2번째 줄: 원정대 드롭다운(좌) + 닉네임 검색창(우) */
   .sub-bar {
     display: flex;
     align-items: center;
@@ -116,17 +114,8 @@
     outline: none;
     max-width: 120px;
     text-overflow: ellipsis;
-    transition: all 0.15s ease;
   }
-  .roster-select:hover, .roster-select:focus {
-    background-color: #FADCE5;
-    border-color: #EB9FB5;
-  }
-  .roster-select option {
-    background: #FFFFFF;
-    color: #4A4442;
-    font-weight: 700;
-  }
+  .roster-select:hover { background-color: #FADCE5; }
 
   .roster-del-btn {
     border: none;
@@ -143,10 +132,7 @@
     justify-content: center;
     flex-shrink: 0;
   }
-  .roster-del-btn:hover {
-    background: #FCE6ED;
-    color: #C95B7A;
-  }
+  .roster-del-btn:hover { background: #FCE6ED; color: #C95B7A; }
 
   .search-box {
     display: flex;
@@ -165,16 +151,9 @@
     font-weight: 700;
     color: #4A4442;
     outline: none;
-    transition: border-color 0.15s ease;
   }
-  .search-input::placeholder {
-    color: #BEB5B2;
-    font-weight: 600;
-  }
-  .search-input:focus {
-    border-color: #F29CB4;
-    background: #FFFFFF;
-  }
+  .search-input::placeholder { color: #BEB5B2; font-weight: 600; }
+  .search-input:focus { border-color: #F29CB4; background: #FFFFFF; }
   .search-btn {
     border: none;
     background: #E4F1FA;
@@ -314,7 +293,7 @@
 
 <script>
   const API_BASE = "https://notion-cal.binhaha329.workers.dev";
-  const STORAGE_KEY = "lostark_pastel_rosters_v4";
+  const STORAGE_KEY = "lostark_pastel_rosters_v5";
 
   const DEFAULT_ROSTERS = [
     {
@@ -331,16 +310,17 @@
     }
   ];
 
-  function getGoldPerHeart(lvText) {
+  // 캐릭터 아이템 레벨 구간별 상위 3개 레이드의 핵심 골드 구조
+  function getTop3RaidGolds(lvText) {
     const lv = parseFloat(String(lvText || "0").replace(/,/g, "")) || 0;
-    if (lv >= 1770) return 38000;
-    if (lv >= 1740) return 34000;
-    if (lv >= 1720) return 31000;
-    if (lv >= 1700) return 28000;
-    if (lv >= 1680) return 25000;
-    if (lv >= 1660) return 21500;
-    if (lv >= 1640) return 18000;
-    return 13000;
+    if (lv >= 1760) return [14000, 13000, 11000]; // 예: 상위 3개 레이드 합산 및 개별 분배 골드
+    if (lv >= 1740) return [13000, 12000, 10000];
+    if (lv >= 1720) return [12000, 11000, 9500];
+    if (lv >= 1700) return [11000, 10000, 9000];
+    if (lv >= 1680) return [10000, 9000, 8000];
+    if (lv >= 1660) return [8500, 7500, 6500];
+    if (lv >= 1640) return [7000, 6000, 5000];
+    return [5000, 4500, 4000];
   }
 
   function getCurrentWeekKey() {
@@ -538,7 +518,6 @@
   }
 
   function render() {
-    // 1) 원정대 드롭다운 렌더링
     const selectEl = document.getElementById("rosterSelect");
     const delBtnEl = document.getElementById("rosterDelBtn");
     selectEl.innerHTML = "";
@@ -551,7 +530,6 @@
     });
     delBtnEl.style.display = state.rosters.length > 1 ? "flex" : "none";
 
-    // 2) 선택된 원정대 캐릭터 리스트 렌더링
     const listEl = document.getElementById("charList");
     listEl.innerHTML = "";
 
@@ -566,7 +544,14 @@
       const cDone = ch.checks.filter(Boolean).length;
       total += 3;
       done += cDone;
-      totalGold += cDone * getGoldPerHeart(ch.lvText);
+
+      // 해당 캐릭터의 상위 3개 레이드 개별 골드 단가 배열 가져오기
+      const golds = getTop3RaidGolds(ch.lvText);
+      ch.checks.forEach((checked, hIdx) => {
+        if (checked) {
+          totalGold += (golds[hIdx] || golds[golds.length - 1]);
+        }
+      });
 
       const row = document.createElement("div");
       row.className = "c-row" + (cDone === 3 ? " all-done" : "");
