@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: transparent;
+    width: 100%;
+    overflow-x: hidden;
+  }
+  body { display: flex; justify-content: center; padding: 4px; }
+
+  .spec-card {
+    width: 100%;
+    background: #FFFFFF;
+    border: 1.5px solid #F9E5E9;
+    border-radius: 22px;
+    padding: 12px 14px;
+    box-shadow: 0 4px 16px rgba(244, 182, 198, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .s-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+  }
+  .s-badge {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2.5px 7px;
+    border-radius: 7px;
+    background: #FCE6ED;
+    color: #C95B7A;
+    flex-shrink: 0;
+  }
+  .search-box {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .search-input {
+    width: 96px;
+    border: 1px solid #F2DCE2;
+    background: #FDFBFC;
+    border-radius: 7px;
+    padding: 3px 7px;
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 700;
+    color: #4A4442;
+    outline: none;
+  }
+  .search-input:focus { border-color: #F29CB4; background: #FFFFFF; }
+  .search-btn {
+    border: none;
+    background: #E4F1FA;
+    color: #3D7496;
+    font-family: inherit;
+    font-size: 9.5px;
+    font-weight: 800;
+    padding: 3.5px 8px;
+    border-radius: 7px;
+    cursor: pointer;
+  }
+  .search-btn:hover { background: #D0E8F7; }
+
+  .prof-box {
+    background: #FDFBFC;
+    border: 1px solid #F5E8EC;
+    border-radius: 12px;
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .prof-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+  }
+  .p-name {
+    font-size: 12px;
+    font-weight: 900;
+    color: #4A4442;
+  }
+  .p-lv {
+    font-size: 10.5px;
+    font-weight: 900;
+    color: #C95B7A;
+    background: #FCE8EE;
+    padding: 2px 7px;
+    border-radius: 6px;
+  }
+  .prof-sub {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 9.5px;
+    font-weight: 700;
+    color: #8C8280;
+    flex-wrap: wrap;
+  }
+  .cp-tag {
+    color: #B37E22;
+    background: #FCF6E3;
+    border: 1px solid #F3E5BE;
+    padding: 1px 5px;
+    border-radius: 5px;
+    font-size: 9px;
+    font-weight: 800;
+  }
+
+  .sec-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .sec-label {
+    font-size: 9px;
+    font-weight: 800;
+    color: #9A908D;
+  }
+  .tag-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .ark-pill {
+    font-size: 9.5px;
+    font-weight: 800;
+    padding: 2.5px 7px;
+    border-radius: 6px;
+    background: #F2F8FC;
+    border: 1px solid #DCECF7;
+    color: #3D7496;
+  }
+  .gem-pill {
+    font-size: 9.5px;
+    font-weight: 800;
+    padding: 2.5px 7px;
+    border-radius: 6px;
+    background: #FDF4F7;
+    border: 1px solid #F5DCE3;
+    color: #C95B7A;
+  }
+  .gem-pill.cd {
+    background: #F3FAF6;
+    border-color: #DCEEE3;
+    color: #3D7A56;
+  }
+  .empty-txt {
+    text-align: center;
+    font-size: 10px;
+    color: #B5AEAB;
+    padding: 28px 0;
+  }
+</style>
+</head>
+<body>
+  <div class="spec-card">
+    <div class="s-head">
+      <span class="s-badge">스펙</span>
+      <div class="search-box">
+        <input type="text" class="search-input" id="nameInput" placeholder="닉네임 조회" onkeydown="if(event.key==='Enter') fetchSpec()">
+        <button type="button" class="search-btn" id="searchBtn" onclick="fetchSpec()">조회</button>
+      </div>
+    </div>
+
+    <div id="contentArea">
+      <div class="empty-txt">불러오는 중...</div>
+    </div>
+  </div>
+
+<script>
+  const API_BASE = "https://notion-cal.binhaha329.workers.dev";
+
+  async function fetchSpec(defaultName) {
+    const input = document.getElementById("nameInput");
+    const btn = document.getElementById("searchBtn");
+    const area = document.getElementById("contentArea");
+    const keyword = (defaultName || input.value).trim();
+    if (!keyword) return;
+
+    btn.textContent = "조회중";
+    btn.disabled = true;
+
+    try {
+      const res = await fetch(`${API_BASE}/spec?name=${encodeURIComponent(keyword)}&t=${Date.now()}`);
+      const data = await res.json();
+
+      if (!data || !data.ok) {
+        area.innerHTML = `<div class="empty-txt">캐릭터 정보를 찾을 수 없어요</div>`;
+      } else {
+        const subParts = [data.server, data.job, data.guild ? `길드 ${data.guild}` : ""].filter(Boolean);
+        const cpHtml = data.combatPower ? `<span class="cp-tag">전투력 ${data.combatPower}</span>` : "";
+
+        const arkHtml = (data.arkPoints || []).length > 0
+          ? data.arkPoints.map(a => `<span class="ark-pill">${a.name} ${a.value}</span>`).join("")
+          : `<span class="ark-pill">아크 패시브 미적용</span>`;
+
+        const gemHtml = (data.gems || []).length > 0
+          ? data.gems.map(g => {
+              const isCd = g.label.includes("작") || g.label.includes("홍");
+              return `<span class="gem-pill ${isCd ? "cd" : ""}">${g.label} ×${g.count}</span>`;
+            }).join("")
+          : `<span class="gem-pill">장착 보석 없음</span>`;
+
+        area.innerHTML = `
+          <div class="prof-box">
+            <div class="prof-top">
+              <span class="p-name">${data.name}</span>
+              <span class="p-lv">Lv.${data.lv}</span>
+            </div>
+            <div class="prof-sub">
+              <span>${subParts.join(" · ")}</span>
+              ${cpHtml}
+            </div>
+          </div>
+
+          <div class="sec-row">
+            <span class="sec-label">아크 패시브</span>
+            <div class="tag-wrap">${arkHtml}</div>
+          </div>
+
+          <div class="sec-row">
+            <span class="sec-label">보석 요약</span>
+            <div class="tag-wrap">${gemHtml}</div>
+          </div>
+        `;
+        if (!defaultName) input.value = "";
+      }
+    } catch (e) {
+      area.innerHTML = `<div class="empty-txt">조회 중 오류가 발생했어요</div>`;
+    } finally {
+      btn.textContent = "조회";
+      btn.disabled = false;
+    }
+  }
+
+  fetchSpec("양녕하새오");
+</script>
+</body>
+</html>
