@@ -65,9 +65,9 @@
     border: 1.2px solid #F2DCE2;
     background: #FDFBFC;
     border-radius: 9px;
-    padding: 5px 22px 5px 8px;
+    padding: 6px 24px 6px 10px;
     font-family: inherit;
-    font-size: 11px;
+    font-size: 11.5px;
     font-weight: 800;
     color: #4A4442;
     text-align: right;
@@ -85,7 +85,7 @@
   }
   .unit-g {
     position: absolute;
-    right: 8px;
+    right: 9px;
     font-size: 9.5px;
     font-weight: 800;
     color: #B37E22;
@@ -154,7 +154,16 @@
     </div>
 
     <div class="input-wrap">
-      <input type="text" inputmode="numeric" class="price-input" id="priceInput" placeholder="거래소 시세" oninput="onPriceInput(this)">
+      <input
+        type="text"
+        inputmode="numeric"
+        class="price-input"
+        id="priceInput"
+        placeholder="거래소 시세"
+        oninput="onPriceInput(this)"
+        onfocus="onPriceFocus(this)"
+        onblur="onPriceBlur(this)"
+      >
       <span class="unit-g">G</span>
     </div>
 
@@ -188,6 +197,17 @@
 
   function onPriceInput(el) {
     const raw = el.value.replace(/[^0-9]/g, "");
+    const num = raw ? parseInt(raw, 10) : 0;
+    updateValues(num);
+  }
+
+  function onPriceFocus(el) {
+    const raw = el.value.replace(/[^0-9]/g, "");
+    el.value = raw;
+  }
+
+  function onPriceBlur(el) {
+    const raw = el.value.replace(/[^0-9]/g, "");
     if (!raw) {
       el.value = "";
       updateValues(0);
@@ -199,11 +219,9 @@
   }
 
   function updateValues(price) {
-    // 4인: 균등 = 시세 * 0.95 * (3/4), 손익(선점가) = 균등 / 1.1
     const eq4 = Math.floor(price * 0.95 * 0.75);
     const pr4 = Math.floor(eq4 / 1.1);
 
-    // 8인: 균등 = 시세 * 0.95 * (7/8), 손익(선점가) = 균등 / 1.1
     const eq8 = Math.floor(price * 0.95 * 0.875);
     const pr8 = Math.floor(eq8 / 1.1);
 
