@@ -57,16 +57,6 @@
     color: #D96B8A;
     white-space: nowrap;
   }
-  .r-gold {
-    font-size: 10px;
-    font-weight: 800;
-    padding: 2px 6.5px;
-    border-radius: 6px;
-    background: #FCF6E3;
-    border: 1px solid #F3E5BE;
-    color: #B37E22;
-    white-space: nowrap;
-  }
   .r-reset {
     border: none;
     background: transparent;
@@ -90,12 +80,6 @@
     gap: 6px;
   }
 
-  .roster-select-wrap {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    min-width: 0;
-  }
   .roster-select {
     appearance: none;
     -webkit-appearance: none;
@@ -112,27 +96,10 @@
     color: #C95B7A;
     cursor: pointer;
     outline: none;
-    max-width: 120px;
+    max-width: 140px;
     text-overflow: ellipsis;
   }
   .roster-select:hover { background-color: #FADCE5; }
-
-  .roster-del-btn {
-    border: none;
-    background: #FDF5F7;
-    color: #D49AA9;
-    font-size: 10px;
-    font-weight: 800;
-    width: 18px;
-    height: 18px;
-    border-radius: 6px;
-    cursor: pointer;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-  .roster-del-btn:hover { background: #FCE6ED; color: #C95B7A; }
 
   .search-box {
     display: flex;
@@ -187,7 +154,12 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
+    max-height: 180px;
+    overflow-y: auto;
+    padding-right: 2px;
   }
+  .char-list::-webkit-scrollbar { width: 3px; }
+  .char-list::-webkit-scrollbar-thumb { background: #F2DCE2; border-radius: 999px; }
 
   .c-row {
     display: flex;
@@ -267,17 +239,13 @@
     <div class="r-head">
       <div class="r-left">
         <span class="r-badge">레이드</span>
-        <span class="r-pct" id="progVal">0% (0/18)</span>
-        <span class="r-gold" id="goldVal">0 G</span>
+        <span class="r-pct" id="progVal">0% (0/0)</span>
         <button type="button" class="r-reset" onclick="manualReset()" title="현재 원정대 하트 초기화">↻</button>
       </div>
     </div>
 
     <div class="sub-bar">
-      <div class="roster-select-wrap">
-        <select class="roster-select" id="rosterSelect" onchange="selectRoster(this.value)" title="원정대 선택"></select>
-        <button type="button" class="roster-del-btn" id="rosterDelBtn" onclick="removeCurrentRoster()" title="현재 원정대 목록 삭제">×</button>
-      </div>
+      <select class="roster-select" id="rosterSelect" onchange="selectRoster(this.value)" title="원정대 선택"></select>
       <div class="search-box">
         <input type="text" class="search-input" id="searchInput" placeholder="닉네임 검색" onkeydown="if(event.key==='Enter') searchRoster()">
         <button type="button" class="search-btn" id="searchBtn" onclick="searchRoster()">검색</button>
@@ -293,7 +261,7 @@
 
 <script>
   const API_BASE = "https://notion-cal.binhaha329.workers.dev";
-  const STORAGE_KEY = "lostark_pastel_rosters_v5";
+  const STORAGE_KEY = "lostark_pastel_rosters_v6";
 
   const DEFAULT_ROSTERS = [
     {
@@ -309,19 +277,6 @@
       ]
     }
   ];
-
-  // 캐릭터 아이템 레벨 구간별 상위 3개 레이드의 핵심 골드 구조
-  function getTop3RaidGolds(lvText) {
-    const lv = parseFloat(String(lvText || "0").replace(/,/g, "")) || 0;
-    if (lv >= 1760) return [14000, 13000, 11000]; // 예: 상위 3개 레이드 합산 및 개별 분배 골드
-    if (lv >= 1740) return [13000, 12000, 10000];
-    if (lv >= 1720) return [12000, 11000, 9500];
-    if (lv >= 1700) return [11000, 10000, 9000];
-    if (lv >= 1680) return [10000, 9000, 8000];
-    if (lv >= 1660) return [8500, 7500, 6500];
-    if (lv >= 1640) return [7000, 6000, 5000];
-    return [5000, 4500, 4000];
-  }
 
   function getCurrentWeekKey() {
     const now = new Date();
@@ -431,17 +386,6 @@
     saveState();
   }
 
-  function removeCurrentRoster() {
-    if (state.rosters.length <= 1) return;
-    const current = getActiveRoster();
-    if (!current) return;
-    if (!confirm(`[${current.label}] 원정대 목록을 삭제할까요?`)) return;
-    state.rosters = state.rosters.filter(r => r.id !== current.id);
-    state.activeId = state.rosters[0].id;
-    render();
-    saveState();
-  }
-
   async function searchRoster() {
     const input = document.getElementById("searchInput");
     const btn = document.getElementById("searchBtn");
@@ -468,6 +412,7 @@
           existing.chars.forEach(c => { prevMap[c.name] = c.checks; });
         }
 
+        // slice(0, 6)을 제거하여 서버 원정대의 모든 캐릭터가 전부 등록되도록 변경
         const updatedChars = list.map(item => ({
           name: item.name,
           lvText: item.lvText,
@@ -519,7 +464,6 @@
 
   function render() {
     const selectEl = document.getElementById("rosterSelect");
-    const delBtnEl = document.getElementById("rosterDelBtn");
     selectEl.innerHTML = "";
     state.rosters.forEach(r => {
       const opt = document.createElement("option");
@@ -528,7 +472,6 @@
       if (r.id === state.activeId) opt.selected = true;
       selectEl.appendChild(opt);
     });
-    delBtnEl.style.display = state.rosters.length > 1 ? "flex" : "none";
 
     const listEl = document.getElementById("charList");
     listEl.innerHTML = "";
@@ -538,20 +481,11 @@
 
     let total = 0;
     let done = 0;
-    let totalGold = 0;
 
     activeRoster.chars.forEach((ch, cIdx) => {
       const cDone = ch.checks.filter(Boolean).length;
       total += 3;
       done += cDone;
-
-      // 해당 캐릭터의 상위 3개 레이드 개별 골드 단가 배열 가져오기
-      const golds = getTop3RaidGolds(ch.lvText);
-      ch.checks.forEach((checked, hIdx) => {
-        if (checked) {
-          totalGold += (golds[hIdx] || golds[golds.length - 1]);
-        }
-      });
 
       const row = document.createElement("div");
       row.className = "c-row" + (cDone === 3 ? " all-done" : "");
@@ -594,7 +528,6 @@
 
     const pct = total > 0 ? Math.round((done / total) * 100) : 0;
     document.getElementById("progVal").textContent = `${pct}% (${done}/${total})`;
-    document.getElementById("goldVal").textContent = `${totalGold.toLocaleString()} G`;
     document.getElementById("progFill").style.width = `${pct}%`;
   }
 
