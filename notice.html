@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: transparent;
+    width: 100%;
+    overflow-x: hidden;
+  }
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 4px;
+  }
+
+  .notice-card {
+    width: 100%;
+    background: #FFFFFF;
+    border: 1.5px solid #F9E5E9;
+    border-radius: 22px;
+    padding: 13px 15px 12px;
+    box-shadow: 0 4px 16px rgba(244, 182, 198, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .n-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .tab-group {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .tab-btn {
+    border: none;
+    background: #F6F4F4;
+    color: #968E8B;
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 3px 9px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .tab-btn.active.pink {
+    background: #F7D6E0;
+    color: #9C4E65;
+  }
+  .tab-btn.active.blue {
+    background: #D8EEF8;
+    color: #3D7491;
+  }
+
+  .n-sub {
+    font-size: 9.5px;
+    font-weight: 700;
+    color: #B8AFA9;
+  }
+
+  .n-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .n-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    text-decoration: none;
+    background: #FDFBFC;
+    border: 1px solid #F6E6EB;
+    border-radius: 10px;
+    padding: 6px 9px;
+    transition: all 0.15s ease;
+  }
+  .n-item:hover {
+    background: #FFF6F9;
+    border-color: #F4B6C6;
+    transform: translateX(2px);
+  }
+
+  .n-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .n-tag {
+    font-size: 9px;
+    font-weight: 800;
+    padding: 1.5px 6px;
+    border-radius: 5px;
+    flex-shrink: 0;
+    background: #F3EFFB;
+    color: #6B5294;
+  }
+  .n-tag.maint { background: #FBE5E5; color: #A64B58; }
+  .n-tag.event { background: #DDF2E6; color: #367852; }
+  .n-tag.shop { background: #FBF1D6; color: #8A6D34; }
+
+  .n-title {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #4A4442;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .n-date {
+    font-size: 9px;
+    font-weight: 700;
+    color: #A39A96;
+    flex-shrink: 0;
+  }
+
+  .empty-txt {
+    text-align: center;
+    font-size: 10.5px;
+    color: #B5AEAB;
+    padding: 18px 0;
+  }
+</style>
+</head>
+<body>
+  <div class="notice-card">
+    <div class="n-head">
+      <div class="tab-group">
+        <button type="button" class="tab-btn active pink" id="tabNotice" onclick="switchTab('notice')">공지사항</button>
+        <button type="button" class="tab-btn blue" id="tabEvent" onclick="switchTab('event')">이벤트</button>
+      </div>
+      <span class="n-sub">클릭 시 원문 이동</span>
+    </div>
+    <div class="n-list" id="noticeList">
+      <div class="empty-txt">불러오는 중...</div>
+    </div>
+  </div>
+
+<script>
+  const API_URL = "https://notion-cal.binhaha329.workers.dev/notice";
+  let cacheData = { notices: [], events: [] };
+  let currentTab = "notice";
+
+  function getTagClass(type) {
+    if (!type) return "";
+    if (type.includes("점검")) return "maint";
+    if (type.includes("이벤트")) return "event";
+    if (type.includes("상점")) return "shop";
+    return "";
+  }
+
+  function formatShortDate(raw) {
+    if (!raw) return "";
+    return raw.slice(5, 10).replace("-", ".");
+  }
+
+  function switchTab(tab) {
+    currentTab = tab;
+    document.getElementById("tabNotice").classList.toggle("active", tab === "notice");
+    document.getElementById("tabEvent").classList.toggle("active", tab === "event");
+    renderList();
+  }
+
+  function renderList() {
+    const listEl = document.getElementById("noticeList");
+    listEl.innerHTML = "";
+
+    if (currentTab === "notice") {
+      const items = (cacheData.notices || []).slice(0, 3);
+      if (items.length === 0) {
+        listEl.innerHTML = `<div class="empty-txt">공지사항이 없습니다</div>`;
+        return;
+      }
+      items.forEach(n => {
+        const a = document.createElement("a");
+        a.className = "n-item";
+        a.href = n.Link;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        a.innerHTML = `
+          <div class="n-left">
+            <span class="n-tag ${getTagClass(n.Type)}">${n.Type || "공지"}</span>
+            <span class="n-title">${n.Title}</span>
+          </div>
+          <span class="n-date">${formatShortDate(n.Date)}</span>
+        `;
+        listEl.appendChild(a);
+      });
+    } else {
+      const items = (cacheData.events || []).slice(0, 3);
+      if (items.length === 0) {
+        listEl.innerHTML = `<div class="empty-txt">진행 중인 이벤트가 없습니다</div>`;
+        return;
+      }
+      items.forEach(ev => {
+        const a = document.createElement("a");
+        a.className = "n-item";
+        a.href = ev.Link;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        const endTxt = ev.EndDate ? `~${formatShortDate(ev.EndDate)}` : "";
+        a.innerHTML = `
+          <div class="n-left">
+            <span class="n-tag event">이벤트</span>
+            <span class="n-title">${ev.Title}</span>
+          </div>
+          <span class="n-date">${endTxt}</span>
+        `;
+        listEl.appendChild(a);
+      });
+    }
+  }
+
+  async function loadNotices() {
+    try {
+      const res = await fetch(API_URL);
+      cacheData = await res.json();
+    } catch (e) {}
+    renderList();
+  }
+
+  loadNotices();
+</script>
+</body>
+</html>
