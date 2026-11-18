@@ -37,14 +37,35 @@
     justify-content: space-between;
     gap: 6px;
   }
+  .r-left {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+  }
   .r-badge {
     font-size: 10px;
     font-weight: 800;
-    padding: 2.5px 8px;
+    padding: 2.5px 7px;
     border-radius: 7px;
     background: #FCE6ED;
     color: #C95B7A;
-    flex-shrink: 0;
+  }
+  .r-pct {
+    font-size: 10.5px;
+    font-weight: 900;
+    color: #D96B8A;
+    white-space: nowrap;
+  }
+  .r-gold {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 6.5px;
+    border-radius: 6px;
+    background: #FCF6E3;
+    border: 1px solid #F3E5BE;
+    color: #B37E22;
+    white-space: nowrap;
   }
 
   .search-box {
@@ -56,12 +77,12 @@
     min-width: 0;
   }
   .search-input {
-    width: 94px;
+    width: 82px;
     max-width: 100%;
     border: 1px solid #F2DCE2;
     background: #FDFBFC;
     border-radius: 7px;
-    padding: 2.5px 7px;
+    padding: 2.5px 6px;
     font-family: inherit;
     font-size: 10px;
     font-weight: 700;
@@ -84,7 +105,7 @@
     font-family: inherit;
     font-size: 9.5px;
     font-weight: 800;
-    padding: 3px 7px;
+    padding: 3px 6.5px;
     border-radius: 7px;
     cursor: pointer;
     flex-shrink: 0;
@@ -102,37 +123,55 @@
   }
   .r-reset:hover { color: #E58FA7; }
 
-  /* 상단 요약 2칸 (레이드 진행률 / 주간 골드) */
-  .summary-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px;
+  .roster-tabs {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    overflow-x: auto;
+    padding-bottom: 1px;
   }
-  .sum-box {
-    background: #FDF7F9;
-    border: 1px solid #F6E2E7;
-    border-radius: 11px;
-    padding: 5.5px 6px;
-    text-align: center;
-  }
-  .sum-box.gold {
-    background: #FCF9EE;
-    border-color: #F3E7C3;
-  }
-  .sum-label {
-    font-size: 8.5px;
+  .roster-tabs::-webkit-scrollbar { height: 2px; }
+  .roster-tabs::-webkit-scrollbar-thumb { background: #F2DCE2; border-radius: 999px; }
+
+  .r-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border: 1px solid #F2E2E7;
+    background: #FDF9FA;
+    color: #8E8285;
+    font-family: inherit;
+    font-size: 9.5px;
     font-weight: 700;
-    color: #9A908C;
-    margin-bottom: 1px;
-  }
-  .sum-val {
-    font-size: 11.5px;
-    font-weight: 900;
-    color: #D96B8A;
+    padding: 2.5px 8px;
+    border-radius: 8px;
+    cursor: pointer;
     white-space: nowrap;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
   }
-  .sum-box.gold .sum-val {
-    color: #B88428;
+  .r-tab:hover {
+    border-color: #EAB6C5;
+    color: #C95B7A;
+  }
+  .r-tab.active {
+    background: #FCE8EE;
+    border-color: #F3B8C9;
+    color: #C95B7A;
+    font-weight: 800;
+  }
+  .tab-del {
+    font-size: 10px;
+    line-height: 1;
+    color: #C7B3B9;
+    padding-left: 1px;
+    display: none;
+  }
+  .r-tab:hover .tab-del {
+    display: inline;
+  }
+  .tab-del:hover {
+    color: #D95374;
   }
 
   .prog-track {
@@ -232,24 +271,19 @@
 <body>
   <div class="raid-card">
     <div class="r-head">
-      <span class="r-badge">주간 레이드 · 골드</span>
+      <div class="r-left">
+        <span class="r-badge">레이드</span>
+        <span class="r-pct" id="progVal">0% (0/18)</span>
+        <span class="r-gold" id="goldVal">0 G</span>
+      </div>
       <div class="search-box">
         <input type="text" class="search-input" id="searchInput" placeholder="닉네임 검색" onkeydown="if(event.key==='Enter') searchRoster()">
         <button type="button" class="search-btn" id="searchBtn" onclick="searchRoster()">검색</button>
-        <button type="button" class="r-reset" onclick="manualReset()" title="하트 전체 초기화">↻</button>
+        <button type="button" class="r-reset" onclick="manualReset()" title="현재 원정대 하트 초기화">↻</button>
       </div>
     </div>
 
-    <div class="summary-grid">
-      <div class="sum-box">
-        <div class="sum-label">레이드</div>
-        <div class="sum-val" id="progVal">0% (0/18)</div>
-      </div>
-      <div class="sum-box gold">
-        <div class="sum-label">주간 골드</div>
-        <div class="sum-val" id="goldVal">0 G</div>
-      </div>
-    </div>
+    <div class="roster-tabs" id="rosterTabs"></div>
 
     <div class="prog-track">
       <div class="prog-fill" id="progFill"></div>
@@ -260,18 +294,23 @@
 
 <script>
   const API_BASE = "https://notion-cal.binhaha329.workers.dev";
-  const STORAGE_KEY = "lostark_pastel_hearts_v3";
+  const STORAGE_KEY = "lostark_pastel_rosters_v4";
 
-  const DEFAULT_CHARS = [
-    { name: "양녕하새오", lvText: "1,783", checks: [false, false, false] },
-    { name: "치즈보끔바", lvText: "1,772", checks: [false, false, false] },
-    { name: "맘념하새모", lvText: "1,770", checks: [false, false, false] },
-    { name: "해피무",     lvText: "1,765", checks: [false, false, false] },
-    { name: "아령하새오", lvText: "1,756", checks: [false, false, false] },
-    { name: "양녕전사",   lvText: "1,733", checks: [false, false, false] }
+  const DEFAULT_ROSTERS = [
+    {
+      id: "양녕하새오",
+      label: "양녕하새오",
+      chars: [
+        { name: "양녕하새오", lvText: "1,783", checks: [false, false, false] },
+        { name: "치즈보끔바", lvText: "1,772", checks: [false, false, false] },
+        { name: "맘념하새모", lvText: "1,770", checks: [false, false, false] },
+        { name: "해피무",     lvText: "1,765", checks: [false, false, false] },
+        { name: "아령하새오", lvText: "1,756", checks: [false, false, false] },
+        { name: "양녕전사",   lvText: "1,733", checks: [false, false, false] }
+      ]
+    }
   ];
 
-  // 아이템 레벨 기준 하트(레이드) 1개당 획득 골드 계산
   function getGoldPerHeart(lvText) {
     const lv = parseFloat(String(lvText || "0").replace(/,/g, "")) || 0;
     if (lv >= 1770) return 38000;
@@ -284,52 +323,91 @@
     return 13000;
   }
 
+  // 한국 시간(KST) 기준 매주 수요일 오전 06:00 주차 키 반환
   function getCurrentWeekKey() {
     const now = new Date();
     const kst = new Date(now.getTime() + (9 * 60 + now.getTimezoneOffset()) * 60000);
+    // 오전 6시를 자정(0시)처럼 취급해 수요일 06:00 전후로 주차가 갈리도록 계산
     const shifted = new Date(kst.getTime() - 6 * 3600 * 1000);
-    const day = shifted.getDay();
+    const day = shifted.getDay(); // 0:일, 1:월, 2:화, 3:수, 4:목, 5:금, 6:토
     const diffToWed = (day + 4) % 7;
     shifted.setDate(shifted.getDate() - diffToWed);
-    return `${shifted.getFullYear()}-${shifted.getMonth() + 1}-${shifted.getDate()}`;
+    return `${shifted.getFullYear()}-${String(shifted.getMonth() + 1).padStart(2, "0")}-${String(shifted.getDate()).padStart(2, "0")}`;
   }
 
   let state = {
     weekKey: getCurrentWeekKey(),
-    chars: JSON.parse(JSON.stringify(DEFAULT_CHARS))
+    activeId: DEFAULT_ROSTERS[0].id,
+    rosters: JSON.parse(JSON.stringify(DEFAULT_ROSTERS))
   };
 
-  function applyWeekCheck(targetState) {
+  function normalizeState(raw) {
+    if (!raw || typeof raw !== "object") return null;
     const currentWeek = getCurrentWeekKey();
-    if (targetState.weekKey !== currentWeek) {
-      targetState.chars.forEach(c => c.checks = [false, false, false]);
-      targetState.weekKey = currentWeek;
-      return true;
+    let rosters = [];
+
+    if (Array.isArray(raw.rosters) && raw.rosters.length > 0) {
+      rosters = raw.rosters;
+    } else if (Array.isArray(raw.chars) && raw.chars.length > 0) {
+      const topName = raw.chars[0].name || "원정대 1";
+      rosters = [{ id: topName, label: topName, chars: raw.chars }];
+    } else {
+      return null;
     }
-    return false;
+
+    // 수요일 오전 06:00이 지나면 원정대·캐릭터는 유지하고 하트 체크만 false로 초기화
+    let weekChanged = false;
+    if (raw.weekKey !== currentWeek) {
+      rosters.forEach(r => {
+        (r.chars || []).forEach(c => {
+          c.checks = [false, false, false];
+        });
+      });
+      weekChanged = true;
+    }
+
+    const activeId = rosters.some(r => r.id === raw.activeId) ? raw.activeId : rosters[0].id;
+    return {
+      normalized: { weekKey: currentWeek, activeId, rosters },
+      weekChanged
+    };
   }
 
+  // 화면을 켜둔 상태로 수요일 오전 6시를 넘겨도 1분마다 감지해 하트만 초기화
+  function checkWeeklyAutoReset() {
+    const currentWeek = getCurrentWeekKey();
+    if (state.weekKey !== currentWeek) {
+      state.weekKey = currentWeek;
+      state.rosters.forEach(r => {
+        (r.chars || []).forEach(c => {
+          c.checks = [false, false, false];
+        });
+      });
+      render();
+      saveState();
+    }
+  }
+  setInterval(checkWeeklyAutoReset, 60000);
+
   async function loadState() {
-    // 1) 로컬 캐시 먼저 즉시 표시
     try {
       const localSaved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-      if (localSaved && Array.isArray(localSaved.chars) && localSaved.chars.length > 0) {
-        applyWeekCheck(localSaved);
-        state = localSaved;
+      const resNorm = normalizeState(localSaved);
+      if (resNorm) {
+        state = resNorm.normalized;
         render();
       }
     } catch (e) {}
 
-    // 2) 노션 DB(/raid)에서 영구 저장된 상태 동기화
     try {
       const res = await fetch(`${API_BASE}/raid?t=${Date.now()}`);
       const data = await res.json();
-      if (data && data.state && Array.isArray(data.state.chars) && data.state.chars.length > 0) {
-        const resetOccurred = applyWeekCheck(data.state);
-        state = data.state;
+      const resNorm = normalizeState(data && data.state);
+      if (resNorm) {
+        state = resNorm.normalized;
         try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
         render();
-        if (resetOccurred) saveState();
+        if (resNorm.weekChanged) saveState();
       }
     } catch (e) {}
   }
@@ -345,6 +423,31 @@
         body: JSON.stringify({ state })
       }).catch(() => {});
     }, 300);
+  }
+
+  function getActiveRoster() {
+    return state.rosters.find(r => r.id === state.activeId) || state.rosters[0];
+  }
+
+  function selectRoster(id) {
+    state.activeId = id;
+    render();
+    saveState();
+  }
+
+  function removeRoster(e, id) {
+    e.stopPropagation();
+    if (state.rosters.length <= 1) {
+      alert("최소 1개의 원정대 목록은 유지되어야 합니다.");
+      return;
+    }
+    if (!confirm("이 원정대 탭을 목록에서 삭제할까요?")) return;
+    state.rosters = state.rosters.filter(r => r.id !== id);
+    if (state.activeId === id) {
+      state.activeId = state.rosters[0].id;
+    }
+    render();
+    saveState();
   }
 
   async function searchRoster() {
@@ -363,14 +466,36 @@
       if (!Array.isArray(list) || list.length === 0) {
         alert("캐릭터를 찾을 수 없습니다. 닉네임을 확인해 주세요.");
       } else {
-        const prevMap = {};
-        state.chars.forEach(c => { prevMap[c.name] = c.checks; });
+        const rosterId = list[0].name;
+        const existing = state.rosters.find(
+          r => r.id === rosterId || r.chars.some(c => list.some(l => l.name === c.name))
+        );
 
-        state.chars = list.map(item => ({
+        const prevMap = {};
+        if (existing) {
+          existing.chars.forEach(c => { prevMap[c.name] = c.checks; });
+        }
+
+        const updatedChars = list.map(item => ({
           name: item.name,
           lvText: item.lvText,
           checks: prevMap[item.name] || [false, false, false]
         }));
+
+        if (existing) {
+          existing.id = rosterId;
+          existing.label = rosterId;
+          existing.chars = updatedChars;
+          state.activeId = rosterId;
+        } else {
+          state.rosters.push({
+            id: rosterId,
+            label: rosterId,
+            chars: updatedChars
+          });
+          state.activeId = rosterId;
+        }
+
         render();
         saveState();
         input.value = "";
@@ -384,27 +509,58 @@
   }
 
   function toggleHeart(charIdx, heartIdx) {
-    state.chars[charIdx].checks[heartIdx] = !state.chars[charIdx].checks[heartIdx];
+    const roster = getActiveRoster();
+    if (!roster) return;
+    roster.chars[charIdx].checks[heartIdx] = !roster.chars[charIdx].checks[heartIdx];
     render();
     saveState();
   }
 
   function manualReset() {
-    if (!confirm("모든 캐릭터의 하트를 초기화할까요?")) return;
-    state.chars.forEach(c => c.checks = [false, false, false]);
+    const roster = getActiveRoster();
+    if (!roster) return;
+    if (!confirm(`[${roster.label}] 원정대의 하트를 초기화할까요?`)) return;
+    roster.chars.forEach(c => { c.checks = [false, false, false]; });
     render();
     saveState();
   }
 
   function render() {
+    const tabsEl = document.getElementById("rosterTabs");
+    tabsEl.innerHTML = "";
+    state.rosters.forEach(r => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "r-tab" + (r.id === state.activeId ? " active" : "");
+      btn.onclick = () => selectRoster(r.id);
+
+      const labelSpan = document.createElement("span");
+      labelSpan.textContent = r.label;
+      btn.appendChild(labelSpan);
+
+      if (state.rosters.length > 1) {
+        const delSpan = document.createElement("span");
+        delSpan.className = "tab-del";
+        delSpan.textContent = "×";
+        delSpan.title = "목록 삭제";
+        delSpan.onclick = (e) => removeRoster(e, r.id);
+        btn.appendChild(delSpan);
+      }
+
+      tabsEl.appendChild(btn);
+    });
+
     const listEl = document.getElementById("charList");
     listEl.innerHTML = "";
+
+    const activeRoster = getActiveRoster();
+    if (!activeRoster) return;
 
     let total = 0;
     let done = 0;
     let totalGold = 0;
 
-    state.chars.forEach((ch, cIdx) => {
+    activeRoster.chars.forEach((ch, cIdx) => {
       const cDone = ch.checks.filter(Boolean).length;
       total += 3;
       done += cDone;
