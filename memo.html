@@ -92,7 +92,9 @@
     outline: none;
     border-radius: 4px;
     padding: 1px 2px;
+    min-height: 15px;
   }
+  .m-title:empty::before { content: "제목 입력..."; color: #C5BCBA; font-weight: 600; }
   .m-title:focus { background: #FFF8FA; }
   .green .m-title:focus { background: #F4FBF6; }
 
@@ -150,63 +152,73 @@
     try {
       const res = await fetch(`${API_BASE}/memo?t=${Date.now()}`);
       const data = await res.json();
-      items = Array.isArray(data.items) ? data.items : [];
-      render();
-    } catch (e) {}
-  }
-
-  async function addCard(group) {
-    const tempId = "temp_" + Date.now();
-    const newItem = { pageId: tempId, title: "새 항목", group, note: "" };
-    items.push(newItem);
-    render();
-
-    try {
-      const res = await fetch(`${API_BASE}/memo`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "create", title: newItem.title, group, note: "" })
-      });
-      const data = await res.json();
-      if (data.pageId) {
-        newItem.pageId = data.pageId;
-      } else {
-        await loadMemos();
+      if (Array.isArray(data.items)) {
+        items = data.items;
+        render();
       }
     } catch (e) {}
   }
 
-  async function updateCard(item, newTitle, newNote) {
-    const title = newTitle.trim() || "새 항목";
-    const note = newNote.trim();
-    if (item.title === title && item.note === note) return;
-    item.title = title;
-    item.note = note;
+  function addCard(group) {
+    const tempId = "temp_" + Date.now();
+    const newItem = { pageId: tempId, title: "", group, note: "", _creating: null };
+    items.push(newItem);
+    render(tempId);
 
+    newItem._creating = fetch(`${API_BASE}/memo`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "create", title: newItem.title || "새 메모", group, note: newItem.note })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.pageId) {
+          newItem.pageId = data.pageId;
+        }
+      })
+      .catch(() => {});
+  }
+
+  async function syncCard(item) {
+    if (item._creating) {
+      await item._creating;
+    }
+    if (String(item.pageId).startsWith("temp_")) return;
+
+    const titleToSave = item.title.trim() || "새 메모";
+    const noteToSave = item.note.trim();
+
+    try {
+      await fetch(`${API_BASE}/memo`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "update",
+          pageId: item.pageId,
+          title: titleToSave,
+          note: noteToSave
+        })
+      });
+    } catch (e) {}
+  }
+
+  async function deleteCard(item) {
+    items = items.filter(it => it !== item);
+    render();
+    if (item._creating) {
+      await item._creating;
+    }
     if (String(item.pageId).startsWith("temp_")) return;
     try {
       await fetch(`${API_BASE}/memo`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "update", pageId: item.pageId, title, note })
+        body: JSON.stringify({ action: "delete", pageId: item.pageId })
       });
     } catch (e) {}
   }
 
-  async function deleteCard(pageId) {
-    items = items.filter(it => it.pageId !== pageId);
-    render();
-    if (String(pageId).startsWith("temp_")) return;
-    try {
-      await fetch(`${API_BASE}/memo`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "delete", pageId })
-      });
-    } catch (e) {}
-  }
-
-  function renderGroup(groupName, containerId) {
+  function renderGroup(groupName, containerId, focusPageId) {
     const el = document.getElementById(containerId);
     el.innerHTML = "";
     const filtered = items.filter(it => it.group === groupName);
@@ -233,28 +245,52 @@
       noteEl.contentEditable = "true";
       noteEl.textContent = item.note;
 
-      const saveBlur = () => updateCard(item, titleEl.textContent, noteEl.textContent);
-      titleEl.onblur = saveBlur;
-      noteEl.onblur = saveBlur;
-      titleEl.onkeydown = (e) => { if (e.key === "Enter") { e.preventDefault(); noteEl.focus(); } };
+      let debounceTimer = null;
+      const onChange = () => {
+        item.title = titleEl.textContent;
+        item.note = noteEl.textContent;
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => syncCard(item), 500);
+      };
+      const onBlur = () => {
+        item.title = titleEl.textContent;
+        item.note = noteEl.textContent;
+        clearTimeout(debounceTimer);
+        syncCard(item);
+      };
+
+      titleEl.oninput = onChange;
+      noteEl.oninput = onChange;
+      titleEl.onblur = onBlur;
+      noteEl.onblur = onBlur;
+      titleEl.onkeydown = (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          noteEl.focus();
+        }
+      };
 
       const del = document.createElement("button");
       del.type = "button";
       del.className = "del-btn";
       del.textContent = "×";
-      del.onclick = () => deleteCard(item.pageId);
+      del.onclick = () => deleteCard(item);
 
       top.appendChild(titleEl);
       top.appendChild(del);
       card.appendChild(top);
       card.appendChild(noteEl);
       el.appendChild(card);
+
+      if (focusPageId && item.pageId === focusPageId) {
+        setTimeout(() => titleEl.focus(), 10);
+      }
     });
   }
 
-  function render() {
-    renderGroup("쿠폰", "couponList");
-    renderGroup("교환", "exchangeList");
+  function render(focusPageId) {
+    renderGroup("쿠폰", "couponList", focusPageId);
+    renderGroup("교환", "exchangeList", focusPageId);
   }
 
   loadMemos();
