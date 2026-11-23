@@ -220,6 +220,16 @@
     border-color: #DCEEE3;
     color: #3D7A56;
   }
+  .gem-pill.bound-fear {
+    background: #FCEBF1;
+    border-color: #F4C6D5;
+    color: #B84267;
+  }
+  .gem-pill.bound-blaze {
+    background: #E9F6EE;
+    border-color: #C4E5D1;
+    color: #2B6E48;
+  }
   .gem-pill.bound {
     background: #F4EEFD;
     border-color: #DFCFF7;
@@ -269,18 +279,28 @@
     return rawList;
   }
 
-  function getBoundGemCount(data) {
-    if (typeof data.boundGemCount === "number") return data.boundGemCount;
-    if (typeof data.boundGemsCount === "number") return data.boundGemsCount;
-    if (Array.isArray(data.boundGems)) {
-      return data.boundGems.reduce((sum, item) => sum + (Number(item?.count) || 1), 0);
+  function renderBoundGems(data) {
+    const list = Array.isArray(data.boundGems) ? data.boundGems : [];
+    if (list.length > 0) {
+      return list.map(g => {
+        const lbl = String(g.label || "");
+        let cls = "bound";
+        if (lbl.includes("겁") || lbl.includes("멸")) cls = "bound-fear";
+        else if (lbl.includes("작") || lbl.includes("홍")) cls = "bound-blaze";
+        return `<span class="gem-pill ${cls}">귀속 ${lbl} ×${g.count}</span>`;
+      }).join("");
     }
-    if (Array.isArray(data.gems)) {
-      return data.gems
+
+    let fallbackCount = 0;
+    if (typeof data.boundGemCount === "number") fallbackCount = data.boundGemCount;
+    else if (typeof data.boundGemsCount === "number") fallbackCount = data.boundGemsCount;
+    else if (Array.isArray(data.gems)) {
+      fallbackCount = data.gems
         .filter(g => g && (g.bound || g.isBound || String(g.label || "").includes("귀속")))
         .reduce((sum, item) => sum + (Number(item?.count) || 1), 0);
     }
-    return 0;
+
+    return fallbackCount > 0 ? `<span class="gem-pill bound">귀속 보석 ${fallbackCount}개</span>` : "";
   }
 
   async function fetchSpec(defaultName) {
@@ -332,17 +352,14 @@
           : `<span class="grid-pill">미적용</span>`;
 
         const gemItems = Array.isArray(data.gems) ? data.gems : [];
-        const boundCount = getBoundGemCount(data);
-        const boundBadgeHtml = boundCount > 0
-          ? `<span class="gem-pill bound">귀속 보석 ${boundCount}개</span>`
-          : "";
+        const boundHtml = renderBoundGems(data);
 
         const gemHtml = gemItems.length > 0
           ? gemItems.map(g => {
               const isCd = g.label.includes("작") || g.label.includes("홍");
               return `<span class="gem-pill ${isCd ? "cd" : ""}">${g.label} ×${g.count}</span>`;
-            }).join("") + boundBadgeHtml
-          : (boundBadgeHtml || `<span class="gem-pill">장착 보석 없음</span>`);
+            }).join("") + boundHtml
+          : (boundHtml || `<span class="gem-pill">장착 보석 없음</span>`);
 
         area.innerHTML = `
           <div class="prof-box">
