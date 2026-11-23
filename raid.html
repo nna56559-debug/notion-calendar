@@ -391,7 +391,7 @@
       </div>
     </div>
 
-    <div class="prog-track">
+    <div class="prog-track" id="progTrack">
       <div class="prog-fill" id="progFill"></div>
     </div>
 
@@ -864,10 +864,16 @@
 
   function render() {
     const cat = state.activeCat || "raid";
+    const isRaid = cat === "raid";
     document.getElementById("catBadgeText").textContent = CAT_LABELS[cat] || "레이드";
     document.querySelectorAll(".cat-menu-item").forEach(item => {
       item.classList.toggle("active", item.dataset.cat === cat);
     });
+
+    const progValEl = document.getElementById("progVal");
+    const progTrackEl = document.getElementById("progTrack");
+    progValEl.style.display = isRaid ? "" : "none";
+    progTrackEl.style.display = isRaid ? "" : "none";
 
     const selectEl = document.getElementById("rosterSelect");
     const delBtnEl = document.getElementById("rosterDelBtn");
@@ -899,8 +905,10 @@
     const activeRoster = getActiveRoster();
     if (!activeRoster || activeRoster.chars.length === 0) {
       listEl.innerHTML = `<div class="empty-guide">닉네임을 검색해 원정대를 추가해 주세요</div>`;
-      document.getElementById("progVal").textContent = `0% (0/0)`;
-      document.getElementById("progFill").style.width = `0%`;
+      if (isRaid) {
+        progValEl.textContent = `0% (0/0)`;
+        document.getElementById("progFill").style.width = `0%`;
+      }
       return;
     }
 
@@ -909,12 +917,10 @@
     activeRoster.chars.forEach((ch, cIdx) => {
       const checks = Array.isArray(ch.checks) ? ch.checks : [false, false, false];
       const cDone = checks.filter(Boolean).length;
-      const isCatDone = cat === "raid" ? (cDone === 3) : Boolean(ch[cat]);
+      const isCatDone = isRaid ? (cDone === 3) : Boolean(ch[cat]);
 
-      if (cat === "raid") {
+      if (isRaid) {
         done += cDone;
-      } else if (Boolean(ch[cat])) {
-        done += 1;
       }
 
       const row = document.createElement("div");
@@ -935,7 +941,7 @@
         infoDiv.appendChild(lvSpan);
       }
 
-      if (cat === "raid") {
+      if (isRaid) {
         const heartsDiv = document.createElement("div");
         heartsDiv.className = "hearts";
 
@@ -969,12 +975,12 @@
       listEl.appendChild(row);
     });
 
-    const totalCount = cat === "raid"
-      ? Math.max(18, activeRoster.chars.length * 3)
-      : Math.max(1, activeRoster.chars.length);
-    const pct = Math.min(100, Math.round((done / totalCount) * 100));
-    document.getElementById("progVal").textContent = `${pct}% (${done}/${totalCount})`;
-    document.getElementById("progFill").style.width = `${pct}%`;
+    if (isRaid) {
+      const totalCount = Math.max(18, activeRoster.chars.length * 3);
+      const pct = Math.min(100, Math.round((done / totalCount) * 100));
+      progValEl.textContent = `${pct}% (${done}/${totalCount})`;
+      document.getElementById("progFill").style.width = `${pct}%`;
+    }
   }
 
   render();
