@@ -330,10 +330,10 @@
             ).join("")
           : `<span class="grid-pill">미적용</span>`;
 
-        const normalGemHtml = formatGemPills(data.gems);
-        const boundGemHtml = formatGemPills(data.boundGems);
-        const combinedGemHtml = `${normalGemHtml}${boundGemHtml}`;
-        const gemHtml = combinedGemHtml || `<span class="gem-pill">장착 보석 없음</span>`;
+        const sourceGems = (Array.isArray(data.gems) && data.gems.length > 0)
+          ? data.gems
+          : (Array.isArray(data.boundGems) ? data.boundGems : []);
+        const gemHtml = formatGemPills(sourceGems) || `<span class="gem-pill">장착 보석 없음</span>`;
 
         area.innerHTML = `
           <div class="prof-box">
