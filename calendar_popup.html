@@ -18,7 +18,7 @@
     padding: 4px;
   }
 
-  /* 고정 높이 달력 카드 (1번 이미지 디자인 유지) */
+  /* 고정 높이 달력 카드 (팝업 오버레이가 카드 밖으로 잘리지 않도록 overflow: visible) */
   .cal-card {
     position: relative;
     width: 100%;
@@ -32,7 +32,7 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    overflow: hidden;
+    overflow: visible;
   }
 
   .cal-title {
@@ -106,11 +106,42 @@
   }
   .day-cell.has-ev .ev-dot { background: #89C4E8; }
 
-  /* 오늘 날짜: 핑크 테두리 + 하늘색 안쪽 알약 */
+  /* 오늘 날짜: 외곽 테두리 없이 깔끔한 하늘색 알약 */
   .day-cell.today .day-pill {
     background: #BBE2F7;
     color: #FFFFFF;
-    box-shadow: 0 0 0 2px #FFFFFF, 0 0 0 3.5px #F4A9BE;
+    box-shadow: none;
+  }
+
+  /* 마우스 오버 시 레이드 제목 툴팁 */
+  .hover-tooltip {
+    position: fixed;
+    transform: translate(-50%, calc(-100% - 8px));
+    background: #FFFFFF;
+    border: 1.5px solid #F7DCE4;
+    border-radius: 12px;
+    padding: 5px 10px;
+    box-shadow: 0 6px 18px rgba(120, 80, 95, 0.14);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.12s ease;
+    z-index: 99;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-width: 220px;
+    white-space: nowrap;
+  }
+  .hover-tooltip.show { opacity: 1; }
+  .hover-pill {
+    background: #FCEBF0;
+    color: #C95B7A;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 7px;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   /* 하단 카운트다운 및 화살표 */
@@ -149,8 +180,9 @@
   .popup-layer {
     position: absolute;
     inset: 0;
-    background: rgba(255, 252, 253, 0.96);
+    background: rgba(255, 252, 253, 0.97);
     backdrop-filter: blur(3px);
+    border-radius: 24px;
     display: none;
     flex-direction: column;
     padding: 14px 16px;
@@ -283,7 +315,7 @@
     flex-shrink: 0;
   }
 
-  /* 2단계: 3번 이미지 스타일 명단 (딜러 / 서포터 2열 카드) */
+  /* 2단계: 딜러 / 서포터 2열 카드 명단 */
   .roster-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -324,12 +356,11 @@
     gap: 4px;
   }
   .m-name {
-    font-size: 10.5px;
+    font-size: 10px;
     font-weight: 900;
     color: #3D3735;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    line-height: 1.35;
+    word-break: break-word;
   }
   .m-tag {
     font-size: 8px;
@@ -344,6 +375,8 @@
     font-size: 8.5px;
     font-weight: 700;
     color: #7D7471;
+    line-height: 1.3;
+    word-break: break-word;
   }
   .m-memo {
     align-self: flex-start;
@@ -358,7 +391,7 @@
   }
 
   .meta-bar {
-    margin-top: 4px;
+    margin-top: 6px;
     padding: 7px 9px;
     border-radius: 10px;
     background: #FDFBFC;
@@ -407,8 +440,9 @@
 </style>
 </head>
 <body>
+  <div class="hover-tooltip" id="hoverTooltip"></div>
+
   <div class="cal-card">
-    <!-- 1번 이미지 스타일 달력 메인 -->
     <div class="cal-title" id="monthLabel">November</div>
 
     <div class="dow-grid">
@@ -445,7 +479,7 @@
       <div class="pop-scroll" id="dayEventList"></div>
     </div>
 
-    <!-- 2단계 팝업: 3번 이미지 스타일 명단 (딜러 / 서포터 카드) -->
+    <!-- 2단계 팝업: 딜러 / 서포터 명단 -->
     <div class="popup-layer top" id="detailPopup">
       <div class="pop-head">
         <div class="pop-left">
@@ -496,11 +530,10 @@
   const formatDateStr = (y, m, d) => `${y}-${pad2(m + 1)}-${pad2(d)}`;
   const todayStr = formatDateStr(initNow.getFullYear(), initNow.getMonth(), initNow.getDate());
 
-  // 매주 수요일 오전 6시 초기화 카운트다운
   function updateResetTimer() {
     const now = getKstNow();
     const target = new Date(now);
-    const day = now.getDay(); // 0:일 ~ 3:수 ~ 6:토
+    const day = now.getDay();
     let diffDays = (3 - day + 7) % 7;
     target.setDate(now.getDate() + diffDays);
     target.setHours(6, 0, 0, 0);
@@ -536,12 +569,28 @@
     renderCalendar();
   }
 
+  function showHoverTooltip(btn, dayEvents) {
+    if (!dayEvents || dayEvents.length === 0) return;
+    const tip = document.getElementById("hoverTooltip");
+    tip.innerHTML = dayEvents.slice(0, 4).map((ev) => {
+      const title = `${ev.difficulty ? `[${ev.difficulty}] ` : ""}${ev.title}`;
+      return `<span class="hover-pill">${title}</span>`;
+    }).join("");
+    const rect = btn.getBoundingClientRect();
+    tip.style.left = `${rect.left + rect.width / 2}px`;
+    tip.style.top = `${rect.top}px`;
+    tip.classList.add("show");
+  }
+
+  function hideHoverTooltip() {
+    document.getElementById("hoverTooltip").classList.remove("show");
+  }
+
   function renderCalendar() {
     document.getElementById("monthLabel").textContent = MONTHS_EN[viewMonth];
     const grid = document.getElementById("daysGrid");
     grid.innerHTML = "";
 
-    // 월요일 시작 기준 요일 계산 (0: 월 ~ 6: 일)
     const firstDow = (new Date(viewYear, viewMonth, 1).getDay() + 6) % 7;
     const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
     const prevMonthDays = new Date(viewYear, viewMonth, 0).getDate();
@@ -553,7 +602,6 @@
       eventMap[ev.date].push(ev);
     }
 
-    // 이전 달
     for (let i = firstDow - 1; i >= 0; i--) {
       const d = prevMonthDays - i;
       const prevM = viewMonth === 0 ? 11 : viewMonth - 1;
@@ -562,14 +610,12 @@
       grid.appendChild(createDayCell(d, dateStr, true, eventMap[dateStr] || [], 0));
     }
 
-    // 이번 달
     for (let d = 1; d <= daysInMonth; d++) {
       const dateStr = formatDateStr(viewYear, viewMonth, d);
       const dow = (firstDow + d - 1) % 7;
       grid.appendChild(createDayCell(d, dateStr, false, eventMap[dateStr] || [], dow));
     }
 
-    // 다음 달 (42칸 맞춤)
     const remain = 42 - grid.children.length;
     for (let d = 1; d <= remain; d++) {
       const nextM = viewMonth === 11 ? 0 : viewMonth + 1;
@@ -589,7 +635,12 @@
     if (dayEvents.length > 0) btn.classList.add("has-ev");
 
     btn.innerHTML = `<span class="day-pill">${dayNum}</span><span class="ev-dot"></span>`;
-    btn.onclick = () => openDayPopup(dateStr);
+    btn.onmouseenter = () => showHoverTooltip(btn, dayEvents);
+    btn.onmouseleave = hideHoverTooltip;
+    btn.onclick = () => {
+      hideHoverTooltip();
+      openDayPopup(dateStr);
+    };
     return btn;
   }
 
@@ -612,7 +663,7 @@
         card.className = "ev-card";
         const diffTxt = ev.difficulty ? `[${ev.difficulty}] ` : "";
         const timeTxt = ev.time || "시간 미정";
-        const preview = ev.members ? ev.members.replace(/\n/g, ", ") : "명단 미등록";
+        const preview = ev.members ? ev.members.replace(/\n+/g, ", ") : "명단 미등록";
 
         card.innerHTML = `
           <div class="ev-top">
@@ -637,31 +688,37 @@
     document.getElementById("dayPopup").classList.remove("show");
   }
 
-  // 명단 문자열 파싱 ("닉네임(메모)" 또는 "닉네임 [지인] - 메모" 형태 지원)
+  // 줄 단위 명단 파싱 ("도화가 | 1770.83 | 1958.45" 또는 "닉네임 (메모)" 모두 지원)
   function parseMemberEntries(rawStr) {
     if (!rawStr || !rawStr.trim()) return [];
-    const tokens = rawStr.split(/[\n,]+/).map((s) => s.trim()).filter(Boolean);
-    return tokens.map((tok) => {
+    const lines = rawStr.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
+    return lines.map((line) => {
       let badge = "";
       let note = "";
-      let clean = tok;
+      let clean = line;
 
       if (/지인/.test(clean)) {
         badge = "지인";
-        clean = clean.replace(/[\[\(]?지인[\]\)]?/g, "").trim();
+        clean = clean.replace(/[지인]|\(지인\)|지인/g, "").trim();
       }
-      const parenMatch = clean.match(/^([^\(\)\-\/]+)\s*[\(\-\/]([^\)]+)[\)]?$/);
-      let name = clean;
+
+      // 괄호 안 메모 분리: 예) 양녕하새오(메모)
+      const parenMatch = clean.match(/^(.+?)\s*\(([^()]+)\)\s*$/);
+      let mainText = clean;
       if (parenMatch) {
-        name = parenMatch[1].trim();
+        mainText = parenMatch[1].trim();
         note = parenMatch[2].trim();
       }
-      return { name, badge, note };
+
+      // 로스트아크 API 조회용 순수 닉네임 추출 (파이프/슬래시/공백 앞부분)
+      const lookupName = mainText.split(/[\|\/]/)[0].trim().split(/\s+/)[0].trim();
+      return { raw: mainText, lookupName, badge, note };
     });
   }
 
   async function fetchCharSpec(name) {
-    if (charCache[name]) return charCache[name];
+    if (!name) return null;
+    if (Object.prototype.hasOwnProperty.call(charCache, name)) return charCache[name];
     try {
       const res = await fetch(`${API_URL}/spec?name=${encodeURIComponent(name)}`);
       const data = await res.json();
@@ -670,6 +727,7 @@
         return data;
       }
     } catch (e) {}
+    charCache[name] = null;
     return null;
   }
 
@@ -677,7 +735,7 @@
     currentEvent = ev;
     const entries = parseMemberEntries(ev.members);
 
-    document.getElementById("detailTitle").textContent = `${ev.title || "명단"}`;
+    document.getElementById("detailTitle").textContent = ev.title || "명단";
     document.getElementById("detailCount").textContent = `${entries.length}명`;
 
     const profSel = document.getElementById("profSelect");
@@ -696,15 +754,20 @@
 
     if (entries.length === 0) return;
 
-    // 참여자 캐릭터 정보 조회 후 딜러 / 서포터 분류
     const enriched = await Promise.all(
       entries.map(async (entry) => {
-        const spec = await fetchCharSpec(entry.name);
+        const spec = await fetchCharSpec(entry.lookupName);
         const job = spec?.job || "";
         const lv = spec?.lv ? String(spec.lv).replace(/,/g, "") : "";
         const cp = spec?.combatPower ? String(spec.combatPower).replace(/,/g, "") : "";
-        const isSup = SUPPORTER_JOBS.some((s) => job.includes(s)) || /바드|도화가|홀나|발키리/.test(entry.note);
-        return { ...entry, job, lv, cp, isSup };
+        const isSup =
+          SUPPORTER_JOBS.some((s) => job.includes(s) || entry.raw.includes(s) || entry.note.includes(s));
+
+        const titleText = spec?.name ? spec.name : entry.raw;
+        const apiInfoLine = [job, lv, cp].filter(Boolean).join(" | ");
+        const subLine = apiInfoLine ? apiInfoLine : entry.raw;
+
+        return { ...entry, titleText, subLine, isSup };
       })
     );
 
@@ -712,17 +775,15 @@
     const supList = enriched.filter((m) => m.isSup);
 
     const renderCard = (m) => {
-      const infoParts = [m.job, m.lv, m.cp].filter(Boolean);
-      const infoLine = infoParts.length > 0 ? infoParts.join(" | ") : "정보 조회 불가";
       const tagHtml = m.badge ? `<span class="m-tag">${m.badge}</span>` : "";
       const memoHtml = m.note ? `<span class="m-memo">${m.note}</span>` : "";
       return `
         <div class="m-card">
           <div class="m-top">
-            <span class="m-name">${m.name}</span>
+            <span class="m-name">${m.titleText}</span>
             ${tagHtml}
           </div>
-          <div class="m-info">${infoLine}</div>
+          <div class="m-info">${m.subLine}</div>
           ${memoHtml}
         </div>
       `;
@@ -735,50 +796,4 @@
   function syncDepartBtn(isDeparted) {
     const btn = document.getElementById("departBtn");
     if (isDeparted) {
-      btn.textContent = "🚀 출발 완료";
-      btn.classList.add("done");
-    } else {
-      btn.textContent = "출발 전";
-      btn.classList.remove("done");
-    }
-    btn.dataset.departed = isDeparted ? "1" : "0";
-  }
-
-  function closeDetailPopup() {
-    document.getElementById("detailPopup").classList.remove("show");
-    currentEvent = null;
-  }
-
-  async function toggleDepart() {
-    if (!currentEvent) return;
-    const btn = document.getElementById("departBtn");
-    const nextState = btn.dataset.departed !== "1";
-    syncDepartBtn(nextState);
-    currentEvent.status = nextState ? "🚀출발" : "출발 전";
-    await sendEventPatch({ pageId: currentEvent.pageId, cleared: nextState });
-  }
-
-  async function updateEventMeta() {
-    if (!currentEvent) return;
-    const prof = document.getElementById("profSelect").value;
-    currentEvent.proficiency = prof;
-    await sendEventPatch({ pageId: currentEvent.pageId, proficiency: prof });
-  }
-
-  async function sendEventPatch(payload) {
-    try {
-      await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-    } catch (e) {}
-  }
-
-  updateResetTimer();
-  setInterval(updateResetTimer, 30000);
-  renderCalendar();
-  loadEvents();
-</script>
-</body>
-</html>
+      btn.textContent =
