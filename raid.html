@@ -36,6 +36,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 6px;
+    flex-wrap: wrap;
   }
   .r-left {
     display: flex;
@@ -78,6 +79,37 @@
     background: #FCE6ED;
     color: #C95B7A;
     font-size: 9.5px;
+  }
+
+  .cat-tabs {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    background: #FDF5F7;
+    border: 1px solid #F5DCE3;
+    border-radius: 9px;
+    padding: 2px;
+    flex-shrink: 0;
+  }
+  .cat-tab {
+    border: none;
+    background: transparent;
+    color: #9A8C90;
+    font-family: inherit;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 2px 6.5px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+  .cat-tab:hover {
+    color: #C95B7A;
+  }
+  .cat-tab.active {
+    background: #FCE6ED;
+    color: #C95B7A;
   }
 
   .sub-bar {
@@ -271,15 +303,43 @@
     stroke: #E36B8E;
     filter: drop-shadow(0 2px 4px rgba(242, 139, 168, 0.35));
   }
+
+  .cat-check-btn {
+    border: 1.5px solid #E5A4B8;
+    background: #FFFFFF;
+    color: #C95B7A;
+    font-family: inherit;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+  }
+  .cat-check-btn:hover {
+    border-color: #D96B8A;
+    background: #FDF5F7;
+  }
+  .cat-check-btn.checked {
+    background: #F6B4CA;
+    border-color: #F6B4CA;
+    color: #FFFFFF;
+  }
 </style>
 </head>
 <body>
   <div class="raid-card">
     <div class="r-head">
       <div class="r-left">
-        <span class="r-badge">레이드</span>
+        <span class="r-badge" id="catBadge">레이드</span>
         <span class="r-pct" id="progVal">0% (0/18)</span>
-        <button type="button" class="r-reset" id="resetBtn" onclick="handleManualReset()" title="현재 원정대 하트 초기화">↻</button>
+        <button type="button" class="r-reset" id="resetBtn" onclick="handleManualReset()" title="현재 카테고리 체크 초기화">↻</button>
+      </div>
+      <div class="cat-tabs" role="tablist" aria-label="레이드 카테고리">
+        <button type="button" class="cat-tab active" data-cat="raid" onclick="selectCategory('raid')">레이드</button>
+        <button type="button" class="cat-tab" data-cat="paradise" onclick="selectCategory('paradise')">낙원</button>
+        <button type="button" class="cat-tab" data-cat="halmosi" onclick="selectCategory('halmosi')">할모시</button>
       </div>
     </div>
 
@@ -303,20 +363,25 @@
 
 <script>
   const API_BASE = "https://notion-cal.binhaha329.workers.dev";
-  const STORAGE_KEY = "lostark_pastel_rosters_v8";
+  const STORAGE_KEY = "lostark_pastel_rosters_v9";
   const MAX_HEARTS = 18; // 하트 18개 체크 시 100%
+  const CAT_LABELS = {
+    raid: "레이드",
+    paradise: "낙원",
+    halmosi: "할모시"
+  };
 
   const DEFAULT_ROSTERS = [
     {
       id: "양녕하새오",
       label: "양녕하새오",
       chars: [
-        { name: "양녕하새오", lvText: "1,783", checks: [false, false, false] },
-        { name: "치즈보끔바", lvText: "1,772", checks: [false, false, false] },
-        { name: "맘념하새모", lvText: "1,770", checks: [false, false, false] },
-        { name: "해피무",     lvText: "1,765", checks: [false, false, false] },
-        { name: "아령하새오", lvText: "1,756", checks: [false, false, false] },
-        { name: "양녕전사",   lvText: "1,733", checks: [false, false, false] }
+        { name: "양녕하새오", lvText: "1,783", checks: [false, false, false], paradise: false, halmosi: false },
+        { name: "치즈보끔바", lvText: "1,772", checks: [false, false, false], paradise: false, halmosi: false },
+        { name: "맘념하새모", lvText: "1,770", checks: [false, false, false], paradise: false, halmosi: false },
+        { name: "해피무",     lvText: "1,765", checks: [false, false, false], paradise: false, halmosi: false },
+        { name: "아령하새오", lvText: "1,756", checks: [false, false, false], paradise: false, halmosi: false },
+        { name: "양녕전사",   lvText: "1,733", checks: [false, false, false], paradise: false, halmosi: false }
       ]
     }
   ];
@@ -332,8 +397,25 @@
     return `${shifted.getFullYear()}-${String(shifted.getMonth() + 1).padStart(2, "0")}-${String(shifted.getDate()).padStart(2, "0")}`;
   }
 
+  function normalizeChar(c) {
+    return {
+      name: c.name,
+      lvText: c.lvText || "",
+      checks: Array.isArray(c.checks) ? [Boolean(c.checks[0]), Boolean(c.checks[1]), Boolean(c.checks[2])] : [false, false, false],
+      paradise: Boolean(c.paradise),
+      halmosi: Boolean(c.halmosi)
+    };
+  }
+
+  function resetCharChecks(c) {
+    c.checks = [false, false, false];
+    c.paradise = false;
+    c.halmosi = false;
+  }
+
   let state = {
     weekKey: getCurrentWeekKey(),
+    activeCat: "raid",
     activeId: DEFAULT_ROSTERS[0].id,
     rosters: JSON.parse(JSON.stringify(DEFAULT_ROSTERS))
   };
@@ -344,10 +426,14 @@
     let rosters = [];
 
     if (Array.isArray(raw.rosters) && raw.rosters.length > 0) {
-      rosters = raw.rosters;
+      rosters = raw.rosters.map(r => ({
+        id: r.id,
+        label: r.label,
+        chars: (r.chars || []).map(normalizeChar)
+      }));
     } else if (Array.isArray(raw.chars) && raw.chars.length > 0) {
       const topName = raw.chars[0].name || "원정대 1";
-      rosters = [{ id: topName, label: topName, chars: raw.chars }];
+      rosters = [{ id: topName, label: topName, chars: raw.chars.map(normalizeChar) }];
     } else {
       return null;
     }
@@ -355,16 +441,15 @@
     let weekChanged = false;
     if (raw.weekKey !== currentWeek) {
       rosters.forEach(r => {
-        (r.chars || []).forEach(c => {
-          c.checks = [false, false, false];
-        });
+        (r.chars || []).forEach(resetCharChecks);
       });
       weekChanged = true;
     }
 
     const activeId = rosters.some(r => r.id === raw.activeId) ? raw.activeId : rosters[0].id;
+    const activeCat = CAT_LABELS[raw.activeCat] ? raw.activeCat : "raid";
     return {
-      normalized: { weekKey: currentWeek, activeId, rosters },
+      normalized: { weekKey: currentWeek, activeCat, activeId, rosters },
       weekChanged
     };
   }
@@ -374,9 +459,7 @@
     if (state.weekKey !== currentWeek) {
       state.weekKey = currentWeek;
       state.rosters.forEach(r => {
-        (r.chars || []).forEach(c => {
-          c.checks = [false, false, false];
-        });
+        (r.chars || []).forEach(resetCharChecks);
       });
       render();
       saveState();
@@ -397,13 +480,18 @@
       if (!Array.isArray(list) || list.length === 0) return;
 
       const prevMap = {};
-      active.chars.forEach(c => { prevMap[c.name] = c.checks; });
+      active.chars.forEach(c => { prevMap[c.name] = c; });
 
-      const newChars = list.map(item => ({
-        name: item.name,
-        lvText: item.lvText,
-        checks: prevMap[item.name] || [false, false, false]
-      }));
+      const newChars = list.map(item => {
+        const prev = prevMap[item.name];
+        return {
+          name: item.name,
+          lvText: item.lvText,
+          checks: prev?.checks || [false, false, false],
+          paradise: Boolean(prev?.paradise),
+          halmosi: Boolean(prev?.halmosi)
+        };
+      });
 
       const oldNames = active.chars.map(c => `${c.name}:${c.lvText}`).join("|");
       const newNames = newChars.map(c => `${c.name}:${c.lvText}`).join("|");
@@ -441,7 +529,6 @@
       }
     } catch (e) {}
 
-    // 저장된 상태 로드 직후 해당 서버 원정대 전체 캐릭터 자동 동기화
     syncActiveRosterFullChars();
   }
 
@@ -478,6 +565,14 @@
     }
     clearTimeout(delConfirmTimer);
     clearTimeout(resetConfirmTimer);
+  }
+
+  function selectCategory(cat) {
+    if (!CAT_LABELS[cat]) return;
+    clearConfirmStates();
+    state.activeCat = cat;
+    render();
+    saveState();
   }
 
   function selectRoster(id) {
@@ -527,7 +622,15 @@
     clearConfirmStates();
     const roster = getActiveRoster();
     if (!roster) return;
-    roster.chars.forEach(c => { c.checks = [false, false, false]; });
+    roster.chars.forEach(c => {
+      if (state.activeCat === "raid") {
+        c.checks = [false, false, false];
+      } else if (state.activeCat === "paradise") {
+        c.paradise = false;
+      } else if (state.activeCat === "halmosi") {
+        c.halmosi = false;
+      }
+    });
     render();
     saveState();
   }
@@ -562,14 +665,19 @@
 
       const prevMap = {};
       if (existing) {
-        existing.chars.forEach(c => { prevMap[c.name] = c.checks; });
+        existing.chars.forEach(c => { prevMap[c.name] = c; });
       }
 
-      const updatedChars = list.map(item => ({
-        name: item.name,
-        lvText: item.lvText,
-        checks: prevMap[item.name] || [false, false, false]
-      }));
+      const updatedChars = list.map(item => {
+        const prev = prevMap[item.name];
+        return {
+          name: item.name,
+          lvText: item.lvText,
+          checks: prev?.checks || [false, false, false],
+          paradise: Boolean(prev?.paradise),
+          halmosi: Boolean(prev?.halmosi)
+        };
+      });
 
       if (existing) {
         existing.id = rosterId;
@@ -607,7 +715,21 @@
     saveState();
   }
 
+  function toggleCategoryCheck(charIdx, catKey) {
+    const roster = getActiveRoster();
+    if (!roster) return;
+    roster.chars[charIdx][catKey] = !roster.chars[charIdx][catKey];
+    render();
+    saveState();
+  }
+
   function render() {
+    const cat = state.activeCat || "raid";
+    document.getElementById("catBadge").textContent = CAT_LABELS[cat] || "레이드";
+    document.querySelectorAll(".cat-tab").forEach(tab => {
+      tab.classList.toggle("active", tab.dataset.cat === cat);
+    });
+
     const selectEl = document.getElementById("rosterSelect");
     const delBtnEl = document.getElementById("rosterDelBtn");
     selectEl.innerHTML = "";
@@ -629,11 +751,18 @@
     let done = 0;
 
     activeRoster.chars.forEach((ch, cIdx) => {
-      const cDone = ch.checks.filter(Boolean).length;
-      done += cDone;
+      const checks = Array.isArray(ch.checks) ? ch.checks : [false, false, false];
+      const cDone = checks.filter(Boolean).length;
+      const isCatDone = cat === "raid" ? (cDone === 3) : Boolean(ch[cat]);
+
+      if (cat === "raid") {
+        done += cDone;
+      } else if (Boolean(ch[cat])) {
+        done += 1;
+      }
 
       const row = document.createElement("div");
-      row.className = "c-row" + (cDone === 3 ? " all-done" : "");
+      row.className = "c-row" + (isCatDone ? " all-done" : "");
 
       const infoDiv = document.createElement("div");
       infoDiv.className = "c-info";
@@ -650,30 +779,43 @@
         infoDiv.appendChild(lvSpan);
       }
 
-      const heartsDiv = document.createElement("div");
-      heartsDiv.className = "hearts";
+      if (cat === "raid") {
+        const heartsDiv = document.createElement("div");
+        heartsDiv.className = "hearts";
 
-      ch.checks.forEach((checked, hIdx) => {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "heart-btn" + (checked ? " checked" : "");
-        btn.onclick = () => toggleHeart(cIdx, hIdx);
-        btn.innerHTML = `
-          <svg class="heart-svg" viewBox="0 0 24 24">
-            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-          </svg>
-        `;
-        heartsDiv.appendChild(btn);
-      });
+        checks.forEach((checked, hIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "heart-btn" + (checked ? " checked" : "");
+          btn.onclick = () => toggleHeart(cIdx, hIdx);
+          btn.innerHTML = `
+            <svg class="heart-svg" viewBox="0 0 24 24">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+          `;
+          heartsDiv.appendChild(btn);
+        });
 
-      row.appendChild(infoDiv);
-      row.appendChild(heartsDiv);
+        row.appendChild(infoDiv);
+        row.appendChild(heartsDiv);
+      } else {
+        const checked = Boolean(ch[cat]);
+        const checkBtn = document.createElement("button");
+        checkBtn.type = "button";
+        checkBtn.className = "cat-check-btn" + (checked ? " checked" : "");
+        checkBtn.textContent = checked ? "완료" : "체크";
+        checkBtn.onclick = () => toggleCategoryCheck(cIdx, cat);
+
+        row.appendChild(infoDiv);
+        row.appendChild(checkBtn);
+      }
+
       listEl.appendChild(row);
     });
 
-    // 하트 18개 체크 시 100% 도달
-    const pct = Math.min(100, Math.round((done / MAX_HEARTS) * 100));
-    document.getElementById("progVal").textContent = `${pct}% (${done}/${MAX_HEARTS})`;
+    const totalCount = cat === "raid" ? MAX_HEARTS : Math.max(1, activeRoster.chars.length);
+    const pct = Math.min(100, Math.round((done / totalCount) * 100));
+    document.getElementById("progVal").textContent = `${pct}% (${done}/${totalCount})`;
     document.getElementById("progFill").style.width = `${pct}%`;
   }
 
