@@ -6,17 +6,19 @@
 <style>
   @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body {
+  html, body {
     font-family: 'Pretendard', sans-serif;
     background: transparent;
+    width: 100%;
+    min-height: 380px;
+  }
+  body {
     display: flex;
     justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    overflow: hidden;
+    align-items: flex-start;
+    padding: 6px;
   }
 
-  /* 원본 달력 카드 양식 유지 + 높이 고정 */
   .cal-card {
     position: relative;
     width: 100%;
@@ -101,7 +103,6 @@
   }
   .nav-btns button:hover { color: #f2a7be; }
 
-  /* 한 카드 안에서 뜨는 팝업 레이어 */
   .popup-layer {
     position: absolute;
     inset: 0;
@@ -169,7 +170,6 @@
     flex-shrink: 0;
   }
 
-  /* 위젯 크기 고정 + 팝업 내부 스크롤 */
   .pop-scroll {
     flex: 1;
     min-height: 0;
@@ -183,7 +183,6 @@
   .pop-scroll::-webkit-scrollbar-track { background: transparent; }
   .pop-scroll::-webkit-scrollbar-thumb { background: #efc6d2; border-radius: 99px; }
 
-  /* 일정 아이템 카드 */
   .ev-item {
     background: #ffffff;
     border: 1px solid #f3dce3;
@@ -273,7 +272,6 @@
     outline: none;
   }
 
-  /* 명단 2열 (딜러 / 서포터) */
   .roster-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -364,7 +362,6 @@
     </div>
   </div>
 
-  <!-- 1단계 팝업: 선택한 날짜의 레이드 일정 (카드 내부 스크롤) -->
   <div class="popup-layer" id="dayPopup">
     <div class="pop-head">
       <div class="pop-left">
@@ -376,7 +373,6 @@
     <div class="pop-scroll" id="dayEventList"></div>
   </div>
 
-  <!-- 2단계 팝업: 선택한 일정의 명단 (카드 내부 스크롤) -->
   <div class="popup-layer top" id="detailPopup">
     <div class="pop-head">
       <div class="pop-left">
@@ -410,19 +406,21 @@
   function broadcastDate(ds) {
     selectedDate = ds;
     const payload = { date: ds, items: eventMap[ds] || [] };
-    localStorage.setItem("raid_cal_selected", JSON.stringify(payload));
-    channel.postMessage(payload);
+    try {
+      localStorage.setItem("raid_cal_selected", JSON.stringify(payload));
+      channel.postMessage(payload);
+    } catch (e) {}
     render();
     openDayPopup(ds);
   }
 
   async function loadEvents() {
     try {
-      const res = await fetch(`${WORKER_URL}?t=${Date.now()}`);
+      const res = await fetch(WORKER_URL + "?t=" + Date.now());
       const list = await res.json();
       eventMap = {};
-      (Array.isArray(list) ? list : []).forEach(item => {
-        if (!item.date) return;
+      (Array.isArray(list) ? list : []).forEach(function(item) {
+        if (!item || !item.date) return;
         if (!eventMap[item.date]) eventMap[item.date] = [];
         eventMap[item.date].push(item);
       });
@@ -439,7 +437,7 @@
     const y = current.getFullYear(), m = current.getMonth();
     document.getElementById("monthTitle").textContent = months[m];
     const grid = document.getElementById("calGrid");
-    let html = weekdays.map(d => `<div class="weekday">${d}</div>`).join("");
+    let html = weekdays.map(function(d) { return `<div class="weekday">${d}</div>`; }).join("");
     const first = (new Date(y, m, 1).getDay() + 6) % 7;
     const last = new Date(y, m + 1, 0).getDate();
     const prev = new Date(y, m, 0).getDate();
@@ -475,17 +473,18 @@
       listEl.innerHTML = `<div class="empty-msg">선택한 날짜에 일정이 없어요</div>`;
     } else {
       listEl.innerHTML = "";
-      items.forEach(ev => {
+      items.forEach(function(ev) {
         const card = document.createElement("div");
         card.className = "ev-item";
-        card.onclick = () => openDetailPopup(ev);
+        card.onclick = function() { openDetailPopup(ev); };
 
-        const isDeparted = String(ev.status || "").includes("출발") && !String(ev.status || "").includes("전");
+        const isDeparted = String(ev.status || "").indexOf("출발") !== -1 && String(ev.status || "").indexOf("전") === -1;
         const timeTxt = ev.time || "시간 미정";
         const diffHtml = ev.difficulty ? `<span class="ev-diff">${ev.difficulty}</span>` : `<span></span>`;
-        const optsHtml = PROF_OPTIONS.map(opt =>
-          `<option value="${opt}" ${ev.proficiency === opt ? "selected" : ""}>${opt}</option>`
-        ).join("");
+        const optsHtml = PROF_OPTIONS.map(function(opt) {
+          const selected = ev.proficiency === opt ? "selected" : "";
+          return `<option value="${opt}" ${selected}>${opt}</option>`;
+        }).join("");
 
         card.innerHTML = `
           <div class="ev-top">
@@ -502,7 +501,7 @@
         `;
 
         const checkBtn = card.querySelector(".ev-check");
-        checkBtn.onclick = async (e) => {
+        checkBtn.onclick = async function(e) {
           e.stopPropagation();
           const next = !checkBtn.classList.contains("checked");
           checkBtn.classList.toggle("checked", next);
@@ -512,8 +511,8 @@
         };
 
         const profSel = card.querySelector(".ev-prof");
-        profSel.onclick = e => e.stopPropagation();
-        profSel.onchange = async (e) => {
+        profSel.onclick = function(e) { e.stopPropagation(); };
+        profSel.onchange = async function(e) {
           e.stopPropagation();
           ev.proficiency = profSel.value;
           await sendPatch({ pageId: ev.pageId, proficiency: profSel.value });
@@ -532,8 +531,8 @@
   }
 
   function parseMemberEntries(rawStr) {
-    if (!rawStr || !rawStr.trim()) return [];
-    return rawStr.split(/\r?\n/).map(s => s.trim()).filter(Boolean).map(line => {
+    if (!rawStr || !String(rawStr).trim()) return [];
+    return String(rawStr).split(/\r?\n/).map(function(s) { return s.trim(); }).filter(Boolean).map(function(line) {
       let badge = "";
       let note = "";
       let clean = line;
@@ -547,8 +546,9 @@
         mainText = paren[1].trim();
         note = paren[2].trim();
       }
-      const lookupName = mainText.split(/[\|\/]/)[0].trim().split(/\s+/)[0].trim();
-      return { raw: mainText, lookupName, badge, note };
+      const parts = mainText.split(/[|/]/);
+      const lookupName = parts[0].trim().split(/\s+/)[0].trim();
+      return { raw: mainText, lookupName: lookupName, badge: badge, note: note };
     });
   }
 
@@ -581,30 +581,42 @@
 
     if (entries.length === 0) return;
 
-    const enriched = await Promise.all(entries.map(async (entry) => {
+    const enriched = await Promise.all(entries.map(async function(entry) {
       const spec = await fetchCharSpec(entry.lookupName);
-      const job = spec?.job || "";
-      const lv = spec?.lv ? String(spec.lv).replace(/,/g, "") : "";
-      const cp = spec?.combatPower ? String(spec.combatPower).replace(/,/g, "") : "";
-      const isSup = SUPPORTER_JOBS.some(s => job.includes(s) || entry.raw.includes(s) || entry.note.includes(s));
-      const titleText = spec?.name ? spec.name : entry.raw;
+      const job = spec && spec.job ? spec.job : "";
+      const lv = spec && spec.lv ? String(spec.lv).replace(/,/g, "") : "";
+      const cp = spec && spec.combatPower ? String(spec.combatPower).replace(/,/g, "") : "";
+      const isSup = SUPPORTER_JOBS.some(function(s) {
+        return job.indexOf(s) !== -1 || entry.raw.indexOf(s) !== -1 || entry.note.indexOf(s) !== -1;
+      });
+      const titleText = spec && spec.name ? spec.name : entry.raw;
       const subLine = [job, lv, cp].filter(Boolean).join(" | ") || entry.raw;
-      return { ...entry, titleText, subLine, isSup };
+      return {
+        raw: entry.raw,
+        lookupName: entry.lookupName,
+        badge: entry.badge,
+        note: entry.note,
+        titleText: titleText,
+        subLine: subLine,
+        isSup: isSup
+      };
     }));
 
-    const dpsList = enriched.filter(m => !m.isSup);
-    const supList = enriched.filter(m => m.isSup);
+    const dpsList = enriched.filter(function(m) { return !m.isSup; });
+    const supList = enriched.filter(function(m) { return m.isSup; });
 
-    const renderCard = (m) => `
-      <div class="m-card">
-        <div class="m-top">
-          <span class="m-name">${m.titleText}</span>
-          ${m.badge ? `<span class="m-tag">${m.badge}</span>` : ""}
+    const renderCard = function(m) {
+      return `
+        <div class="m-card">
+          <div class="m-top">
+            <span class="m-name">${m.titleText}</span>
+            ${m.badge ? `<span class="m-tag">${m.badge}</span>` : ""}
+          </div>
+          <div class="m-info">${m.subLine}</div>
+          ${m.note ? `<span class="m-memo">${m.note}</span>` : ""}
         </div>
-        <div class="m-info">${m.subLine}</div>
-        ${m.note ? `<span class="m-memo">${m.note}</span>` : ""}
-      </div>
-    `;
+      `;
+    };
 
     dpsCol.innerHTML = `<div class="role-pill dps">⚔️ 딜러 ${dpsList.length}</div>` + dpsList.map(renderCard).join("");
     supCol.innerHTML = `<div class="role-pill sup">💚 서포터 ${supList.length}</div>` + supList.map(renderCard).join("");
