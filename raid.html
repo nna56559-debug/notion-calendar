@@ -170,6 +170,7 @@
     text-overflow: ellipsis;
   }
   .roster-select:hover { background-color: #FADCE5; }
+  .roster-select:disabled { opacity: 0.65; cursor: default; }
 
   .roster-del-btn {
     border: 1px solid #F5DCE3;
@@ -256,6 +257,14 @@
   }
   .char-list::-webkit-scrollbar { width: 3px; }
   .char-list::-webkit-scrollbar-thumb { background: #F2DCE2; border-radius: 999px; }
+
+  .empty-guide {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: #B5AEAB;
+    padding: 22px 8px;
+  }
 
   .c-row {
     display: flex;
@@ -366,7 +375,7 @@
           <button type="button" class="cat-menu-item" data-cat="paradise" onclick="selectCategory('paradise')">낙원</button>
           <button type="button" class="cat-menu-item" data-cat="halmosi" onclick="selectCategory('halmosi')">할모시</button>
         </div>
-        <span class="r-pct" id="progVal">0% (0/18)</span>
+        <span class="r-pct" id="progVal">0% (0/0)</span>
         <button type="button" class="r-reset" id="resetBtn" onclick="handleManualReset()" title="현재 카테고리 체크 초기화">↻</button>
       </div>
     </div>
@@ -391,27 +400,14 @@
 
 <script>
   const API_BASE = "https://notion-cal.binhaha329.workers.dev";
-  const STORAGE_KEY = "lostark_pastel_rosters_v12";
+  const STORAGE_KEY = "lostark_pastel_rosters_v14";
   const CAT_LABELS = {
     raid: "레이드",
     paradise: "낙원",
     halmosi: "할모시"
   };
 
-  const DEFAULT_ROSTERS = [
-    {
-      id: "양녕하새오",
-      label: "양녕하새오",
-      chars: [
-        { name: "양녕하새오", lvText: "1,783", checks: [false, false, false], paradise: false, halmosi: false },
-        { name: "치즈보끔바", lvText: "1,772", checks: [false, false, false], paradise: false, halmosi: false },
-        { name: "맘념하새모", lvText: "1,770", checks: [false, false, false], paradise: false, halmosi: false },
-        { name: "해피무",     lvText: "1,765", checks: [false, false, false], paradise: false, halmosi: false },
-        { name: "아령하새오", lvText: "1,756", checks: [false, false, false], paradise: false, halmosi: false },
-        { name: "양녕전사",   lvText: "1,733", checks: [false, false, false], paradise: false, halmosi: false }
-      ]
-    }
-  ];
+  const DEFAULT_ROSTERS = [];
 
   function extractCharName(item) {
     if (!item || typeof item !== "object") return "";
@@ -431,6 +427,11 @@
     return Number(baseNum).toLocaleString();
   }
 
+  function extractCharServer(item) {
+    if (!item || typeof item !== "object") return "";
+    return String(item.server ?? item.ServerName ?? "").trim();
+  }
+
   function getCurrentWeekKey() {
     const now = new Date();
     const kst = new Date(now.getTime() + (9 * 60 + now.getTimezoneOffset()) * 60000);
@@ -444,9 +445,11 @@
   function normalizeChar(c) {
     const name = extractCharName(c);
     const lvText = extractCharLv(c);
+    const server = extractCharServer(c);
     return {
       name,
       lvText,
+      server,
       checks: Array.isArray(c?.checks) ? [Boolean(c.checks[0]), Boolean(c.checks[1]), Boolean(c.checks[2])] : [false, false, false],
       paradise: Boolean(c?.paradise),
       halmosi: Boolean(c?.halmosi)
@@ -462,8 +465,8 @@
   let state = {
     weekKey: getCurrentWeekKey(),
     activeCat: "raid",
-    activeId: DEFAULT_ROSTERS[0].id,
-    rosters: JSON.parse(JSON.stringify(DEFAULT_ROSTERS))
+    activeId: "",
+    rosters: []
   };
 
   function normalizeState(raw) {
@@ -471,7 +474,7 @@
     const currentWeek = getCurrentWeekKey();
     let rosters = [];
 
-    if (Array.isArray(raw.rosters) && raw.rosters.length > 0) {
+    if (Array.isArray(raw.rosters)) {
       rosters = raw.rosters
         .map((r, idx) => {
           const chars = (r.chars || []).map(normalizeChar).filter(c => c.name);
@@ -489,8 +492,6 @@
       }
     }
 
-    if (rosters.length === 0) return null;
-
     let weekChanged = false;
     if (raw.weekKey !== currentWeek) {
       rosters.forEach(r => {
@@ -499,7 +500,9 @@
       weekChanged = true;
     }
 
-    const activeId = rosters.some(r => r.id === raw.activeId) ? raw.activeId : rosters[0].id;
+    const activeId = rosters.length > 0
+      ? (rosters.some(r => r.id === raw.activeId) ? raw.activeId : rosters[0].id)
+      : "";
     const activeCat = CAT_LABELS[raw.activeCat] ? raw.activeCat : "raid";
     return {
       normalized: { weekKey: currentWeek, activeCat, activeId, rosters },
@@ -520,7 +523,7 @@
   }
   setInterval(checkWeeklyAutoReset, 30000);
 
-  function parseSiblingsList(rawData) {
+  function parseSiblingsList(rawData, targetName) {
     let arr = [];
     if (Array.isArray(rawData)) {
       arr = rawData;
@@ -531,25 +534,37 @@
     } else if (Array.isArray(rawData?.data)) {
       arr = rawData.data;
     } else if (rawData && typeof rawData === "object") {
-      // 서버별로 나뉜 객체 형태인 경우 모든 캐릭터를 합침
-      for (const val of Object.values(rawData)) {
-        if (Array.isArray(val)) {
-          arr = arr.concat(val);
+      if (targetName && Array.isArray(rawData[targetName])) {
+        arr = rawData[targetName];
+      } else {
+        for (const val of Object.values(rawData)) {
+          if (Array.isArray(val)) {
+            arr = arr.concat(val);
+          }
         }
       }
     }
 
-    const seen = new Set();
-    return arr
+    const mapped = arr
       .map(item => ({
         name: extractCharName(item),
-        lvText: extractCharLv(item)
+        lvText: extractCharLv(item),
+        server: extractCharServer(item)
       }))
-      .filter(x => {
-        if (!x.name || seen.has(x.name)) return false;
-        seen.add(x.name);
-        return true;
-      });
+      .filter(x => x.name);
+
+    const matched = targetName ? mapped.find(x => x.name === targetName) : null;
+    const targetServer = matched?.server || "";
+    const filtered = targetServer
+      ? mapped.filter(x => x.server === targetServer)
+      : mapped;
+
+    const seen = new Set();
+    return filtered.filter(x => {
+      if (seen.has(x.name)) return false;
+      seen.add(x.name);
+      return true;
+    });
   }
 
   async function fetchSingleCharFallback(keyword) {
@@ -559,7 +574,8 @@
       if (data && data.ok && data.name) {
         return [{
           name: String(data.name).trim(),
-          lvText: extractCharLv({ lv: data.lv })
+          lvText: extractCharLv({ lv: data.lv }),
+          server: String(data.server || "").trim()
         }];
       }
     } catch (e) {}
@@ -575,7 +591,7 @@
     try {
       const res = await fetch(`${API_BASE}/siblings?name=${encodeURIComponent(queryName)}&t=${Date.now()}`);
       const rawData = await res.json();
-      const list = parseSiblingsList(rawData);
+      const list = parseSiblingsList(rawData, queryName);
       if (list.length === 0) return;
 
       const prevMap = {};
@@ -586,14 +602,15 @@
         return {
           name: item.name,
           lvText: item.lvText || prev?.lvText || "",
+          server: item.server || prev?.server || "",
           checks: prev?.checks || [false, false, false],
           paradise: Boolean(prev?.paradise),
           halmosi: Boolean(prev?.halmosi)
         };
       });
 
-      const oldNames = active.chars.map(c => `${c.name}:${c.lvText}`).join("|");
-      const newNames = newChars.map(c => `${c.name}:${c.lvText}`).join("|");
+      const oldNames = active.chars.map(c => `${c.name}:${c.lvText}:${c.server || ""}`).join("|");
+      const newNames = newChars.map(c => `${c.name}:${c.lvText}:${c.server || ""}`).join("|");
 
       if (oldNames !== newNames) {
         active.chars = newChars;
@@ -645,6 +662,7 @@
   }
 
   function getActiveRoster() {
+    if (!Array.isArray(state.rosters) || state.rosters.length === 0) return null;
     return state.rosters.find(r => r.id === state.activeId) || state.rosters[0];
   }
 
@@ -699,7 +717,7 @@
   }
 
   function handleDeleteRoster() {
-    if (state.rosters.length <= 1) return;
+    if (state.rosters.length === 0) return;
     const delBtn = document.getElementById("rosterDelBtn");
     if (!delBtn.classList.contains("confirming")) {
       delBtn.classList.add("confirming");
@@ -716,12 +734,14 @@
     const current = getActiveRoster();
     if (!current) return;
     state.rosters = state.rosters.filter(r => r.id !== current.id);
-    state.activeId = state.rosters[0].id;
+    state.activeId = state.rosters.length > 0 ? state.rosters[0].id : "";
     render();
     saveState();
   }
 
   function handleManualReset() {
+    const roster = getActiveRoster();
+    if (!roster) return;
     const resetBtn = document.getElementById("resetBtn");
     if (!resetBtn.classList.contains("confirming")) {
       resetBtn.classList.add("confirming");
@@ -735,8 +755,6 @@
     }
 
     clearConfirmStates();
-    const roster = getActiveRoster();
-    if (!roster) return;
     roster.chars.forEach(c => {
       if (state.activeCat === "raid") {
         c.checks = [false, false, false];
@@ -763,7 +781,7 @@
     try {
       const res = await fetch(`${API_BASE}/siblings?name=${encodeURIComponent(keyword)}&t=${Date.now()}`);
       const rawData = await res.json();
-      let list = parseSiblingsList(rawData);
+      let list = parseSiblingsList(rawData, keyword);
 
       if (list.length === 0) {
         list = await fetchSingleCharFallback(keyword);
@@ -793,6 +811,7 @@
         return {
           name: item.name,
           lvText: item.lvText || prev?.lvText || "",
+          server: item.server || prev?.server || "",
           checks: prev?.checks || [false, false, false],
           paradise: Boolean(prev?.paradise),
           halmosi: Boolean(prev?.halmosi)
@@ -853,21 +872,37 @@
     const selectEl = document.getElementById("rosterSelect");
     const delBtnEl = document.getElementById("rosterDelBtn");
     selectEl.innerHTML = "";
-    state.rosters.forEach((r, idx) => {
+
+    if (state.rosters.length === 0) {
       const opt = document.createElement("option");
-      opt.value = r.id;
-      const displayLabel = r.label || r.chars?.[0]?.name || r.id || `원정대 ${idx + 1}`;
-      opt.textContent = displayLabel;
-      if (r.id === state.activeId) opt.selected = true;
+      opt.value = "";
+      opt.textContent = "원정대 없음";
       selectEl.appendChild(opt);
-    });
-    delBtnEl.style.display = state.rosters.length > 1 ? "flex" : "none";
+      selectEl.disabled = true;
+      delBtnEl.style.display = "none";
+    } else {
+      selectEl.disabled = false;
+      state.rosters.forEach((r, idx) => {
+        const opt = document.createElement("option");
+        opt.value = r.id;
+        const displayLabel = r.label || r.chars?.[0]?.name || r.id || `원정대 ${idx + 1}`;
+        opt.textContent = displayLabel;
+        if (r.id === state.activeId) opt.selected = true;
+        selectEl.appendChild(opt);
+      });
+      delBtnEl.style.display = "flex";
+    }
 
     const listEl = document.getElementById("charList");
     listEl.innerHTML = "";
 
     const activeRoster = getActiveRoster();
-    if (!activeRoster) return;
+    if (!activeRoster || activeRoster.chars.length === 0) {
+      listEl.innerHTML = `<div class="empty-guide">닉네임을 검색해 원정대를 추가해 주세요</div>`;
+      document.getElementById("progVal").textContent = `0% (0/0)`;
+      document.getElementById("progFill").style.width = `0%`;
+      return;
+    }
 
     let done = 0;
 
@@ -934,7 +969,6 @@
       listEl.appendChild(row);
     });
 
-    // 캐릭터 수에 맞춰 레이드 하트 총합(캐릭터 수 × 3)을 동적으로 계산하되 최소 18 기준 유지
     const totalCount = cat === "raid"
       ? Math.max(18, activeRoster.chars.length * 3)
       : Math.max(1, activeRoster.chars.length);
