@@ -21,7 +21,7 @@
     gap: 10px;
   }
 
-  .g-top {
+  .g-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -35,98 +35,76 @@
     background: #FCE6ED;
     color: #C95B7A;
   }
-  .g-add-btn {
-    border: 1.5px solid #F3C3D1;
-    background: #FFF0F3;
-    color: #C95B7A;
-    font-family: inherit;
-    font-size: 11px;
+  .g-count {
+    font-size: 10px;
     font-weight: 800;
-    padding: 4px 10px;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-  }
-  .g-add-btn:hover { background: #FCE6ED; }
-
-  .add-form {
-    display: none;
-    flex-direction: column;
-    gap: 7px;
-    background: #FFF7F9;
-    border: 1.5px solid #FADADD;
-    border-radius: 14px;
-    padding: 10px;
-  }
-  .add-form.open { display: flex; }
-
-  .add-row {
-    display: flex;
-    gap: 6px;
-  }
-  .add-input {
-    width: 100%;
-    border: 1px solid #F2DCE2;
-    background: #FFFFFF;
-    border-radius: 9px;
-    padding: 6px 9px;
-    font-family: inherit;
-    font-size: 11.5px;
-    font-weight: 600;
-    color: #4A4442;
-    outline: none;
-  }
-  .add-input:focus { border-color: #F29CB4; }
-  .add-input.date-inp { max-width: 126px; }
-
-  .add-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 6px;
-  }
-  .btn-cancel, .btn-submit {
-    border: none;
-    font-family: inherit;
-    font-size: 11px;
-    font-weight: 800;
-    padding: 5px 11px;
-    border-radius: 9px;
-    cursor: pointer;
-  }
-  .btn-cancel { background: #F4EFF1; color: #8C8280; }
-  .btn-submit { background: #F28BA8; color: #FFFFFF; }
-  .btn-submit:disabled { opacity: 0.6; cursor: default; }
-  .add-msg {
-    font-size: 11px;
-    font-weight: 700;
-    color: #C95B7A;
+    color: #9A908D;
   }
 
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(116px, 1fr));
     gap: 10px;
+    max-height: 230px;
+    overflow-y: auto;
+    padding-right: 4px;
   }
+  .grid::-webkit-scrollbar { width: 4px; }
+  .grid::-webkit-scrollbar-thumb { background: #F2DCE2; border-radius: 999px; }
 
-  .thumb {
-    position: relative;
-    aspect-ratio: 1 / 1;
+  .g-card {
+    display: flex;
+    flex-direction: column;
     border-radius: 14px;
     overflow: hidden;
     border: 1.5px solid #FCE4E8;
-    background: #FFF5F7;
+    background: #FFFFFF;
     cursor: pointer;
-    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
   }
-  .thumb:hover {
+  .g-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 14px rgba(244, 151, 182, 0.25);
+    border-color: #F29CB4;
+    box-shadow: 0 6px 14px rgba(244, 151, 182, 0.22);
   }
-  .thumb img {
+
+  .g-thumb {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background: #FFF5F7;
+    overflow: hidden;
+  }
+  .g-thumb img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
+  }
+
+  .g-meta {
+    padding: 7px 9px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: #FFFDFC;
+  }
+  .g-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: #4A4442;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .g-date {
+    align-self: flex-start;
+    font-size: 9.5px;
+    font-weight: 700;
+    color: #C95B7A;
+    background: #FFF0F3;
+    border: 1px solid #FADADD;
+    padding: 1px 6px;
+    border-radius: 999px;
   }
 
   .empty {
@@ -223,24 +201,10 @@
 </head>
 <body>
   <div class="gallery-box">
-    <div class="g-top">
+    <div class="g-head">
       <span class="g-badge">갤러리</span>
-      <button type="button" class="g-add-btn" id="toggleAddBtn" onclick="toggleAddForm()">+ 사진 등록</button>
+      <span class="g-count" id="gCount"></span>
     </div>
-
-    <form class="add-form" id="addForm" onsubmit="submitPhoto(event)">
-      <div class="add-row">
-        <input type="text" class="add-input" id="photoTitle" placeholder="제목 (예: 세르카 클리어)">
-        <input type="date" class="add-input date-inp" id="photoDate">
-      </div>
-      <input type="url" class="add-input" id="photoUrl" placeholder="이미지 주소(URL)를 입력하세요" required>
-      <div class="add-msg" id="addMsg" style="display:none;"></div>
-      <div class="add-actions">
-        <button type="button" class="btn-cancel" onclick="toggleAddForm(false)">취소</button>
-        <button type="submit" class="btn-submit" id="submitBtn">등록</button>
-      </div>
-    </form>
-
     <div id="content"><div class="empty">사진을 불러오는 중...</div></div>
   </div>
 
@@ -261,59 +225,6 @@
   const modalImg = document.getElementById("modalImg");
   const modalTitle = document.getElementById("modalTitle");
   const modalDate = document.getElementById("modalDate");
-
-  document.getElementById("photoDate").value = new Date().toISOString().slice(0, 10);
-
-  function toggleAddForm(force) {
-    const form = document.getElementById("addForm");
-    const next = typeof force === "boolean" ? force : !form.classList.contains("open");
-    form.classList.toggle("open", next);
-    if (!next) {
-      const msg = document.getElementById("addMsg");
-      msg.style.display = "none";
-      msg.textContent = "";
-    }
-  }
-
-  async function submitPhoto(e) {
-    e.preventDefault();
-    const titleEl = document.getElementById("photoTitle");
-    const dateEl = document.getElementById("photoDate");
-    const urlEl = document.getElementById("photoUrl");
-    const btn = document.getElementById("submitBtn");
-    const msg = document.getElementById("addMsg");
-
-    const payload = {
-      title: titleEl.value.trim() || "추억 기록",
-      date: dateEl.value || "",
-      url: urlEl.value.trim()
-    };
-    if (!payload.url) return;
-
-    btn.disabled = true;
-    btn.textContent = "등록 중...";
-    msg.style.display = "none";
-
-    try {
-      const res = await fetch(GALLERY_API, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-      titleEl.value = "";
-      urlEl.value = "";
-      toggleAddForm(false);
-      await loadGallery();
-    } catch (err) {
-      msg.textContent = "등록에 실패했습니다. Worker의 POST /gallery 지원 여부를 확인해 주세요.";
-      msg.style.display = "block";
-    } finally {
-      btn.disabled = false;
-      btn.textContent = "등록";
-    }
-  }
 
   function openModal(item) {
     modalImg.src = item.url;
@@ -338,33 +249,60 @@
 
   async function loadGallery() {
     const box = document.getElementById("content");
+    const countEl = document.getElementById("gCount");
     try {
       const res = await fetch(`${GALLERY_API}?t=${Date.now()}`);
       const photos = await res.json();
 
       if (!Array.isArray(photos) || photos.length === 0) {
+        countEl.textContent = "";
         box.innerHTML = `<div class="empty">노션 갤러리 DB에 사진을 올려보세요</div>`;
         return;
       }
+
+      countEl.textContent = `${photos.length}장`;
 
       const grid = document.createElement("div");
       grid.className = "grid";
 
       photos.forEach(item => {
-        const div = document.createElement("div");
-        div.className = "thumb";
+        const card = document.createElement("div");
+        card.className = "g-card";
+        card.onclick = () => openModal(item);
+
+        const thumb = document.createElement("div");
+        thumb.className = "g-thumb";
+
         const img = document.createElement("img");
         img.src = item.url;
         img.alt = item.title || "gallery";
         img.loading = "lazy";
-        div.appendChild(img);
-        div.onclick = () => openModal(item);
-        grid.appendChild(div);
+        thumb.appendChild(img);
+
+        const meta = document.createElement("div");
+        meta.className = "g-meta";
+
+        const title = document.createElement("div");
+        title.className = "g-title";
+        title.textContent = item.title || "제목 없음";
+        meta.appendChild(title);
+
+        if (item.date) {
+          const date = document.createElement("span");
+          date.className = "g-date";
+          date.textContent = item.date;
+          meta.appendChild(date);
+        }
+
+        card.appendChild(thumb);
+        card.appendChild(meta);
+        grid.appendChild(card);
       });
 
       box.innerHTML = "";
       box.appendChild(grid);
     } catch (e) {
+      countEl.textContent = "";
       box.innerHTML = `<div class="empty">사진을 불러오지 못했습니다</div>`;
     }
   }
