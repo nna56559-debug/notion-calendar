@@ -36,22 +36,78 @@
     align-items: center;
     justify-content: space-between;
     gap: 6px;
-    flex-wrap: wrap;
   }
   .r-left {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 5px;
     flex-wrap: wrap;
   }
-  .r-badge {
+  .r-badge-btn {
+    border: 1px solid #F3C3D1;
+    font-family: inherit;
     font-size: 10px;
     font-weight: 800;
-    padding: 2.5px 7px;
+    padding: 2.5px 8px;
     border-radius: 7px;
     background: #FCE6ED;
     color: #C95B7A;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.15s ease;
   }
+  .r-badge-btn:hover {
+    background: #FADCE5;
+  }
+  .r-badge-arrow {
+    font-size: 8px;
+    line-height: 1;
+    opacity: 0.85;
+  }
+
+  .cat-popover {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    z-index: 30;
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 84px;
+    background: #FFFFFF;
+    border: 1.5px solid #F5DCE3;
+    border-radius: 10px;
+    padding: 4px;
+    box-shadow: 0 6px 16px rgba(201, 91, 122, 0.14);
+  }
+  .cat-popover.open {
+    display: flex;
+  }
+  .cat-menu-item {
+    border: none;
+    background: transparent;
+    color: #5C5350;
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 800;
+    text-align: left;
+    padding: 4px 8px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.12s ease;
+  }
+  .cat-menu-item:hover {
+    background: #FDF5F7;
+    color: #C95B7A;
+  }
+  .cat-menu-item.active {
+    background: #FCE6ED;
+    color: #C95B7A;
+  }
+
   .r-pct {
     font-size: 10.5px;
     font-weight: 900;
@@ -79,37 +135,6 @@
     background: #FCE6ED;
     color: #C95B7A;
     font-size: 9.5px;
-  }
-
-  .cat-tabs {
-    display: flex;
-    align-items: center;
-    gap: 3px;
-    background: #FDF5F7;
-    border: 1px solid #F5DCE3;
-    border-radius: 9px;
-    padding: 2px;
-    flex-shrink: 0;
-  }
-  .cat-tab {
-    border: none;
-    background: transparent;
-    color: #9A8C90;
-    font-family: inherit;
-    font-size: 9px;
-    font-weight: 800;
-    padding: 2px 6.5px;
-    border-radius: 7px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    white-space: nowrap;
-  }
-  .cat-tab:hover {
-    color: #C95B7A;
-  }
-  .cat-tab.active {
-    background: #FCE6ED;
-    color: #C95B7A;
   }
 
   .sub-bar {
@@ -332,14 +357,17 @@
   <div class="raid-card">
     <div class="r-head">
       <div class="r-left">
-        <span class="r-badge" id="catBadge">레이드</span>
+        <button type="button" class="r-badge-btn" id="catBadgeBtn" onclick="toggleCatMenu(event)" title="카테고리 선택">
+          <span id="catBadgeText">레이드</span>
+          <span class="r-badge-arrow">▼</span>
+        </button>
+        <div class="cat-popover" id="catPopover" role="menu">
+          <button type="button" class="cat-menu-item active" data-cat="raid" onclick="selectCategory('raid')">레이드</button>
+          <button type="button" class="cat-menu-item" data-cat="paradise" onclick="selectCategory('paradise')">낙원</button>
+          <button type="button" class="cat-menu-item" data-cat="halmosi" onclick="selectCategory('halmosi')">할모시</button>
+        </div>
         <span class="r-pct" id="progVal">0% (0/18)</span>
         <button type="button" class="r-reset" id="resetBtn" onclick="handleManualReset()" title="현재 카테고리 체크 초기화">↻</button>
-      </div>
-      <div class="cat-tabs" role="tablist" aria-label="레이드 카테고리">
-        <button type="button" class="cat-tab active" data-cat="raid" onclick="selectCategory('raid')">레이드</button>
-        <button type="button" class="cat-tab" data-cat="paradise" onclick="selectCategory('paradise')">낙원</button>
-        <button type="button" class="cat-tab" data-cat="halmosi" onclick="selectCategory('halmosi')">할모시</button>
       </div>
     </div>
 
@@ -363,7 +391,7 @@
 
 <script>
   const API_BASE = "https://notion-cal.binhaha329.workers.dev";
-  const STORAGE_KEY = "lostark_pastel_rosters_v9";
+  const STORAGE_KEY = "lostark_pastel_rosters_v10";
   const MAX_HEARTS = 18; // 하트 18개 체크 시 100%
   const CAT_LABELS = {
     raid: "레이드",
@@ -386,6 +414,24 @@
     }
   ];
 
+  function extractCharName(item) {
+    if (!item || typeof item !== "object") return "";
+    return String(
+      item.name ?? item.CharacterName ?? item.charName ?? item.Name ?? ""
+    ).trim();
+  }
+
+  function extractCharLv(item) {
+    if (!item || typeof item !== "object") return "";
+    const raw = item.lvText ?? item.lv ?? item.ItemAvgLevel ?? item.level ?? item.Level ?? "";
+    const str = String(raw).trim();
+    if (!str) return "";
+    const numMatch = str.match(/[\d,]+(?:\.\d+)?/);
+    if (!numMatch) return str;
+    const baseNum = numMatch[0].replace(/,/g, "").split(".")[0];
+    return Number(baseNum).toLocaleString();
+  }
+
   // 한국 시간(KST) 기준 매주 수요일 오전 06:00 주차 키 반환
   function getCurrentWeekKey() {
     const now = new Date();
@@ -394,433 +440,4 @@
     const day = shifted.getDay();
     const diffToWed = (day + 4) % 7;
     shifted.setDate(shifted.getDate() - diffToWed);
-    return `${shifted.getFullYear()}-${String(shifted.getMonth() + 1).padStart(2, "0")}-${String(shifted.getDate()).padStart(2, "0")}`;
-  }
-
-  function normalizeChar(c) {
-    return {
-      name: c.name,
-      lvText: c.lvText || "",
-      checks: Array.isArray(c.checks) ? [Boolean(c.checks[0]), Boolean(c.checks[1]), Boolean(c.checks[2])] : [false, false, false],
-      paradise: Boolean(c.paradise),
-      halmosi: Boolean(c.halmosi)
-    };
-  }
-
-  function resetCharChecks(c) {
-    c.checks = [false, false, false];
-    c.paradise = false;
-    c.halmosi = false;
-  }
-
-  let state = {
-    weekKey: getCurrentWeekKey(),
-    activeCat: "raid",
-    activeId: DEFAULT_ROSTERS[0].id,
-    rosters: JSON.parse(JSON.stringify(DEFAULT_ROSTERS))
-  };
-
-  function normalizeState(raw) {
-    if (!raw || typeof raw !== "object") return null;
-    const currentWeek = getCurrentWeekKey();
-    let rosters = [];
-
-    if (Array.isArray(raw.rosters) && raw.rosters.length > 0) {
-      rosters = raw.rosters.map(r => ({
-        id: r.id,
-        label: r.label,
-        chars: (r.chars || []).map(normalizeChar)
-      }));
-    } else if (Array.isArray(raw.chars) && raw.chars.length > 0) {
-      const topName = raw.chars[0].name || "원정대 1";
-      rosters = [{ id: topName, label: topName, chars: raw.chars.map(normalizeChar) }];
-    } else {
-      return null;
-    }
-
-    let weekChanged = false;
-    if (raw.weekKey !== currentWeek) {
-      rosters.forEach(r => {
-        (r.chars || []).forEach(resetCharChecks);
-      });
-      weekChanged = true;
-    }
-
-    const activeId = rosters.some(r => r.id === raw.activeId) ? raw.activeId : rosters[0].id;
-    const activeCat = CAT_LABELS[raw.activeCat] ? raw.activeCat : "raid";
-    return {
-      normalized: { weekKey: currentWeek, activeCat, activeId, rosters },
-      weekChanged
-    };
-  }
-
-  function checkWeeklyAutoReset() {
-    const currentWeek = getCurrentWeekKey();
-    if (state.weekKey !== currentWeek) {
-      state.weekKey = currentWeek;
-      state.rosters.forEach(r => {
-        (r.chars || []).forEach(resetCharChecks);
-      });
-      render();
-      saveState();
-    }
-  }
-  setInterval(checkWeeklyAutoReset, 30000);
-
-  // 현재 선택된 원정대의 전체 캐릭터 목록을 API에서 자동 동기화 (기존 체크 상태 보존)
-  async function syncActiveRosterFullChars() {
-    const active = getActiveRoster();
-    if (!active) return;
-    const queryName = active.chars?.[0]?.name || active.id;
-    if (!queryName) return;
-
-    try {
-      const res = await fetch(`${API_BASE}/siblings?name=${encodeURIComponent(queryName)}&t=${Date.now()}`);
-      const list = await res.json();
-      if (!Array.isArray(list) || list.length === 0) return;
-
-      const prevMap = {};
-      active.chars.forEach(c => { prevMap[c.name] = c; });
-
-      const newChars = list.map(item => {
-        const prev = prevMap[item.name];
-        return {
-          name: item.name,
-          lvText: item.lvText,
-          checks: prev?.checks || [false, false, false],
-          paradise: Boolean(prev?.paradise),
-          halmosi: Boolean(prev?.halmosi)
-        };
-      });
-
-      const oldNames = active.chars.map(c => `${c.name}:${c.lvText}`).join("|");
-      const newNames = newChars.map(c => `${c.name}:${c.lvText}`).join("|");
-
-      if (oldNames !== newNames) {
-        active.chars = newChars;
-        active.id = list[0].name;
-        active.label = list[0].name;
-        state.activeId = active.id;
-        render();
-        saveState();
-      }
-    } catch (e) {}
-  }
-
-  async function loadState() {
-    try {
-      const localSaved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-      const resNorm = normalizeState(localSaved);
-      if (resNorm) {
-        state = resNorm.normalized;
-        render();
-      }
-    } catch (e) {}
-
-    try {
-      const res = await fetch(`${API_BASE}/raid?t=${Date.now()}`);
-      const data = await res.json();
-      const resNorm = normalizeState(data && data.state);
-      if (resNorm) {
-        state = resNorm.normalized;
-        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
-        render();
-        if (resNorm.weekChanged) saveState();
-      }
-    } catch (e) {}
-
-    syncActiveRosterFullChars();
-  }
-
-  let saveTimer = null;
-  function saveState() {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(() => {
-      fetch(`${API_BASE}/raid`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ state })
-      }).catch(() => {});
-    }, 300);
-  }
-
-  function getActiveRoster() {
-    return state.rosters.find(r => r.id === state.activeId) || state.rosters[0];
-  }
-
-  let delConfirmTimer = null;
-  let resetConfirmTimer = null;
-
-  function clearConfirmStates() {
-    const delBtn = document.getElementById("rosterDelBtn");
-    if (delBtn) {
-      delBtn.classList.remove("confirming");
-      delBtn.textContent = "×";
-    }
-    const resetBtn = document.getElementById("resetBtn");
-    if (resetBtn) {
-      resetBtn.classList.remove("confirming");
-      resetBtn.textContent = "↻";
-    }
-    clearTimeout(delConfirmTimer);
-    clearTimeout(resetConfirmTimer);
-  }
-
-  function selectCategory(cat) {
-    if (!CAT_LABELS[cat]) return;
-    clearConfirmStates();
-    state.activeCat = cat;
-    render();
-    saveState();
-  }
-
-  function selectRoster(id) {
-    clearConfirmStates();
-    state.activeId = id;
-    render();
-    saveState();
-    syncActiveRosterFullChars();
-  }
-
-  function handleDeleteRoster() {
-    if (state.rosters.length <= 1) return;
-    const delBtn = document.getElementById("rosterDelBtn");
-    if (!delBtn.classList.contains("confirming")) {
-      delBtn.classList.add("confirming");
-      delBtn.textContent = "삭제";
-      clearTimeout(delConfirmTimer);
-      delConfirmTimer = setTimeout(() => {
-        delBtn.classList.remove("confirming");
-        delBtn.textContent = "×";
-      }, 3000);
-      return;
-    }
-
-    clearConfirmStates();
-    const current = getActiveRoster();
-    if (!current) return;
-    state.rosters = state.rosters.filter(r => r.id !== current.id);
-    state.activeId = state.rosters[0].id;
-    render();
-    saveState();
-  }
-
-  function handleManualReset() {
-    const resetBtn = document.getElementById("resetBtn");
-    if (!resetBtn.classList.contains("confirming")) {
-      resetBtn.classList.add("confirming");
-      resetBtn.textContent = "초기화";
-      clearTimeout(resetConfirmTimer);
-      resetConfirmTimer = setTimeout(() => {
-        resetBtn.classList.remove("confirming");
-        resetBtn.textContent = "↻";
-      }, 3000);
-      return;
-    }
-
-    clearConfirmStates();
-    const roster = getActiveRoster();
-    if (!roster) return;
-    roster.chars.forEach(c => {
-      if (state.activeCat === "raid") {
-        c.checks = [false, false, false];
-      } else if (state.activeCat === "paradise") {
-        c.paradise = false;
-      } else if (state.activeCat === "halmosi") {
-        c.halmosi = false;
-      }
-    });
-    render();
-    saveState();
-  }
-
-  async function searchRoster() {
-    const input = document.getElementById("searchInput");
-    const btn = document.getElementById("searchBtn");
-    const keyword = input.value.trim();
-    if (!keyword) return;
-
-    clearConfirmStates();
-    btn.textContent = "조회중";
-    btn.disabled = true;
-
-    try {
-      const res = await fetch(`${API_BASE}/siblings?name=${encodeURIComponent(keyword)}&t=${Date.now()}`);
-      const list = await res.json();
-
-      if (!Array.isArray(list) || list.length === 0) {
-        btn.textContent = "없음";
-        setTimeout(() => {
-          btn.textContent = "검색";
-          btn.disabled = false;
-        }, 1500);
-        return;
-      }
-
-      const rosterId = list[0].name;
-      const existing = state.rosters.find(
-        r => r.id === rosterId || r.chars.some(c => list.some(l => l.name === c.name))
-      );
-
-      const prevMap = {};
-      if (existing) {
-        existing.chars.forEach(c => { prevMap[c.name] = c; });
-      }
-
-      const updatedChars = list.map(item => {
-        const prev = prevMap[item.name];
-        return {
-          name: item.name,
-          lvText: item.lvText,
-          checks: prev?.checks || [false, false, false],
-          paradise: Boolean(prev?.paradise),
-          halmosi: Boolean(prev?.halmosi)
-        };
-      });
-
-      if (existing) {
-        existing.id = rosterId;
-        existing.label = rosterId;
-        existing.chars = updatedChars;
-        state.activeId = rosterId;
-      } else {
-        state.rosters.push({
-          id: rosterId,
-          label: rosterId,
-          chars: updatedChars
-        });
-        state.activeId = rosterId;
-      }
-
-      render();
-      saveState();
-      input.value = "";
-      btn.textContent = "검색";
-      btn.disabled = false;
-    } catch (e) {
-      btn.textContent = "오류";
-      setTimeout(() => {
-        btn.textContent = "검색";
-        btn.disabled = false;
-      }, 1500);
-    }
-  }
-
-  function toggleHeart(charIdx, heartIdx) {
-    const roster = getActiveRoster();
-    if (!roster) return;
-    roster.chars[charIdx].checks[heartIdx] = !roster.chars[charIdx].checks[heartIdx];
-    render();
-    saveState();
-  }
-
-  function toggleCategoryCheck(charIdx, catKey) {
-    const roster = getActiveRoster();
-    if (!roster) return;
-    roster.chars[charIdx][catKey] = !roster.chars[charIdx][catKey];
-    render();
-    saveState();
-  }
-
-  function render() {
-    const cat = state.activeCat || "raid";
-    document.getElementById("catBadge").textContent = CAT_LABELS[cat] || "레이드";
-    document.querySelectorAll(".cat-tab").forEach(tab => {
-      tab.classList.toggle("active", tab.dataset.cat === cat);
-    });
-
-    const selectEl = document.getElementById("rosterSelect");
-    const delBtnEl = document.getElementById("rosterDelBtn");
-    selectEl.innerHTML = "";
-    state.rosters.forEach(r => {
-      const opt = document.createElement("option");
-      opt.value = r.id;
-      opt.textContent = r.label;
-      if (r.id === state.activeId) opt.selected = true;
-      selectEl.appendChild(opt);
-    });
-    delBtnEl.style.display = state.rosters.length > 1 ? "flex" : "none";
-
-    const listEl = document.getElementById("charList");
-    listEl.innerHTML = "";
-
-    const activeRoster = getActiveRoster();
-    if (!activeRoster) return;
-
-    let done = 0;
-
-    activeRoster.chars.forEach((ch, cIdx) => {
-      const checks = Array.isArray(ch.checks) ? ch.checks : [false, false, false];
-      const cDone = checks.filter(Boolean).length;
-      const isCatDone = cat === "raid" ? (cDone === 3) : Boolean(ch[cat]);
-
-      if (cat === "raid") {
-        done += cDone;
-      } else if (Boolean(ch[cat])) {
-        done += 1;
-      }
-
-      const row = document.createElement("div");
-      row.className = "c-row" + (isCatDone ? " all-done" : "");
-
-      const infoDiv = document.createElement("div");
-      infoDiv.className = "c-info";
-
-      const nameSpan = document.createElement("span");
-      nameSpan.className = "c-name";
-      nameSpan.textContent = ch.name;
-      infoDiv.appendChild(nameSpan);
-
-      if (ch.lvText) {
-        const lvSpan = document.createElement("span");
-        lvSpan.className = "c-lv";
-        lvSpan.textContent = ch.lvText;
-        infoDiv.appendChild(lvSpan);
-      }
-
-      if (cat === "raid") {
-        const heartsDiv = document.createElement("div");
-        heartsDiv.className = "hearts";
-
-        checks.forEach((checked, hIdx) => {
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "heart-btn" + (checked ? " checked" : "");
-          btn.onclick = () => toggleHeart(cIdx, hIdx);
-          btn.innerHTML = `
-            <svg class="heart-svg" viewBox="0 0 24 24">
-              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-            </svg>
-          `;
-          heartsDiv.appendChild(btn);
-        });
-
-        row.appendChild(infoDiv);
-        row.appendChild(heartsDiv);
-      } else {
-        const checked = Boolean(ch[cat]);
-        const checkBtn = document.createElement("button");
-        checkBtn.type = "button";
-        checkBtn.className = "cat-check-btn" + (checked ? " checked" : "");
-        checkBtn.textContent = checked ? "완료" : "체크";
-        checkBtn.onclick = () => toggleCategoryCheck(cIdx, cat);
-
-        row.appendChild(infoDiv);
-        row.appendChild(checkBtn);
-      }
-
-      listEl.appendChild(row);
-    });
-
-    const totalCount = cat === "raid" ? MAX_HEARTS : Math.max(1, activeRoster.chars.length);
-    const pct = Math.min(100, Math.round((done / totalCount) * 100));
-    document.getElementById("progVal").textContent = `${pct}% (${done}/${totalCount})`;
-    document.getElementById("progFill").style.width = `${pct}%`;
-  }
-
-  render();
-  loadState();
-</script>
-</body>
-</html>
+    return `${shifted.getFullYear()}-${String(shifted.getMonth
