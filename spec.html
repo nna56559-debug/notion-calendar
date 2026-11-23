@@ -220,6 +220,11 @@
     border-color: #DCEEE3;
     color: #3D7A56;
   }
+  .gem-pill.radiant {
+    background: #FFF6E0;
+    border-color: #F4DCA3;
+    color: #A67312;
+  }
   .gem-pill.bound-fear {
     background: #FCEBF1;
     border-color: #F4C6D5;
@@ -229,6 +234,11 @@
     background: #E9F6EE;
     border-color: #C4E5D1;
     color: #2B6E48;
+  }
+  .gem-pill.bound-radiant {
+    background: #FFF2D6;
+    border-color: #F2D18E;
+    color: #9A6608;
   }
   .gem-pill.bound {
     background: #F4EEFD;
@@ -287,6 +297,7 @@
         let cls = "bound";
         if (lbl.includes("겁") || lbl.includes("멸")) cls = "bound-fear";
         else if (lbl.includes("작") || lbl.includes("홍")) cls = "bound-blaze";
+        else if (lbl.includes("광")) cls = "bound-radiant";
         return `<span class="gem-pill ${cls}">귀속 ${lbl} ×${g.count}</span>`;
       }).join("");
     }
@@ -356,8 +367,11 @@
 
         const gemHtml = gemItems.length > 0
           ? gemItems.map(g => {
-              const isCd = g.label.includes("작") || g.label.includes("홍");
-              return `<span class="gem-pill ${isCd ? "cd" : ""}">${g.label} ×${g.count}</span>`;
+              const lbl = String(g.label || "");
+              let cls = "";
+              if (lbl.includes("작") || lbl.includes("홍")) cls = "cd";
+              else if (lbl.includes("광")) cls = "radiant";
+              return `<span class="gem-pill ${cls}">${lbl} ×${g.count}</span>`;
             }).join("") + boundHtml
           : (boundHtml || `<span class="gem-pill">장착 보석 없음</span>`);
 
