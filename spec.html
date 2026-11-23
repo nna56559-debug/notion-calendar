@@ -146,7 +146,6 @@
   }
   .eq-pill b { color: #265675; }
 
-  /* 악세 행 및 상(노랑) / 중(보라) / 하(하늘) 옵션 색상 */
   .acc-list {
     display: flex;
     flex-direction: column;
@@ -180,11 +179,10 @@
     padding: 1px 5px;
     border-radius: 5px;
   }
-  .opt-high { background: #FFF8D6; border: 1px solid #F3DF8A; color: #9E7200; } /* 상: 노랑 */
-  .opt-mid  { background: #F5EEFF; border: 1px solid #E0CEF7; color: #6E42A8; } /* 중: 보라 */
-  .opt-low  { background: #EAF6FF; border: 1px solid #CBE6FA; color: #2E6F9E; } /* 하: 하늘 */
+  .opt-high { background: #FFF8D6; border: 1px solid #F3DF8A; color: #9E7200; }
+  .opt-mid  { background: #F5EEFF; border: 1px solid #E0CEF7; color: #6E42A8; }
+  .opt-low  { background: #EAF6FF; border: 1px solid #CBE6FA; color: #2E6F9E; }
 
-  /* 아크 그리드 젬 레벨 */
   .grid-pill {
     font-size: 9px;
     font-weight: 800;
@@ -208,7 +206,6 @@
     color: #1A4E75;
   }
 
-  /* 보석 */
   .gem-pill {
     font-size: 9px;
     font-weight: 800;
@@ -223,6 +220,11 @@
     border-color: #DCEEE3;
     color: #3D7A56;
   }
+  .gem-pill.bound {
+    background: #F4EEFD;
+    border-color: #DFCFF7;
+    color: #6B44A8;
+  }
   .empty-txt {
     text-align: center;
     font-size: 10px;
@@ -236,8 +238,8 @@
     <div class="s-head">
       <span class="s-badge">캐릭터 조회</span>
       <div class="search-box">
-        <input type="text" class="search-input" id="nameInput" placeholder="닉네임 조회" onkeydown="if(event.key==='Enter') fetchSpec()">
-        <button type="button" class="search-btn" id="searchBtn" onclick="fetchSpec()">조회</button>
+        <input type="text" class="search-input" id="nameInput" placeholder="" onkeydown="if(event.key==='Enter') fetchSpec()">
+        <button type="button" class="search-btn" id="searchBtn" onclick="fetchSpec()">검색</button>
       </div>
     </div>
 
@@ -249,6 +251,38 @@
 <script>
   const API_BASE = "https://notion-cal.binhaha329.workers.dev";
 
+  function buildEquipments(data) {
+    const rawList = Array.isArray(data.equipments) ? [...data.equipments] : [];
+    const hasGauntlet = rawList.some(e => e && String(e.part || "").includes("완갑"));
+    if (!hasGauntlet) {
+      const extraGauntlet = data.gauntlet || data.bracer || null;
+      if (extraGauntlet && typeof extraGauntlet === "object") {
+        rawList.push({
+          part: extraGauntlet.part || "완갑",
+          hone: extraGauntlet.hone ?? "-",
+          extra: extraGauntlet.extra || ""
+        });
+      } else if (extraGauntlet) {
+        rawList.push({ part: "완갑", hone: String(extraGauntlet), extra: "" });
+      }
+    }
+    return rawList;
+  }
+
+  function getBoundGemCount(data) {
+    if (typeof data.boundGemCount === "number") return data.boundGemCount;
+    if (typeof data.boundGemsCount === "number") return data.boundGemsCount;
+    if (Array.isArray(data.boundGems)) {
+      return data.boundGems.reduce((sum, item) => sum + (Number(item?.count) || 1), 0);
+    }
+    if (Array.isArray(data.gems)) {
+      return data.gems
+        .filter(g => g && (g.bound || g.isBound || String(g.label || "").includes("귀속")))
+        .reduce((sum, item) => sum + (Number(item?.count) || 1), 0);
+    }
+    return 0;
+  }
+
   async function fetchSpec(defaultName) {
     const input = document.getElementById("nameInput");
     const btn = document.getElementById("searchBtn");
@@ -256,7 +290,7 @@
     const keyword = (defaultName || input.value).trim();
     if (!keyword) return;
 
-    btn.textContent = "조회중";
+    btn.textContent = "검색중";
     btn.disabled = true;
 
     try {
@@ -269,8 +303,9 @@
         const subParts = [data.server, data.job, data.guild ? `길드 ${data.guild}` : ""].filter(Boolean);
         const cpHtml = data.combatPower ? `<span class="cp-tag">전투력 ${data.combatPower}</span>` : "";
 
-        const eqHtml = (data.equipments || []).length > 0
-          ? data.equipments.map(e => {
+        const eqList = buildEquipments(data);
+        const eqHtml = eqList.length > 0
+          ? eqList.map(e => {
               const extraTxt = e.extra ? ` (${e.extra})` : "";
               return `<span class="eq-pill">${e.part} <b>${e.hone}</b>${extraTxt}</span>`;
             }).join("")
@@ -296,12 +331,18 @@
             ).join("")
           : `<span class="grid-pill">미적용</span>`;
 
-        const gemHtml = (data.gems || []).length > 0
-          ? data.gems.map(g => {
+        const gemItems = Array.isArray(data.gems) ? data.gems : [];
+        const boundCount = getBoundGemCount(data);
+        const boundBadgeHtml = boundCount > 0
+          ? `<span class="gem-pill bound">귀속 보석 ${boundCount}개</span>`
+          : "";
+
+        const gemHtml = gemItems.length > 0
+          ? gemItems.map(g => {
               const isCd = g.label.includes("작") || g.label.includes("홍");
               return `<span class="gem-pill ${isCd ? "cd" : ""}">${g.label} ×${g.count}</span>`;
-            }).join("")
-          : `<span class="gem-pill">장착 보석 없음</span>`;
+            }).join("") + boundBadgeHtml
+          : (boundBadgeHtml || `<span class="gem-pill">장착 보석 없음</span>`);
 
         area.innerHTML = `
           <div class="prof-box">
@@ -338,9 +379,9 @@
         if (!defaultName) input.value = "";
       }
     } catch (e) {
-      area.innerHTML = `<div class="empty-txt">조회 중 오류가 발생했어요</div>`;
+      area.innerHTML = `<div class="empty-txt">검색 중 오류가 발생했어요</div>`;
     } finally {
-      btn.textContent = "조회";
+      btn.textContent = "검색";
       btn.disabled = false;
     }
   }
