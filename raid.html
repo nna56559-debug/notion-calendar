@@ -391,8 +391,7 @@
 
 <script>
   const API_BASE = "https://notion-cal.binhaha329.workers.dev";
-  const STORAGE_KEY = "lostark_pastel_rosters_v11";
-  const MAX_HEARTS = 18;
+  const STORAGE_KEY = "lostark_pastel_rosters_v12";
   const CAT_LABELS = {
     raid: "레이드",
     paradise: "낙원",
@@ -423,7 +422,7 @@
 
   function extractCharLv(item) {
     if (!item || typeof item !== "object") return "";
-    const raw = item.lvText ?? item.lv ?? item.ItemAvgLevel ?? item.level ?? item.Level ?? "";
+    const raw = item.lvText ?? item.lv ?? item.ItemAvgLevel ?? item.MaxItemLevel ?? item.level ?? item.Level ?? "";
     const str = String(raw).trim();
     if (!str) return "";
     const numMatch = str.match(/[\d,]+(?:\.\d+)?/);
@@ -522,15 +521,35 @@
   setInterval(checkWeeklyAutoReset, 30000);
 
   function parseSiblingsList(rawData) {
-    const arr = Array.isArray(rawData)
-      ? rawData
-      : (Array.isArray(rawData?.siblings) ? rawData.siblings : (Array.isArray(rawData?.data) ? rawData.data : []));
+    let arr = [];
+    if (Array.isArray(rawData)) {
+      arr = rawData;
+    } else if (Array.isArray(rawData?.siblings)) {
+      arr = rawData.siblings;
+    } else if (Array.isArray(rawData?.characters)) {
+      arr = rawData.characters;
+    } else if (Array.isArray(rawData?.data)) {
+      arr = rawData.data;
+    } else if (rawData && typeof rawData === "object") {
+      // 서버별로 나뉜 객체 형태인 경우 모든 캐릭터를 합침
+      for (const val of Object.values(rawData)) {
+        if (Array.isArray(val)) {
+          arr = arr.concat(val);
+        }
+      }
+    }
+
+    const seen = new Set();
     return arr
       .map(item => ({
         name: extractCharName(item),
         lvText: extractCharLv(item)
       }))
-      .filter(x => x.name);
+      .filter(x => {
+        if (!x.name || seen.has(x.name)) return false;
+        seen.add(x.name);
+        return true;
+      });
   }
 
   async function fetchSingleCharFallback(keyword) {
@@ -915,7 +934,10 @@
       listEl.appendChild(row);
     });
 
-    const totalCount = cat === "raid" ? MAX_HEARTS : Math.max(1, activeRoster.chars.length);
+    // 캐릭터 수에 맞춰 레이드 하트 총합(캐릭터 수 × 3)을 동적으로 계산하되 최소 18 기준 유지
+    const totalCount = cat === "raid"
+      ? Math.max(18, activeRoster.chars.length * 3)
+      : Math.max(1, activeRoster.chars.length);
     const pct = Math.min(100, Math.round((done / totalCount) * 100));
     document.getElementById("progVal").textContent = `${pct}% (${done}/${totalCount})`;
     document.getElementById("progFill").style.width = `${pct}%`;
