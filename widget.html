@@ -28,7 +28,14 @@
     box-shadow: 0 4px 18px rgba(244, 182, 198, 0.1);
   }
   .cal-card { flex: 0 1 280px; width: 280px; }
-  .right-card { flex: 1 1 390px; max-width: 430px; min-height: 312px; display: flex; flex-direction: column; }
+  .right-card {
+    flex: 1 1 390px;
+    max-width: 430px;
+    height: 360px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
 
   /* 달력 상단 월 타이틀 */
   .cal-header { text-align: center; margin-bottom: 14px; }
@@ -120,7 +127,15 @@
   .nav-btn:hover { background: #FCEEF2; color: #E58FA7; }
 
   /* 우측 카드 헤더 */
-  .detail-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding: 0 2px; gap: 8px; }
+  .detail-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding: 0 2px;
+    gap: 8px;
+    flex-shrink: 0;
+  }
   .header-left { display: flex; align-items: center; gap: 7px; min-width: 0; flex: 1; }
   .detail-date { font-size: 12.5px; font-weight: 800; color: #8AC8E4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .count-badge { font-size: 10px; font-weight: 700; color: #E07A8E; background: #FFF0F3; padding: 2px 8px; border-radius: 999px; border: 1px solid #F8DCE1; flex-shrink: 0; }
@@ -141,8 +156,28 @@
   }
   .back-btn:hover { background: #F6B4CA; color: #FFFFFF; border-color: #F6B4CA; }
 
-  /* 뷰 1: 레이드 일정 리스트 */
-  .event-list { display: flex; flex-direction: column; gap: 9px; flex: 1; }
+  #rightContent {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* 뷰 1: 레이드 일정 리스트 (내부 스크롤) */
+  .event-list {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 3px;
+  }
+  .event-list::-webkit-scrollbar { width: 4px; }
+  .event-list::-webkit-scrollbar-track { background: transparent; }
+  .event-list::-webkit-scrollbar-thumb { background: #F5D5DE; border-radius: 99px; }
+
   .empty-msg { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 11.5px; color: #B8AFA9; text-align: center; padding: 20px 0; }
 
   .ev-item {
@@ -152,6 +187,7 @@
     padding: 10px 12px;
     cursor: pointer;
     transition: all 0.15s ease;
+    flex-shrink: 0;
   }
   .ev-item:hover {
     border-color: #F49BB8;
@@ -197,13 +233,19 @@
   .prof-select.st-clgyeong { background: #D5E8DC; color: #3A6B4C; }
   .prof-select.st-try { background: #E5E4E2; color: #6B6866; }
 
-  /* 뷰 2: 명단 (딜러 왼쪽 · 서포터 오른쪽 2단 분할) */
+  /* 뷰 2: 명단 (딜러 왼쪽 · 서포터 오른쪽 2단 분할 + 내부 스크롤) */
   .member-body {
     display: flex;
     flex-direction: column;
     gap: 8px;
     flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 3px;
   }
+  .member-body::-webkit-scrollbar { width: 4px; }
+  .member-body::-webkit-scrollbar-track { background: transparent; }
+  .member-body::-webkit-scrollbar-thumb { background: #F5D5DE; border-radius: 99px; }
 
   .roles-grid {
     display: grid;
@@ -277,6 +319,7 @@
     color: #6B625F;
     line-height: 1.4;
     white-space: pre-wrap;
+    flex-shrink: 0;
   }
 </style>
 </head>
@@ -310,7 +353,7 @@
       </div>
       <div class="count-badge" id="rightBadge">0건</div>
     </div>
-    <div id="rightContent" style="display:flex; flex-direction:column; flex:1;">
+    <div id="rightContent">
       <div class="empty-msg">일정을 불러오는 중...</div>
     </div>
   </div>
@@ -757,7 +800,6 @@
   document.getElementById("prevBtn").onclick = () => { current.setMonth(current.getMonth() - 1); renderCalendar(); };
   document.getElementById("nextBtn").onclick = () => { current.setMonth(current.getMonth() + 1); renderCalendar(); };
 
-  // ↻ 새로고침 버튼: 현재 달 & 오늘 날짜로 즉시 복귀 + 최신 데이터 동기화
   document.getElementById("refreshBtn").onclick = () => {
     const now = new Date();
     current = new Date(now.getFullYear(), now.getMonth(), 1);
