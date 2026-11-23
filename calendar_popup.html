@@ -2,195 +2,121 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
   @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  html, body {
-    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: transparent;
-    width: 100%;
-    overflow: hidden;
-  }
   body {
+    font-family: 'Pretendard', sans-serif;
+    background: transparent;
     display: flex;
     justify-content: center;
-    padding: 4px;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
   }
 
-  /* 고정 높이 달력 카드 */
+  /* 원본 달력 카드 양식 유지 + 높이 고정 */
   .cal-card {
     position: relative;
     width: 100%;
-    max-width: 440px;
-    height: 410px;
-    background: #FFFFFF;
-    border: 1.5px solid #F9E5E9;
-    border-radius: 24px;
-    padding: 18px 20px 14px;
-    box-shadow: 0 4px 18px rgba(244, 182, 198, 0.12);
+    max-width: 310px;
+    height: 368px;
+    background: #fdfafb;
+    border-radius: 22px;
+    padding: 20px 18px 14px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    text-align: center;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    overflow: visible;
+    overflow: hidden;
   }
 
-  .cal-title {
-    text-align: center;
-    font-size: 16px;
-    font-weight: 900;
-    color: #96C8E8;
-    letter-spacing: -0.2px;
-    margin-bottom: 10px;
+  .month-title {
+    font-size: 21px;
+    font-weight: 700;
+    color: #b8dce8;
+    margin-bottom: 12px;
     flex-shrink: 0;
   }
 
-  .dow-grid {
+  .grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    text-align: center;
-    font-size: 9.5px;
-    font-weight: 800;
-    margin-bottom: 6px;
-    flex-shrink: 0;
-  }
-  .dow-grid span { color: #96C8E8; }
-  .dow-grid span.wknd { color: #E89CB2; }
-
-  .days-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    grid-auto-rows: 1fr;
-    gap: 2px;
+    row-gap: 6px;
+    align-items: center;
+    justify-items: center;
     flex: 1;
     min-height: 0;
   }
-
+  .weekday {
+    font-size: 12px;
+    font-weight: 600;
+    color: #b8dce8;
+    margin-bottom: 2px;
+  }
   .day-cell {
-    border: none;
-    background: transparent;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 2px;
-    cursor: pointer;
     position: relative;
-  }
-  .day-pill {
-    width: 26px;
-    height: 24px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 10.5px;
-    font-weight: 800;
-    color: #5C5350;
-    transition: all 0.14s ease;
-  }
-  .day-cell:hover .day-pill { background: #FDF0F4; }
-  .day-cell.other .day-pill { color: #C2BBB8; font-weight: 700; }
-  .day-cell.wknd:not(.other) .day-pill { color: #B85C75; }
-
-  /* 일정 있는 날: 핑크 알약 + 하단 하늘 점 */
-  .day-cell.has-ev:not(.today) .day-pill {
-    background: #F4A9BE;
-    color: #FFFFFF;
-  }
-  .ev-dot {
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: transparent;
-  }
-  .day-cell.has-ev .ev-dot { background: #89C4E8; }
-
-  /* 오늘 날짜: 외곽 테두리 없이 깔끔한 하늘색 알약 */
-  .day-cell.today .day-pill {
-    background: #BBE2F7;
-    color: #FFFFFF;
-    box-shadow: none;
-  }
-
-  /* 마우스 오버 시 레이드 제목 툴팁 */
-  .hover-tooltip {
-    position: fixed;
-    transform: translate(-50%, calc(-100% - 8px));
-    background: #FFFFFF;
-    border: 1.5px solid #F7DCE4;
-    border-radius: 12px;
-    padding: 5px 10px;
-    box-shadow: 0 6px 18px rgba(120, 80, 95, 0.14);
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.12s ease;
-    z-index: 99;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
     display: flex;
     flex-direction: column;
-    gap: 2px;
-    max-width: 220px;
-    white-space: nowrap;
-  }
-  .hover-tooltip.show { opacity: 1; }
-  .hover-pill {
-    background: #FCEBF0;
-    color: #C95B7A;
-    font-size: 10px;
-    font-weight: 800;
-    padding: 2px 8px;
-    border-radius: 7px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  /* 하단 카운트다운 및 화살표 */
-  .cal-foot {
-    margin-top: 8px;
-    padding-top: 6px;
-    display: flex;
     align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 500;
+    color: #444;
+    cursor: pointer;
+    transition: 0.15s;
+  }
+  .day-cell:hover { background: rgba(184, 220, 232, 0.2); }
+  .day-cell.selected { outline: 2px solid #f2a7be; background: rgba(246, 184, 200, 0.15); }
+  .day-num { width: 25px; height: 25px; line-height: 25px; border-radius: 7px; }
+  .other-month { color: #ccc; cursor: default; }
+  .weekend { color: #b85c5c; }
+  .other-month.weekend { color: #e0baba; }
+  .has-event .day-num { background: #f6b8c8; color: #fff; font-weight: 600; }
+  .dot { width: 3.5px; height: 3.5px; background: #b8dce8; border-radius: 50%; margin-top: 2px; }
+  .dot-ph { width: 3.5px; height: 3.5px; margin-top: 2px; }
+  .today .day-num { background: #a8dce8 !important; color: #fff !important; font-weight: 700; }
+
+  .footer {
+    display: flex;
     justify-content: space-between;
-    font-size: 9.5px;
-    font-weight: 800;
-    color: #A69E9B;
+    align-items: center;
+    margin-top: 10px;
+    padding: 0 6px;
     flex-shrink: 0;
   }
-  .foot-spacer { width: 54px; }
-  .reset-timer { text-align: center; }
-  .foot-nav {
-    width: 54px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 6px;
-  }
-  .f-btn {
+  .brand { font-size: 9px; letter-spacing: 2px; color: #b0b8bc; }
+  .nav-btns button {
+    background: none;
     border: none;
-    background: transparent;
-    color: #96C8E8;
-    font-size: 11px;
-    font-weight: 900;
+    color: #b8dce8;
+    font-size: 14px;
     cursor: pointer;
-    padding: 2px;
+    padding: 4px 6px;
   }
-  .f-btn:hover { color: #E889A5; }
+  .nav-btns button:hover { color: #f2a7be; }
 
-  /* 팝업 오버레이 */
+  /* 한 카드 안에서 뜨는 팝업 레이어 */
   .popup-layer {
     position: absolute;
     inset: 0;
-    background: #FFFFFF;
-    border-radius: 24px;
+    background: #fdfafb;
+    border-radius: 22px;
+    padding: 16px 15px 14px;
     display: none;
     flex-direction: column;
-    padding: 16px 18px;
     z-index: 10;
-    animation: fadeIn 0.14s ease-out;
+    text-align: left;
+    animation: popFade 0.14s ease-out;
   }
   .popup-layer.show { display: flex; }
   .popup-layer.top { z-index: 20; }
-  @keyframes fadeIn {
+  @keyframes popFade {
     from { opacity: 0; transform: translateY(4px); }
     to { opacity: 1; transform: translateY(0); }
   }
@@ -200,7 +126,9 @@
     align-items: center;
     justify-content: space-between;
     gap: 6px;
-    margin-bottom: 10px;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #f2e2e7;
     flex-shrink: 0;
   }
   .pop-left {
@@ -210,36 +138,496 @@
     min-width: 0;
   }
   .back-btn {
-    border: 1px solid #F4DCE3;
-    background: #FFF7F9;
-    color: #D46A87;
+    border: 1px solid #f2d6de;
+    background: #fff;
+    color: #d46a87;
     font-family: inherit;
-    font-size: 9.5px;
-    font-weight: 800;
+    font-size: 10px;
+    font-weight: 700;
     padding: 3px 8px;
     border-radius: 99px;
     cursor: pointer;
     flex-shrink: 0;
   }
-  .back-btn:hover { background: #FCE8EE; }
-  .pop-h-title {
-    font-size: 13px;
-    font-weight: 900;
-    color: #88C2E6;
+  .back-btn:hover { background: #fcebf0; }
+  .pop-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #7dbad1;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .pop-pill-cnt {
-    font-size: 9.5px;
-    font-weight: 800;
-    color: #D46A87;
-    background: #FFF6F8;
-    border: 1px solid #F5DCE3;
-    padding: 2px 9px;
+  .pop-badge {
+    font-size: 10px;
+    font-weight: 700;
+    color: #d46a87;
+    background: #fff;
+    border: 1px solid #f2d6de;
+    padding: 2px 8px;
     border-radius: 99px;
     flex-shrink: 0;
   }
 
-  /* 내부 스크롤 영역 */
-  .pop
+  /* 위젯 크기 고정 + 팝업 내부 스크롤 */
+  .pop-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    padding-right: 2px;
+  }
+  .pop-scroll::-webkit-scrollbar { width: 3.5px; }
+  .pop-scroll::-webkit-scrollbar-track { background: transparent; }
+  .pop-scroll::-webkit-scrollbar-thumb { background: #efc6d2; border-radius: 99px; }
+
+  /* 일정 아이템 카드 */
+  .ev-item {
+    background: #ffffff;
+    border: 1px solid #f3dce3;
+    border-radius: 13px;
+    padding: 9px 10px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex-shrink: 0;
+    transition: 0.14s;
+  }
+  .ev-item:hover {
+    background: #fff6f9;
+    border-color: #f2a7be;
+  }
+  .ev-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+  }
+  .ev-name {
+    font-size: 11px;
+    font-weight: 700;
+    color: #3d3735;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .ev-right {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+  }
+  .ev-time {
+    font-size: 9px;
+    font-weight: 600;
+    color: #6b9ab8;
+    background: #eef6fb;
+    padding: 2px 6px;
+    border-radius: 6px;
+  }
+  .ev-check {
+    width: 15px;
+    height: 15px;
+    border-radius: 5px;
+    border: 1.5px solid #f2a7be;
+    background: #fff;
+    color: #fff;
+    font-size: 9.5px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .ev-check.checked {
+    background: #f2a7be;
+    border-color: #f2a7be;
+  }
+  .ev-bot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+  }
+  .ev-diff {
+    font-size: 9px;
+    font-weight: 700;
+    color: #7a5ba6;
+    background: #f2ebfa;
+    padding: 2px 7px;
+    border-radius: 6px;
+  }
+  .ev-prof {
+    background: #e3f2fc;
+    color: #2c628a;
+    border: none;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 6px;
+    cursor: pointer;
+    outline: none;
+  }
+
+  /* 명단 2열 (딜러 / 서포터) */
+  .roster-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    align-items: start;
+  }
+  .role-col {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .role-pill {
+    align-self: flex-start;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 7px;
+  }
+  .role-pill.dps { background: #fce6ed; color: #c95b7a; }
+  .role-pill.sup { background: #dcf5e7; color: #2e7d52; }
+
+  .m-card {
+    background: #ffffff;
+    border: 1px solid #f3dce3;
+    border-radius: 10px;
+    padding: 6px 7px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .m-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 3px;
+  }
+  .m-name {
+    font-size: 10px;
+    font-weight: 700;
+    color: #3d3735;
+    line-height: 1.3;
+    word-break: break-word;
+  }
+  .m-tag {
+    font-size: 7.5px;
+    font-weight: 700;
+    padding: 1px 4px;
+    border-radius: 4px;
+    background: #e8f4fc;
+    color: #4682ad;
+    flex-shrink: 0;
+  }
+  .m-info {
+    font-size: 8px;
+    color: #7d7471;
+    line-height: 1.25;
+    word-break: break-word;
+  }
+  .m-memo {
+    align-self: flex-start;
+    font-size: 7.5px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: #fcf5e3;
+    color: #9e7524;
+    word-break: break-all;
+  }
+  .empty-msg {
+    margin: auto 0;
+    text-align: center;
+    font-size: 11px;
+    color: #aaa;
+  }
+</style>
+</head>
+<body>
+<div class="cal-card">
+  <div class="month-title" id="monthTitle">November</div>
+  <div class="grid" id="calGrid"></div>
+  <div class="footer">
+    <span style="width:45px"></span>
+    <span class="brand">RAID CALENDAR</span>
+    <div class="nav-btns">
+      <button type="button" onclick="changeMonth(-1)">←</button>
+      <button type="button" onclick="resetToday()">↻</button>
+      <button type="button" onclick="changeMonth(1)">→</button>
+    </div>
+  </div>
+
+  <!-- 1단계 팝업: 선택한 날짜의 레이드 일정 (카드 내부 스크롤) -->
+  <div class="popup-layer" id="dayPopup">
+    <div class="pop-head">
+      <div class="pop-left">
+        <button type="button" class="back-btn" onclick="closeDayPopup()">← 달력</button>
+        <span class="pop-title" id="dayPopupTitle"></span>
+      </div>
+      <span class="pop-badge" id="dayPopupCount">0건</span>
+    </div>
+    <div class="pop-scroll" id="dayEventList"></div>
+  </div>
+
+  <!-- 2단계 팝업: 선택한 일정의 명단 (카드 내부 스크롤) -->
+  <div class="popup-layer top" id="detailPopup">
+    <div class="pop-head">
+      <div class="pop-left">
+        <button type="button" class="back-btn" onclick="closeDetailPopup()">← 목록</button>
+        <span class="pop-title" id="detailTitle">명단</span>
+      </div>
+      <span class="pop-badge" id="detailCount">0명</span>
+    </div>
+    <div class="pop-scroll" id="rosterScroll">
+      <div class="roster-grid">
+        <div class="role-col" id="dpsCol"></div>
+        <div class="role-col" id="supCol"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const WORKER_URL = "https://notion-cal.binhaha329.workers.dev";
+  const channel = new BroadcastChannel("raid_cal_sync");
+  const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const weekdays = ["M","T","W","T","F","S","S"];
+  const SUPPORTER_JOBS = ["바드", "도화가", "홀리나이트", "발키리"];
+  const PROF_OPTIONS = ["숙련도 미지정", "트라이", "반숙", "숙련", "클리어"];
+
+  let current = new Date();
+  let eventMap = {};
+  let selectedDate = "";
+  const charCache = {};
+
+  function broadcastDate(ds) {
+    selectedDate = ds;
+    const payload = { date: ds, items: eventMap[ds] || [] };
+    localStorage.setItem("raid_cal_selected", JSON.stringify(payload));
+    channel.postMessage(payload);
+    render();
+    openDayPopup(ds);
+  }
+
+  async function loadEvents() {
+    try {
+      const res = await fetch(`${WORKER_URL}?t=${Date.now()}`);
+      const list = await res.json();
+      eventMap = {};
+      (Array.isArray(list) ? list : []).forEach(item => {
+        if (!item.date) return;
+        if (!eventMap[item.date]) eventMap[item.date] = [];
+        eventMap[item.date].push(item);
+      });
+      render();
+      if (selectedDate && document.getElementById("dayPopup").classList.contains("show")) {
+        openDayPopup(selectedDate);
+      }
+    } catch (e) {
+      render();
+    }
+  }
+
+  function render() {
+    const y = current.getFullYear(), m = current.getMonth();
+    document.getElementById("monthTitle").textContent = months[m];
+    const grid = document.getElementById("calGrid");
+    let html = weekdays.map(d => `<div class="weekday">${d}</div>`).join("");
+    const first = (new Date(y, m, 1).getDay() + 6) % 7;
+    const last = new Date(y, m + 1, 0).getDate();
+    const prev = new Date(y, m, 0).getDate();
+    const today = new Date().toLocaleDateString("en-CA");
+
+    for (let i = first - 1; i >= 0; i--) {
+      html += `<div class="day-cell other-month"><div class="day-num">${prev - i}</div><div class="dot-ph"></div></div>`;
+    }
+    for (let d = 1; d <= last; d++) {
+      const ds = `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+      const dow = (first + d - 1) % 7;
+      const wk = dow >= 5 ? "weekend" : "";
+      const td = ds === today ? "today" : "";
+      const sel = ds === selectedDate ? "selected" : "";
+      const items = eventMap[ds] || [];
+      const evCls = items.length ? "has-event" : "";
+      const dot = items.length ? `<div class="dot"></div>` : `<div class="dot-ph"></div>`;
+      html += `<div class="day-cell ${wk} ${td} ${evCls} ${sel}" onclick="broadcastDate('${ds}')"><div class="day-num">${d}</div>${dot}</div>`;
+    }
+    grid.innerHTML = html;
+  }
+
+  function openDayPopup(ds) {
+    selectedDate = ds;
+    const items = eventMap[ds] || [];
+    document.getElementById("dayPopupTitle").textContent = ds;
+    document.getElementById("dayPopupCount").textContent = `${items.length}건`;
+
+    const listEl = document.getElementById("dayEventList");
+    listEl.scrollTop = 0;
+
+    if (items.length === 0) {
+      listEl.innerHTML = `<div class="empty-msg">선택한 날짜에 일정이 없어요</div>`;
+    } else {
+      listEl.innerHTML = "";
+      items.forEach(ev => {
+        const card = document.createElement("div");
+        card.className = "ev-item";
+        card.onclick = () => openDetailPopup(ev);
+
+        const isDeparted = String(ev.status || "").includes("출발") && !String(ev.status || "").includes("전");
+        const timeTxt = ev.time || "시간 미정";
+        const diffHtml = ev.difficulty ? `<span class="ev-diff">${ev.difficulty}</span>` : `<span></span>`;
+        const optsHtml = PROF_OPTIONS.map(opt =>
+          `<option value="${opt}" ${ev.proficiency === opt ? "selected" : ""}>${opt}</option>`
+        ).join("");
+
+        card.innerHTML = `
+          <div class="ev-top">
+            <span class="ev-name">${ev.title}</span>
+            <div class="ev-right">
+              <span class="ev-time">${timeTxt}</span>
+              <button type="button" class="ev-check ${isDeparted ? "checked" : ""}" title="출발 여부">${isDeparted ? "✓" : ""}</button>
+            </div>
+          </div>
+          <div class="ev-bot">
+            ${diffHtml}
+            <select class="ev-prof">${optsHtml}</select>
+          </div>
+        `;
+
+        const checkBtn = card.querySelector(".ev-check");
+        checkBtn.onclick = async (e) => {
+          e.stopPropagation();
+          const next = !checkBtn.classList.contains("checked");
+          checkBtn.classList.toggle("checked", next);
+          checkBtn.textContent = next ? "✓" : "";
+          ev.status = next ? "🚀출발" : "출발 전";
+          await sendPatch({ pageId: ev.pageId, cleared: next });
+        };
+
+        const profSel = card.querySelector(".ev-prof");
+        profSel.onclick = e => e.stopPropagation();
+        profSel.onchange = async (e) => {
+          e.stopPropagation();
+          ev.proficiency = profSel.value;
+          await sendPatch({ pageId: ev.pageId, proficiency: profSel.value });
+        };
+
+        listEl.appendChild(card);
+      });
+    }
+
+    document.getElementById("dayPopup").classList.add("show");
+  }
+
+  function closeDayPopup() {
+    closeDetailPopup();
+    document.getElementById("dayPopup").classList.remove("show");
+  }
+
+  function parseMemberEntries(rawStr) {
+    if (!rawStr || !rawStr.trim()) return [];
+    return rawStr.split(/\r?\n/).map(s => s.trim()).filter(Boolean).map(line => {
+      let badge = "";
+      let note = "";
+      let clean = line;
+      if (/지인/.test(clean)) {
+        badge = "지인";
+        clean = clean.replace(/\[지인\]|\(지인\)|지인/g, "").trim();
+      }
+      const paren = clean.match(/^(.+?)\s*\(([^()]+)\)\s*$/);
+      let mainText = clean;
+      if (paren) {
+        mainText = paren[1].trim();
+        note = paren[2].trim();
+      }
+      const lookupName = mainText.split(/[\|\/]/)[0].trim().split(/\s+/)[0].trim();
+      return { raw: mainText, lookupName, badge, note };
+    });
+  }
+
+  async function fetchCharSpec(name) {
+    if (!name) return null;
+    if (Object.prototype.hasOwnProperty.call(charCache, name)) return charCache[name];
+    try {
+      const res = await fetch(`${WORKER_URL}/spec?name=${encodeURIComponent(name)}`);
+      const data = await res.json();
+      if (data && data.ok) {
+        charCache[name] = data;
+        return data;
+      }
+    } catch (e) {}
+    charCache[name] = null;
+    return null;
+  }
+
+  async function openDetailPopup(ev) {
+    const entries = parseMemberEntries(ev.members);
+    document.getElementById("detailTitle").textContent = ev.title || "명단";
+    document.getElementById("detailCount").textContent = `${entries.length}명`;
+
+    const dpsCol = document.getElementById("dpsCol");
+    const supCol = document.getElementById("supCol");
+    dpsCol.innerHTML = `<div class="role-pill dps">⚔️ 딜러 0</div>`;
+    supCol.innerHTML = `<div class="role-pill sup">💚 서포터 0</div>`;
+    document.getElementById("rosterScroll").scrollTop = 0;
+    document.getElementById("detailPopup").classList.add("show");
+
+    if (entries.length === 0) return;
+
+    const enriched = await Promise.all(entries.map(async (entry) => {
+      const spec = await fetchCharSpec(entry.lookupName);
+      const job = spec?.job || "";
+      const lv = spec?.lv ? String(spec.lv).replace(/,/g, "") : "";
+      const cp = spec?.combatPower ? String(spec.combatPower).replace(/,/g, "") : "";
+      const isSup = SUPPORTER_JOBS.some(s => job.includes(s) || entry.raw.includes(s) || entry.note.includes(s));
+      const titleText = spec?.name ? spec.name : entry.raw;
+      const subLine = [job, lv, cp].filter(Boolean).join(" | ") || entry.raw;
+      return { ...entry, titleText, subLine, isSup };
+    }));
+
+    const dpsList = enriched.filter(m => !m.isSup);
+    const supList = enriched.filter(m => m.isSup);
+
+    const renderCard = (m) => `
+      <div class="m-card">
+        <div class="m-top">
+          <span class="m-name">${m.titleText}</span>
+          ${m.badge ? `<span class="m-tag">${m.badge}</span>` : ""}
+        </div>
+        <div class="m-info">${m.subLine}</div>
+        ${m.note ? `<span class="m-memo">${m.note}</span>` : ""}
+      </div>
+    `;
+
+    dpsCol.innerHTML = `<div class="role-pill dps">⚔️ 딜러 ${dpsList.length}</div>` + dpsList.map(renderCard).join("");
+    supCol.innerHTML = `<div class="role-pill sup">💚 서포터 ${supList.length}</div>` + supList.map(renderCard).join("");
+  }
+
+  function closeDetailPopup() {
+    document.getElementById("detailPopup").classList.remove("show");
+  }
+
+  async function sendPatch(payload) {
+    try {
+      await fetch(WORKER_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+    } catch (e) {}
+  }
+
+  function changeMonth(d) { current.setMonth(current.getMonth() + d); render(); }
+  function resetToday() { current = new Date(); render(); }
+  render();
+  loadEvents();
+</script>
+</body>
+</html>
