@@ -225,26 +225,6 @@
     border-color: #F4DCA3;
     color: #A67312;
   }
-  .gem-pill.bound-fear {
-    background: #FCEBF1;
-    border-color: #F4C6D5;
-    color: #B84267;
-  }
-  .gem-pill.bound-blaze {
-    background: #E9F6EE;
-    border-color: #C4E5D1;
-    color: #2B6E48;
-  }
-  .gem-pill.bound-radiant {
-    background: #FFF2D6;
-    border-color: #F2D18E;
-    color: #9A6608;
-  }
-  .gem-pill.bound {
-    background: #F4EEFD;
-    border-color: #DFCFF7;
-    color: #6B44A8;
-  }
   .empty-txt {
     text-align: center;
     font-size: 10px;
@@ -289,29 +269,42 @@
     return rawList;
   }
 
-  function renderBoundGems(data) {
-    const list = Array.isArray(data.boundGems) ? data.boundGems : [];
-    if (list.length > 0) {
-      return list.map(g => {
-        const lbl = String(g.label || "");
-        let cls = "bound";
-        if (lbl.includes("겁") || lbl.includes("멸")) cls = "bound-fear";
-        else if (lbl.includes("작") || lbl.includes("홍")) cls = "bound-blaze";
-        else if (lbl.includes("광")) cls = "bound-radiant";
-        return `<span class="gem-pill ${cls}">귀속 ${lbl} ×${g.count}</span>`;
-      }).join("");
+  function renderBoundSummary(data) {
+    const boundList = Array.isArray(data.boundGems) ? data.boundGems : [];
+    let fearCount = 0;
+    let blazeCount = 0;
+    let radiantCount = 0;
+
+    for (const g of boundList) {
+      const lbl = String(g?.label || "");
+      const cnt = Number(g?.count) || 0;
+      if (lbl.includes("겁") || lbl.includes("멸")) fearCount += cnt;
+      else if (lbl.includes("작") || lbl.includes("홍")) blazeCount += cnt;
+      else if (lbl.includes("광")) radiantCount += cnt;
     }
 
-    let fallbackCount = 0;
-    if (typeof data.boundGemCount === "number") fallbackCount = data.boundGemCount;
-    else if (typeof data.boundGemsCount === "number") fallbackCount = data.boundGemsCount;
-    else if (Array.isArray(data.gems)) {
-      fallbackCount = data.gems
-        .filter(g => g && (g.bound || g.isBound || String(g.label || "").includes("귀속")))
-        .reduce((sum, item) => sum + (Number(item?.count) || 1), 0);
+    const pills = [];
+    if (fearCount > 0) {
+      pills.push(`<span class="gem-pill">귀속 겁화 ${fearCount}개</span>`);
+    }
+    if (blazeCount > 0) {
+      pills.push(`<span class="gem-pill cd">귀속 작열 ${blazeCount}개</span>`);
+    }
+    if (radiantCount > 0) {
+      pills.push(`<span class="gem-pill radiant">귀속 광휘 ${radiantCount}개</span>`);
     }
 
-    return fallbackCount > 0 ? `<span class="gem-pill bound">귀속 보석 ${fallbackCount}개</span>` : "";
+    if (pills.length === 0) {
+      const fallbackCount =
+        typeof data.boundGemCount === "number"
+          ? data.boundGemCount
+          : (typeof data.boundGemsCount === "number" ? data.boundGemsCount : 0);
+      if (fallbackCount > 0) {
+        pills.push(`<span class="gem-pill">귀속 보석 ${fallbackCount}개</span>`);
+      }
+    }
+
+    return pills.join("");
   }
 
   async function fetchSpec(defaultName) {
@@ -362,18 +355,8 @@
             ).join("")
           : `<span class="grid-pill">미적용</span>`;
 
-        const gemItems = Array.isArray(data.gems) ? data.gems : [];
-        const boundHtml = renderBoundGems(data);
-
-        const gemHtml = gemItems.length > 0
-          ? gemItems.map(g => {
-              const lbl = String(g.label || "");
-              let cls = "";
-              if (lbl.includes("작") || lbl.includes("홍")) cls = "cd";
-              else if (lbl.includes("광")) cls = "radiant";
-              return `<span class="gem-pill ${cls}">${lbl} ×${g.count}</span>`;
-            }).join("") + boundHtml
-          : (boundHtml || `<span class="gem-pill">장착 보석 없음</span>`);
+        const boundSummaryHtml = renderBoundSummary(data);
+        const gemHtml = boundSummaryHtml || `<span class="gem-pill">귀속 보석 없음</span>`;
 
         area.innerHTML = `
           <div class="prof-box">
