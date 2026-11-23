@@ -18,165 +18,150 @@
     padding: 4px;
   }
 
-  /* 달력 카드 높이 고정 (위젯이 늘어나지 않도록 제한) */
+  /* 고정 높이 달력 카드 (1번 이미지 디자인 유지) */
   .cal-card {
     position: relative;
     width: 100%;
     max-width: 440px;
-    height: 390px;
+    height: 410px;
     background: #FFFFFF;
     border: 1.5px solid #F9E5E9;
-    border-radius: 22px;
-    padding: 13px 15px;
-    box-shadow: 0 4px 16px rgba(244, 182, 198, 0.12);
+    border-radius: 24px;
+    padding: 18px 20px 14px;
+    box-shadow: 0 4px 18px rgba(244, 182, 198, 0.12);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     overflow: hidden;
   }
 
-  .cal-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 8px;
+  .cal-title {
+    text-align: center;
+    font-size: 16px;
+    font-weight: 900;
+    color: #96C8E8;
+    letter-spacing: -0.2px;
+    margin-bottom: 10px;
     flex-shrink: 0;
   }
-  .cal-month {
-    font-size: 15px;
-    font-weight: 900;
-    color: #5C8FB5;
-  }
-  .nav-group {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-  .nav-btn {
-    border: 1px solid #F2DCE2;
-    background: #FDFBFC;
-    color: #7A706D;
-    font-size: 11px;
-    font-weight: 800;
-    padding: 3px 7px;
-    border-radius: 7px;
-    cursor: pointer;
-  }
-  .nav-btn:hover { background: #FCEBF0; color: #C95B7A; }
 
   .dow-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     text-align: center;
-    font-size: 10px;
+    font-size: 9.5px;
     font-weight: 800;
-    color: #9A908D;
-    margin-bottom: 5px;
+    margin-bottom: 6px;
     flex-shrink: 0;
   }
-  .dow-grid .sun { color: #E07A95; }
-  .dow-grid .sat { color: #6B9AC4; }
+  .dow-grid span { color: #96C8E8; }
+  .dow-grid span.wknd { color: #E89CB2; }
 
   .days-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     grid-auto-rows: 1fr;
-    gap: 4px;
+    gap: 2px;
     flex: 1;
     min-height: 0;
   }
+
   .day-cell {
-    border: 1px solid transparent;
-    border-radius: 10px;
-    background: #FDFBFC;
+    border: none;
+    background: transparent;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 2px;
     cursor: pointer;
-    font-size: 11px;
-    font-weight: 700;
-    color: #4A4442;
+    position: relative;
+  }
+  .day-pill {
+    width: 26px;
+    height: 24px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10.5px;
+    font-weight: 800;
+    color: #5C5350;
     transition: all 0.14s ease;
   }
-  .day-cell:hover {
-    background: #FCEBF0;
-    border-color: #F4C8D4;
-  }
-  .day-cell.other {
-    color: #C8C0BD;
-    background: transparent;
-  }
-  .day-cell.sun .d-num { color: #D96B88; }
-  .day-cell.sat .d-num { color: #5889B5; }
-  .day-cell.today {
-    border: 1.5px solid #F29CB4;
-    background: #FFF6F9;
-    font-weight: 900;
-  }
-  .day-cell.has-ev {
-    background: #F4F9FD;
-    border-color: #DCECF7;
-  }
-  .ev-dots {
-    display: flex;
-    gap: 2px;
-    min-height: 5px;
+  .day-cell:hover .day-pill { background: #FDF0F4; }
+  .day-cell.other .day-pill { color: #C2BBB8; font-weight: 700; }
+  .day-cell.wknd:not(.other) .day-pill { color: #B85C75; }
+
+  /* 일정 있는 날: 핑크 알약 + 하단 하늘 점 */
+  .day-cell.has-ev:not(.today) .day-pill {
+    background: #F4A9BE;
+    color: #FFFFFF;
   }
   .ev-dot {
-    width: 4.5px;
-    height: 4.5px;
+    width: 4px;
+    height: 4px;
     border-radius: 50%;
-    background: #E58FA7;
+    background: transparent;
+  }
+  .day-cell.has-ev .ev-dot { background: #89C4E8; }
+
+  /* 오늘 날짜: 핑크 테두리 + 하늘색 안쪽 알약 */
+  .day-cell.today .day-pill {
+    background: #BBE2F7;
+    color: #FFFFFF;
+    box-shadow: 0 0 0 2px #FFFFFF, 0 0 0 3.5px #F4A9BE;
   }
 
+  /* 하단 카운트다운 및 화살표 */
   .cal-foot {
     margin-top: 8px;
-    padding-top: 7px;
-    border-top: 1px dashed #F4E2E7;
+    padding-top: 6px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 10px;
-    font-weight: 700;
-    color: #9A908D;
+    font-size: 9.5px;
+    font-weight: 800;
+    color: #A69E9B;
     flex-shrink: 0;
   }
+  .foot-spacer { width: 54px; }
+  .reset-timer { text-align: center; }
+  .foot-nav {
+    width: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+  .f-btn {
+    border: none;
+    background: transparent;
+    color: #96C8E8;
+    font-size: 11px;
+    font-weight: 900;
+    cursor: pointer;
+    padding: 2px;
+  }
+  .f-btn:hover { color: #E889A5; }
 
-  /* 팝업 백드롭 & 고정 높이 내부 스크롤 박스 */
-  .popup-backdrop {
+  /* 팝업 오버레이 (카드 내부 고정 + 스크롤) */
+  .popup-layer {
     position: absolute;
     inset: 0;
-    background: rgba(74, 68, 66, 0.28);
-    backdrop-filter: blur(2px);
+    background: rgba(255, 252, 253, 0.96);
+    backdrop-filter: blur(3px);
     display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 12px;
-    z-index: 10;
-  }
-  .popup-backdrop.show { display: flex; }
-  .popup-backdrop.top-layer { z-index: 20; background: rgba(74, 68, 66, 0.38); }
-
-  .popup-box {
-    width: 100%;
-    height: 100%;
-    max-height: 100%;
-    background: #FFFFFF;
-    border: 1.5px solid #F4CBD6;
-    border-radius: 18px;
-    padding: 11px 12px;
-    box-shadow: 0 8px 24px rgba(90, 60, 70, 0.16);
-    display: flex;
     flex-direction: column;
-    gap: 8px;
-    overflow: hidden;
-    animation: popIn 0.15s ease-out;
+    padding: 14px 16px;
+    z-index: 10;
+    animation: fadeIn 0.14s ease-out;
   }
-  @keyframes popIn {
-    from { transform: scale(0.96); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
+  .popup-layer.show { display: flex; }
+  .popup-layer.top { z-index: 20; background: #FFFFFF; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   .pop-head {
@@ -184,74 +169,69 @@
     align-items: center;
     justify-content: space-between;
     gap: 6px;
-    padding-bottom: 6px;
-    border-bottom: 1px solid #F6E6EA;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #F7E8EC;
     flex-shrink: 0;
   }
-  .pop-title {
-    font-size: 12px;
-    font-weight: 900;
-    color: #4A4442;
+  .pop-left {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
     min-width: 0;
   }
-  .pop-title span:first-child {
+  .back-btn {
+    border: 1px solid #F4DCE3;
+    background: #FFF7F9;
+    color: #D46A87;
+    font-family: inherit;
+    font-size: 9.5px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 99px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .back-btn:hover { background: #FCE8EE; }
+  .pop-h-title {
+    font-size: 12px;
+    font-weight: 900;
+    color: #78B7DF;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .pop-badge {
+  .pop-pill-cnt {
     font-size: 9.5px;
     font-weight: 800;
-    padding: 2px 6px;
-    border-radius: 6px;
-    background: #FCE6ED;
-    color: #C95B7A;
+    color: #D46A87;
+    background: #FFF5F8;
+    border: 1px solid #F4DCE3;
+    padding: 2px 8px;
+    border-radius: 99px;
     flex-shrink: 0;
   }
-  .pop-actions {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    flex-shrink: 0;
-  }
-  .icon-btn {
-    border: 1px solid #EFE4E8;
-    background: #FDFBFC;
-    color: #6E6562;
-    font-size: 10px;
-    font-weight: 800;
-    padding: 3px 7px;
-    border-radius: 7px;
-    cursor: pointer;
-  }
-  .icon-btn:hover { background: #FCEBF0; color: #C95B7A; }
 
-  /* 팝업 본문 스크롤 영역 */
+  /* 내부 스크롤 영역 */
   .pop-scroll {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 7px;
     padding-right: 3px;
   }
   .pop-scroll::-webkit-scrollbar { width: 4px; }
   .pop-scroll::-webkit-scrollbar-track { background: transparent; }
-  .pop-scroll::-webkit-scrollbar-thumb {
-    background: #F2CED8;
-    border-radius: 99px;
-  }
-  .pop-scroll::-webkit-scrollbar-thumb:hover { background: #E5A9BA; }
+  .pop-scroll::-webkit-scrollbar-thumb { background: #F2CED8; border-radius: 99px; }
 
-  .ev-item {
-    border: 1px solid #F2DCE2;
-    background: #FDFBFC;
-    border-radius: 12px;
-    padding: 8px 10px;
+  /* 1단계: 날짜별 레이드 일정 카드 */
+  .ev-card {
+    border: 1px solid #F3DCE3;
+    background: #FFFFFF;
+    border-radius: 13px;
+    padding: 9px 11px;
     cursor: pointer;
     display: flex;
     flex-direction: column;
@@ -259,97 +239,145 @@
     flex-shrink: 0;
     transition: all 0.14s ease;
   }
-  .ev-item:hover {
-    background: #FFF4F7;
+  .ev-card:hover {
+    background: #FFF8FA;
     border-color: #E8A6B8;
   }
-  .ev-row1 {
+  .ev-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 6px;
   }
-  .ev-name {
+  .ev-title {
     font-size: 11px;
     font-weight: 900;
     color: #4A4442;
   }
   .ev-time {
-    font-size: 9.5px;
+    font-size: 9px;
     font-weight: 800;
-    color: #3D7496;
-    background: #E8F3FA;
+    color: #4A84AD;
+    background: #EAF5FC;
     padding: 1.5px 6px;
     border-radius: 6px;
     flex-shrink: 0;
   }
-  .ev-row2 {
+  .ev-sub {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 6px;
     font-size: 9.5px;
     font-weight: 700;
-    color: #8C8280;
+    color: #8E8481;
   }
-  .ev-mem-prev {
+  .ev-sub-members {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .ev-tap-hint {
+  .ev-arrow {
     font-size: 9px;
     font-weight: 800;
-    color: #C95B7A;
+    color: #D46A87;
     flex-shrink: 0;
   }
 
-  .detail-sec {
-    background: #FDFBFC;
-    border: 1px solid #F4E4E8;
-    border-radius: 11px;
-    padding: 8px 10px;
+  /* 2단계: 3번 이미지 스타일 명단 (딜러 / 서포터 2열 카드) */
+  .roster-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    align-items: start;
+  }
+  .role-col {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 6px;
+  }
+  .role-badge {
+    align-self: flex-start;
+    font-size: 9.5px;
+    font-weight: 900;
+    padding: 2.5px 8px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .role-badge.dps { background: #FCE6ED; color: #C95B7A; }
+  .role-badge.sup { background: #DCF5E7; color: #2E7D52; }
+
+  .m-card {
+    border: 1px solid #F3DCE3;
+    background: #FFFFFF;
+    border-radius: 11px;
+    padding: 7px 9px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .m-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+  }
+  .m-name {
+    font-size: 10.5px;
+    font-weight: 900;
+    color: #3D3735;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .m-tag {
+    font-size: 8px;
+    font-weight: 800;
+    padding: 1px 5px;
+    border-radius: 5px;
+    background: #E8F4FC;
+    color: #4682AD;
     flex-shrink: 0;
   }
-  .d-label {
-    font-size: 9.5px;
+  .m-info {
+    font-size: 8.5px;
+    font-weight: 700;
+    color: #7D7471;
+  }
+  .m-memo {
+    align-self: flex-start;
+    margin-top: 1px;
+    font-size: 8px;
     font-weight: 800;
-    color: #9A908D;
+    padding: 1.5px 6px;
+    border-radius: 5px;
+    background: #FCF5E3;
+    color: #9E7524;
+    word-break: break-all;
   }
-  .d-members {
-    font-size: 11px;
-    font-weight: 800;
-    color: #4A4442;
-    line-height: 1.45;
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
-  .d-memo {
-    font-size: 10px;
-    font-weight: 600;
-    color: #6E6562;
-    line-height: 1.45;
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
-  .ctrl-row {
+
+  .meta-bar {
+    margin-top: 4px;
+    padding: 7px 9px;
+    border-radius: 10px;
+    background: #FDFBFC;
+    border: 1px solid #F4E4E8;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 6px;
+    flex-shrink: 0;
   }
   .sel-prof {
     border: 1px solid #E5D5DA;
     background: #FFFFFF;
     color: #4A4442;
     font-family: inherit;
-    font-size: 10px;
+    font-size: 9.5px;
     font-weight: 800;
-    padding: 4px 7px;
-    border-radius: 8px;
+    padding: 3.5px 6px;
+    border-radius: 7px;
     outline: none;
   }
   .depart-btn {
@@ -357,10 +385,10 @@
     background: #EAF6FF;
     color: #2A6896;
     font-family: inherit;
-    font-size: 10px;
+    font-size: 9.5px;
     font-weight: 800;
-    padding: 4px 9px;
-    border-radius: 8px;
+    padding: 3.5px 8px;
+    border-radius: 7px;
     cursor: pointer;
   }
   .depart-btn.done {
@@ -368,159 +396,153 @@
     border-color: #BFE3CE;
     color: #2E754C;
   }
-  .empty-pop {
+
+  .empty-txt {
+    margin: auto 0;
     text-align: center;
     font-size: 10.5px;
     font-weight: 700;
-    color: #A89F9C;
-    margin: auto 0;
+    color: #A69E9B;
   }
 </style>
 </head>
 <body>
-  <div class="cal-card" id="calCard">
-    <div class="cal-top">
-      <div class="cal-month" id="monthLabel">2026.11</div>
-      <div class="nav-group">
-        <button type="button" class="nav-btn" onclick="moveMonth(-1)">‹</button>
-        <button type="button" class="nav-btn" onclick="goToday()">오늘</button>
-        <button type="button" class="nav-btn" onclick="moveMonth(1)">›</button>
-        <button type="button" class="nav-btn" onclick="loadEvents()" title="새로고침">↻</button>
-      </div>
-    </div>
+  <div class="cal-card">
+    <!-- 1번 이미지 스타일 달력 메인 -->
+    <div class="cal-title" id="monthLabel">November</div>
 
     <div class="dow-grid">
-      <span class="sun">SUN</span>
-      <span>MON</span>
-      <span>TUE</span>
-      <span>WED</span>
-      <span>THU</span>
-      <span>FRI</span>
-      <span class="sat">SAT</span>
+      <span>M</span>
+      <span>T</span>
+      <span>W</span>
+      <span>T</span>
+      <span>F</span>
+      <span class="wknd">S</span>
+      <span class="wknd">S</span>
     </div>
 
     <div class="days-grid" id="daysGrid"></div>
 
     <div class="cal-foot">
-      <span>날짜 클릭 → 일정 팝업</span>
-      <span id="syncStatus">동기화 중...</span>
-    </div>
-
-    <!-- 1단계 팝업: 선택한 날짜의 레이드 일정 목록 (내부 스크롤) -->
-    <div class="popup-backdrop" id="dayPopup" onclick="if(event.target===this) closeDayPopup()">
-      <div class="popup-box">
-        <div class="pop-head">
-          <div class="pop-title">
-            <span id="dayPopupTitle">날짜</span>
-            <span class="pop-badge" id="dayPopupCount">0건</span>
-          </div>
-          <div class="pop-actions">
-            <button type="button" class="icon-btn" onclick="closeDayPopup()">✕</button>
-          </div>
-        </div>
-        <div class="pop-scroll" id="dayEventList"></div>
+      <div class="foot-spacer"></div>
+      <div class="reset-timer" id="resetTimer">D-1 03:19</div>
+      <div class="foot-nav">
+        <button type="button" class="f-btn" onclick="moveMonth(-1)" title="이전 달">←</button>
+        <button type="button" class="f-btn" onclick="loadEvents()" title="새로고침">↻</button>
+        <button type="button" class="f-btn" onclick="moveMonth(1)" title="다음 달">→</button>
       </div>
     </div>
 
-    <!-- 2단계 팝업: 선택한 일정의 명단 및 상세 (내부 스크롤) -->
-    <div class="popup-backdrop top-layer" id="detailPopup" onclick="if(event.target===this) closeDetailPopup()">
-      <div class="popup-box">
-        <div class="pop-head">
-          <div class="pop-title">
-            <span id="detailTitle">일정명</span>
-            <span class="pop-badge" id="detailDiff">난이도</span>
-          </div>
-          <div class="pop-actions">
-            <button type="button" class="icon-btn" onclick="closeDetailPopup()">← 목록</button>
-            <button type="button" class="icon-btn" onclick="closeAllPopups()">✕</button>
-          </div>
+    <!-- 1단계 팝업: 선택한 날짜의 레이드 일정 목록 -->
+    <div class="popup-layer" id="dayPopup">
+      <div class="pop-head">
+        <div class="pop-left">
+          <button type="button" class="back-btn" onclick="closeDayPopup()">← 달력</button>
+          <span class="pop-h-title" id="dayPopupTitle">2026-11-24</span>
         </div>
+        <span class="pop-pill-cnt" id="dayPopupCount">0건</span>
+      </div>
+      <div class="pop-scroll" id="dayEventList"></div>
+    </div>
 
-        <div class="pop-scroll">
-          <div class="detail-sec">
-            <span class="d-label">명단 (참여자)</span>
-            <div class="d-members" id="detailMembers">-</div>
-          </div>
-
-          <div class="detail-sec" id="memoSec" style="display:none;">
-            <span class="d-label">메모</span>
-            <div class="d-memo" id="detailMemo"></div>
-          </div>
-
-          <div class="detail-sec">
-            <div class="ctrl-row">
-              <select class="sel-prof" id="profSelect" onchange="updateEventMeta()">
-                <option value="숙련도 미지정">숙련도 미지정</option>
-                <option value="트라이">트라이</option>
-                <option value="반숙">반숙</option>
-                <option value="숙련">숙련</option>
-                <option value="클리어">클리어</option>
-              </select>
-              <button type="button" class="depart-btn" id="departBtn" onclick="toggleDepart()">출발 전</button>
-            </div>
-          </div>
+    <!-- 2단계 팝업: 3번 이미지 스타일 명단 (딜러 / 서포터 카드) -->
+    <div class="popup-layer top" id="detailPopup">
+      <div class="pop-head">
+        <div class="pop-left">
+          <button type="button" class="back-btn" onclick="closeDetailPopup()">← 목록</button>
+          <span class="pop-h-title" id="detailTitle">명단</span>
         </div>
+        <span class="pop-pill-cnt" id="detailCount">0명</span>
+      </div>
+
+      <div class="pop-scroll" id="rosterScroll">
+        <div class="roster-grid">
+          <div class="role-col" id="dpsCol"></div>
+          <div class="role-col" id="supCol"></div>
+        </div>
+      </div>
+
+      <div class="meta-bar">
+        <select class="sel-prof" id="profSelect" onchange="updateEventMeta()">
+          <option value="숙련도 미지정">숙련도 미지정</option>
+          <option value="트라이">트라이</option>
+          <option value="반숙">반숙</option>
+          <option value="숙련">숙련</option>
+          <option value="클리어">클리어</option>
+        </select>
+        <button type="button" class="depart-btn" id="departBtn" onclick="toggleDepart()">출발 전</button>
       </div>
     </div>
   </div>
 
 <script>
   const API_URL = "https://notion-cal.binhaha329.workers.dev";
+  const MONTHS_EN = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+  const SUPPORTER_JOBS = ["바드", "도화가", "홀리나이트", "발키리"];
 
-  const nowKst = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Seoul" }));
-  let viewYear = nowKst.getFullYear();
-  let viewMonth = nowKst.getMonth();
+  const getKstNow = () => new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Seoul" }));
+  const initNow = getKstNow();
+  let viewYear = initNow.getFullYear();
+  let viewMonth = initNow.getMonth();
   let allEvents = [];
   let selectedDateStr = "";
   let currentEvent = null;
+  const charCache = {};
 
   const pad2 = (n) => String(n).padStart(2, "0");
   const formatDateStr = (y, m, d) => `${y}-${pad2(m + 1)}-${pad2(d)}`;
-  const todayStr = formatDateStr(nowKst.getFullYear(), nowKst.getMonth(), nowKst.getDate());
+  const todayStr = formatDateStr(initNow.getFullYear(), initNow.getMonth(), initNow.getDate());
+
+  // 매주 수요일 오전 6시 초기화 카운트다운
+  function updateResetTimer() {
+    const now = getKstNow();
+    const target = new Date(now);
+    const day = now.getDay(); // 0:일 ~ 3:수 ~ 6:토
+    let diffDays = (3 - day + 7) % 7;
+    target.setDate(now.getDate() + diffDays);
+    target.setHours(6, 0, 0, 0);
+    if (target <= now) {
+      target.setDate(target.getDate() + 7);
+    }
+    const diffMs = target - now;
+    const totalMins = Math.floor(diffMs / 60000);
+    const d = Math.floor(totalMins / (60 * 24));
+    const h = Math.floor((totalMins % (60 * 24)) / 60);
+    const m = totalMins % 60;
+    document.getElementById("resetTimer").textContent = `D-${d} ${pad2(h)}:${pad2(m)}`;
+  }
 
   async function loadEvents() {
-    const statusEl = document.getElementById("syncStatus");
-    statusEl.textContent = "불러오는 중...";
     try {
       const res = await fetch(`${API_URL}?t=${Date.now()}`);
       const data = await res.json();
       allEvents = Array.isArray(data) ? data : [];
-      statusEl.textContent = `일정 ${allEvents.length}건 연동됨`;
       renderCalendar();
       if (selectedDateStr && document.getElementById("dayPopup").classList.contains("show")) {
         openDayPopup(selectedDateStr);
       }
     } catch (e) {
-      statusEl.textContent = "연동 오류";
       renderCalendar();
     }
   }
 
   function moveMonth(delta) {
     viewMonth += delta;
-    if (viewMonth < 0) {
-      viewMonth = 11;
-      viewYear -= 1;
-    } else if (viewMonth > 11) {
-      viewMonth = 0;
-      viewYear += 1;
-    }
-    renderCalendar();
-  }
-
-  function goToday() {
-    viewYear = nowKst.getFullYear();
-    viewMonth = nowKst.getMonth();
+    if (viewMonth < 0) { viewMonth = 11; viewYear -= 1; }
+    else if (viewMonth > 11) { viewMonth = 0; viewYear += 1; }
     renderCalendar();
   }
 
   function renderCalendar() {
-    document.getElementById("monthLabel").textContent = `${viewYear}.${pad2(viewMonth + 1)}`;
+    document.getElementById("monthLabel").textContent = MONTHS_EN[viewMonth];
     const grid = document.getElementById("daysGrid");
     grid.innerHTML = "";
 
-    const firstDay = new Date(viewYear, viewMonth, 1);
-    const startDow = firstDay.getDay();
+    // 월요일 시작 기준 요일 계산 (0: 월 ~ 6: 일)
+    const firstDow = (new Date(viewYear, viewMonth, 1).getDay() + 6) % 7;
     const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
     const prevMonthDays = new Date(viewYear, viewMonth, 0).getDate();
 
@@ -531,7 +553,8 @@
       eventMap[ev.date].push(ev);
     }
 
-    for (let i = startDow - 1; i >= 0; i--) {
+    // 이전 달
+    for (let i = firstDow - 1; i >= 0; i--) {
       const d = prevMonthDays - i;
       const prevM = viewMonth === 0 ? 11 : viewMonth - 1;
       const prevY = viewMonth === 0 ? viewYear - 1 : viewYear;
@@ -539,14 +562,15 @@
       grid.appendChild(createDayCell(d, dateStr, true, eventMap[dateStr] || [], 0));
     }
 
+    // 이번 달
     for (let d = 1; d <= daysInMonth; d++) {
       const dateStr = formatDateStr(viewYear, viewMonth, d);
-      const dow = (startDow + d - 1) % 7;
+      const dow = (firstDow + d - 1) % 7;
       grid.appendChild(createDayCell(d, dateStr, false, eventMap[dateStr] || [], dow));
     }
 
-    const totalCells = grid.children.length;
-    const remain = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+    // 다음 달 (42칸 맞춤)
+    const remain = 42 - grid.children.length;
     for (let d = 1; d <= remain; d++) {
       const nextM = viewMonth === 11 ? 0 : viewMonth + 1;
       const nextY = viewMonth === 11 ? viewYear + 1 : viewYear;
@@ -560,13 +584,11 @@
     btn.type = "button";
     btn.className = "day-cell";
     if (isOther) btn.classList.add("other");
-    if (!isOther && dow === 0) btn.classList.add("sun");
-    if (!isOther && dow === 6) btn.classList.add("sat");
+    if (!isOther && (dow === 5 || dow === 6)) btn.classList.add("wknd");
     if (dateStr === todayStr) btn.classList.add("today");
     if (dayEvents.length > 0) btn.classList.add("has-ev");
 
-    const dots = dayEvents.slice(0, 3).map(() => `<span class="ev-dot"></span>`).join("");
-    btn.innerHTML = `<span class="d-num">${dayNum}</span><div class="ev-dots">${dots}</div>`;
+    btn.innerHTML = `<span class="day-pill">${dayNum}</span><span class="ev-dot"></span>`;
     btn.onclick = () => openDayPopup(dateStr);
     return btn;
   }
@@ -575,35 +597,35 @@
     selectedDateStr = dateStr;
     const list = allEvents.filter((e) => e.date === dateStr);
 
-    document.getElementById("dayPopupTitle").textContent = `${dateStr} 레이드 일정`;
+    document.getElementById("dayPopupTitle").textContent = dateStr;
     document.getElementById("dayPopupCount").textContent = `${list.length}건`;
 
     const listEl = document.getElementById("dayEventList");
     listEl.scrollTop = 0;
 
     if (list.length === 0) {
-      listEl.innerHTML = `<div class="empty-pop">선택한 날짜에 레이드 일정이 없어요</div>`;
+      listEl.innerHTML = `<div class="empty-txt">선택한 날짜에 일정이 없어요</div>`;
     } else {
       listEl.innerHTML = "";
       list.forEach((ev) => {
-        const item = document.createElement("div");
-        item.className = "ev-item";
+        const card = document.createElement("div");
+        card.className = "ev-card";
         const diffTxt = ev.difficulty ? `[${ev.difficulty}] ` : "";
         const timeTxt = ev.time || "시간 미정";
-        const memberPreview = ev.members ? `명단: ${ev.members}` : "명단 미입력";
+        const preview = ev.members ? ev.members.replace(/\n/g, ", ") : "명단 미등록";
 
-        item.innerHTML = `
-          <div class="ev-row1">
-            <span class="ev-name">${diffTxt}${ev.title}</span>
+        card.innerHTML = `
+          <div class="ev-top">
+            <span class="ev-title">${diffTxt}${ev.title}</span>
             <span class="ev-time">${timeTxt}</span>
           </div>
-          <div class="ev-row2">
-            <span class="ev-mem-prev">${memberPreview}</span>
-            <span class="ev-tap-hint">명단 보기 ›</span>
+          <div class="ev-sub">
+            <span class="ev-sub-members">${preview}</span>
+            <span class="ev-arrow">명단 보기 ›</span>
           </div>
         `;
-        item.onclick = () => openDetailPopup(ev);
-        listEl.appendChild(item);
+        card.onclick = () => openDetailPopup(ev);
+        listEl.appendChild(card);
       });
     }
 
@@ -615,23 +637,48 @@
     document.getElementById("dayPopup").classList.remove("show");
   }
 
-  function openDetailPopup(ev) {
-    currentEvent = ev;
-    document.getElementById("detailTitle").textContent = ev.title || "일정";
-    document.getElementById("detailDiff").textContent = ev.difficulty || ev.time || "레이드";
-    document.getElementById("detailMembers").textContent = ev.members && ev.members.trim()
-      ? ev.members.trim()
-      : "등록된 명단이 없어요";
+  // 명단 문자열 파싱 ("닉네임(메모)" 또는 "닉네임 [지인] - 메모" 형태 지원)
+  function parseMemberEntries(rawStr) {
+    if (!rawStr || !rawStr.trim()) return [];
+    const tokens = rawStr.split(/[\n,]+/).map((s) => s.trim()).filter(Boolean);
+    return tokens.map((tok) => {
+      let badge = "";
+      let note = "";
+      let clean = tok;
 
-    const memoSec = document.getElementById("memoSec");
-    const memoEl = document.getElementById("detailMemo");
-    if (ev.memo && ev.memo.trim()) {
-      memoSec.style.display = "flex";
-      memoEl.textContent = ev.memo.trim();
-    } else {
-      memoSec.style.display = "none";
-      memoEl.textContent = "";
-    }
+      if (/지인/.test(clean)) {
+        badge = "지인";
+        clean = clean.replace(/[\[\(]?지인[\]\)]?/g, "").trim();
+      }
+      const parenMatch = clean.match(/^([^\(\)\-\/]+)\s*[\(\-\/]([^\)]+)[\)]?$/);
+      let name = clean;
+      if (parenMatch) {
+        name = parenMatch[1].trim();
+        note = parenMatch[2].trim();
+      }
+      return { name, badge, note };
+    });
+  }
+
+  async function fetchCharSpec(name) {
+    if (charCache[name]) return charCache[name];
+    try {
+      const res = await fetch(`${API_URL}/spec?name=${encodeURIComponent(name)}`);
+      const data = await res.json();
+      if (data && data.ok) {
+        charCache[name] = data;
+        return data;
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  async function openDetailPopup(ev) {
+    currentEvent = ev;
+    const entries = parseMemberEntries(ev.members);
+
+    document.getElementById("detailTitle").textContent = `${ev.title || "명단"}`;
+    document.getElementById("detailCount").textContent = `${entries.length}명`;
 
     const profSel = document.getElementById("profSelect");
     const validOpts = Array.from(profSel.options).map((o) => o.value);
@@ -640,10 +687,49 @@
     const isDeparted = String(ev.status || "").includes("출발") && !String(ev.status || "").includes("전");
     syncDepartBtn(isDeparted);
 
-    const detailScroll = document.querySelector("#detailPopup .pop-scroll");
-    if (detailScroll) detailScroll.scrollTop = 0;
-
+    const dpsCol = document.getElementById("dpsCol");
+    const supCol = document.getElementById("supCol");
+    dpsCol.innerHTML = `<div class="role-badge dps">⚔️ 딜러 0</div>`;
+    supCol.innerHTML = `<div class="role-badge sup">💚 서포터 0</div>`;
+    document.getElementById("rosterScroll").scrollTop = 0;
     document.getElementById("detailPopup").classList.add("show");
+
+    if (entries.length === 0) return;
+
+    // 참여자 캐릭터 정보 조회 후 딜러 / 서포터 분류
+    const enriched = await Promise.all(
+      entries.map(async (entry) => {
+        const spec = await fetchCharSpec(entry.name);
+        const job = spec?.job || "";
+        const lv = spec?.lv ? String(spec.lv).replace(/,/g, "") : "";
+        const cp = spec?.combatPower ? String(spec.combatPower).replace(/,/g, "") : "";
+        const isSup = SUPPORTER_JOBS.some((s) => job.includes(s)) || /바드|도화가|홀나|발키리/.test(entry.note);
+        return { ...entry, job, lv, cp, isSup };
+      })
+    );
+
+    const dpsList = enriched.filter((m) => !m.isSup);
+    const supList = enriched.filter((m) => m.isSup);
+
+    const renderCard = (m) => {
+      const infoParts = [m.job, m.lv, m.cp].filter(Boolean);
+      const infoLine = infoParts.length > 0 ? infoParts.join(" | ") : "정보 조회 불가";
+      const tagHtml = m.badge ? `<span class="m-tag">${m.badge}</span>` : "";
+      const memoHtml = m.note ? `<span class="m-memo">${m.note}</span>` : "";
+      return `
+        <div class="m-card">
+          <div class="m-top">
+            <span class="m-name">${m.name}</span>
+            ${tagHtml}
+          </div>
+          <div class="m-info">${infoLine}</div>
+          ${memoHtml}
+        </div>
+      `;
+    };
+
+    dpsCol.innerHTML = `<div class="role-badge dps">⚔️ 딜러 ${dpsList.length}</div>` + dpsList.map(renderCard).join("");
+    supCol.innerHTML = `<div class="role-badge sup">💚 서포터 ${supList.length}</div>` + supList.map(renderCard).join("");
   }
 
   function syncDepartBtn(isDeparted) {
@@ -663,11 +749,6 @@
     currentEvent = null;
   }
 
-  function closeAllPopups() {
-    closeDetailPopup();
-    document.getElementById("dayPopup").classList.remove("show");
-  }
-
   async function toggleDepart() {
     if (!currentEvent) return;
     const btn = document.getElementById("departBtn");
@@ -685,20 +766,17 @@
   }
 
   async function sendEventPatch(payload) {
-    const statusEl = document.getElementById("syncStatus");
-    statusEl.textContent = "저장 중...";
     try {
       await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      statusEl.textContent = "반영 완료";
-    } catch (e) {
-      statusEl.textContent = "저장 실패";
-    }
+    } catch (e) {}
   }
 
+  updateResetTimer();
+  setInterval(updateResetTimer, 30000);
   renderCalendar();
   loadEvents();
 </script>
