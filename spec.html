@@ -48,18 +48,12 @@
     --high-bg: #FFF8D6;
     --high-border: #F3DF8A;
     --high-fg: #9E7200;
-    --high-chip-bg: #EAB308;
-    --high-chip-fg: #FFFFFF;
     --mid-bg: #F5EEFF;
     --mid-border: #E0CEF7;
     --mid-fg: #6E42A8;
-    --mid-chip-bg: #9333EA;
-    --mid-chip-fg: #FFFFFF;
     --low-bg: #EAF6FF;
     --low-border: #CBE6FA;
     --low-fg: #2E6F9E;
-    --low-chip-bg: #0284C7;
-    --low-chip-fg: #FFFFFF;
     --grid-bg: #F0F9FF;
     --grid-border: #CBE8FA;
     --grid-fg: #266A99;
@@ -67,7 +61,6 @@
     --grid-dot: #38BDF8;
     --br-box-bg: #FAF9FB;
     --br-box-border: #EFEAF3;
-    --br-name-fg: #4A4442;
     --gem-bg: #FDF4F7;
     --gem-border: #F5DCE3;
     --gem-fg: #C95B7A;
@@ -115,18 +108,12 @@
       --high-bg: #3B321B;
       --high-border: #5E4F29;
       --high-fg: #F7D477;
-      --high-chip-bg: #CA8A04;
-      --high-chip-fg: #FFFDF5;
       --mid-bg: #2C2440;
       --mid-border: #483A69;
       --mid-fg: #CBB8FA;
-      --mid-chip-bg: #9333EA;
-      --mid-chip-fg: #FAF5FF;
       --low-bg: #1C2E3D;
       --low-border: #2C4961;
       --low-fg: #9AD2F5;
-      --low-chip-bg: #0284C7;
-      --low-chip-fg: #F0F9FF;
       --grid-bg: #1B2D3B;
       --grid-border: #2B475C;
       --grid-fg: #9BD0F0;
@@ -134,7 +121,6 @@
       --grid-dot: #56CCF2;
       --br-box-bg: #24232B;
       --br-box-border: #3A3646;
-      --br-name-fg: #F4F2F8;
       --gem-bg: #2E2028;
       --gem-border: #4A313E;
       --gem-fg: #F5A3BC;
@@ -182,18 +168,12 @@
     --high-bg: #3B321B;
     --high-border: #5E4F29;
     --high-fg: #F7D477;
-    --high-chip-bg: #CA8A04;
-    --high-chip-fg: #FFFDF5;
     --mid-bg: #2C2440;
     --mid-border: #483A69;
     --mid-fg: #CBB8FA;
-    --mid-chip-bg: #9333EA;
-    --mid-chip-fg: #FAF5FF;
     --low-bg: #1C2E3D;
     --low-border: #2C4961;
     --low-fg: #9AD2F5;
-    --low-chip-bg: #0284C7;
-    --low-chip-fg: #F0F9FF;
     --grid-bg: #1B2D3B;
     --grid-border: #2B475C;
     --grid-fg: #9BD0F0;
@@ -201,7 +181,6 @@
     --grid-dot: #56CCF2;
     --br-box-bg: #24232B;
     --br-box-border: #3A3646;
-    --br-name-fg: #F4F2F8;
     --gem-bg: #2E2028;
     --gem-border: #4A313E;
     --gem-fg: #F5A3BC;
@@ -428,12 +407,12 @@
     color: var(--grid-bold);
   }
 
-  /* 팔찌 한 줄 영역 */
+  /* 팔찌: 각 줄 한 줄 배치 + 악세 상/중/하 색 칩 */
   .br-box {
     background: var(--br-box-bg);
     border: 1px solid var(--br-box-border);
     border-radius: 8px;
-    padding: 5px 8px;
+    padding: 5px 7px;
     display: flex;
     flex-direction: column;
     gap: 4px;
@@ -441,35 +420,19 @@
   .br-line {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     white-space: nowrap;
     overflow-x: auto;
     scrollbar-width: none;
   }
   .br-line::-webkit-scrollbar { display: none; }
-  .br-entry {
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
-    font-size: 9px;
+  .br-pill {
+    font-size: 8.5px;
     font-weight: 800;
-    color: var(--br-name-fg);
+    padding: 1.5px 5.5px;
+    border-radius: 5px;
     flex-shrink: 0;
   }
-  .br-grade {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 8px;
-    font-weight: 900;
-    line-height: 1;
-    padding: 2px 3.5px;
-    border-radius: 4px;
-    flex-shrink: 0;
-  }
-  .br-grade.high { background: var(--high-chip-bg); color: var(--high-chip-fg); }
-  .br-grade.mid  { background: var(--mid-chip-bg);  color: var(--mid-chip-fg); }
-  .br-grade.low  { background: var(--low-chip-bg);  color: var(--low-chip-fg); }
 
   .gem-pill {
     font-size: 9px;
@@ -580,99 +543,62 @@
     return rawList;
   }
 
-  function normalizeGrade(rawTier, text) {
+  function normalizeTier(rawTier, text) {
     const t = String(rawTier || "").toLowerCase();
     if (t === "high" || t === "상" || t === "3") return "high";
     if (t === "mid" || t === "중" || t === "2") return "mid";
     if (t === "low" || t === "하" || t === "1") return "low";
 
-    if (/(?:^|\s|\[|\()상(?:$|\s|\]|\))/.test(text) || text.endsWith("상")) return "high";
-    if (/(?:^|\s|\[|\()중(?:$|\s|\]|\))/.test(text) || text.endsWith("중")) return "mid";
-    if (/(?:^|\s|\[|\()하(?:$|\s|\]|\))/.test(text) || text.endsWith("하")) return "low";
-    return "";
+    if (/상/.test(text)) return "high";
+    if (/중/.test(text)) return "mid";
+    if (/하/.test(text)) return "low";
+    return "low";
   }
 
-  function gradeLabel(grade) {
-    if (grade === "high") return "상";
-    if (grade === "mid") return "중";
-    if (grade === "low") return "하";
-    return "";
+  function isBrokenBraceletText(txt) {
+    return /bEquip|itemIrochiCount|leftStr|rightStr|topStr|아이템\s*티어|고대\s*팔찌|유물\s*팔찌|["{}\[\]]/i.test(txt);
   }
 
-  function cleanOptionLabel(rawText) {
-    return String(rawText || "")
-      .replace(/\s*[+\-]?\d+(?:\.\d+)?%?\s*$/, "")
-      .replace(/\s*[\[(]?(?:상|중|하)[\])]?\s*$/g, "")
-      .trim();
-  }
-
-  function parseBraceletEntry(item) {
+  function parseBraceletItem(item) {
     if (!item) return null;
     if (typeof item === "string") {
       const s = item.trim();
-      if (!s) return null;
-      const grade = normalizeGrade("", s);
-      const label = cleanOptionLabel(s) || s;
-      const isStat = STATS_KEYWORDS.some(k => label === k || label.startsWith(k + " "));
-      return { label, grade, isStat };
+      if (!s || isBrokenBraceletText(s)) return null;
+      const tier = normalizeTier("", s);
+      const isStat = STATS_KEYWORDS.some(k => s.startsWith(k + " ") || s === k);
+      return { text: s, tier, isStat };
     }
     if (typeof item === "object") {
-      const rawText = String(item.text || item.label || item.name || item.option || "").trim();
-      if (!rawText) return null;
-      const grade = normalizeGrade(item.tier || item.grade, rawText);
-      const label = cleanOptionLabel(rawText) || rawText;
+      const rawText = String(item.label || item.text || item.name || item.option || "").trim();
+      if (!rawText || isBrokenBraceletText(rawText)) return null;
+      const tier = normalizeTier(item.tier || item.grade, rawText);
       const isStat = typeof item.isStat === "boolean"
         ? item.isStat
-        : STATS_KEYWORDS.some(k => label === k || label.startsWith(k + " "));
-      return { label, grade, isStat };
+        : STATS_KEYWORDS.some(k => rawText.startsWith(k + " ") || rawText === k);
+      return { text: rawText, tier, isStat };
     }
     return null;
   }
 
   function buildBraceletData(data) {
-    const br = data.bracelet
-      || data.bracer
-      || data.braceletEffects
-      || data.braceletOptions
-      || data.braceletStats
-      || (Array.isArray(data.bracelets) ? data.bracelets[0] : null);
-
+    const br = data.bracelet;
     const stats = [];
     const options = [];
-    if (!br) return { stats, options };
+    if (!br || typeof br !== "object") return { stats, options };
 
-    let rawItems = [];
-    if (Array.isArray(br)) {
-      rawItems = br;
-    } else if (typeof br === "string") {
-      rawItems = br.split(/[·|\n,]/);
-    } else if (typeof br === "object") {
-      if (Array.isArray(br.stats)) {
-        br.stats.forEach(s => {
-          const parsed = parseBraceletEntry(s);
-          if (parsed) stats.push({ ...parsed, isStat: true });
-        });
-      }
-      const list = Array.isArray(br.options)
-        ? br.options
-        : (Array.isArray(br.opts) ? br.opts : (Array.isArray(br.effects) ? br.effects : []));
-      rawItems = list;
+    if (Array.isArray(br.stats)) {
+      br.stats.forEach(s => {
+        const p = parseBraceletItem(s);
+        if (p) stats.push({ ...p, isStat: true });
+      });
     }
-
-    rawItems.forEach(item => {
-      const parsed = parseBraceletEntry(item);
-      if (!parsed) return;
-      if (parsed.isStat) stats.push(parsed);
-      else options.push(parsed);
-    });
-
-    return { stats, options: options.slice(0, 3) };
-  }
-
-  function renderBraceletEntryHtml(entry) {
-    const gl = gradeLabel(entry.grade);
-    const chipHtml = gl ? `<span class="br-grade ${entry.grade}">${gl}</span>` : "";
-    return `<span class="br-entry">${entry.label}${chipHtml}</span>`;
+    if (Array.isArray(br.options)) {
+      br.options.forEach(o => {
+        const p = parseBraceletItem(o);
+        if (p && options.length < 3) options.push({ ...p, isStat: false });
+      });
+    }
+    return { stats, options };
   }
 
   function formatGemPills(list) {
@@ -739,10 +665,14 @@
         const brData = buildBraceletData(data);
         const brLines = [];
         if (brData.stats.length > 0) {
-          brLines.push(`<div class="br-line">${brData.stats.map(renderBraceletEntryHtml).join("")}</div>`);
+          brLines.push(
+            `<div class="br-line">${brData.stats.map(s => `<span class="br-pill opt-${s.tier}">${s.text}</span>`).join("")}</div>`
+          );
         }
         if (brData.options.length > 0) {
-          brLines.push(`<div class="br-line">${brData.options.map(renderBraceletEntryHtml).join("")}</div>`);
+          brLines.push(
+            `<div class="br-line">${brData.options.map(o => `<span class="br-pill opt-${o.tier}">${o.text}</span>`).join("")}</div>`
+          );
         }
         const brHtml = brLines.length > 0
           ? `<div class="sec-row"><span class="sec-label">팔찌</span><div class="br-box">${brLines.join("")}</div></div>`
