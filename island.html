@@ -19,49 +19,148 @@
     padding: 6px 4px;
   }
 
+  :root {
+    --next-label-fg: #9E9692;
+    --next-time-fg: #5C5552;
+    --next-small-fg: #8E8682;
+    --box-bg: #FDF5F7;
+    --box-border: #F9E5E9;
+    --box-shadow: 0 4px 16px rgba(244, 182, 198, 0.12);
+    --dow-fg: #8C827E;
+    --card-bg: #FFFFFF;
+    --card-border: #F6E2E7;
+    --name-fg: #4A4442;
+    --empty-fg: #B5AEAB;
+    --sub-border: #F2D7DF;
+    --pill-bg: #FFFFFF;
+    --pill-border: #F6E2E7;
+    --pill-fg: #6B625F;
+    --pill-active-bg: #FFF9FC;
+    --pill-active-border: #F4C6D4;
+    --off-bg: #F1EFEF;
+    --off-fg: #ADA6A3;
+    --on-bg: #D5F2E1;
+    --on-fg: #2F7A50;
+    --rw-default-bg: #F7EED3;
+    --rw-default-fg: #8C7742;
+    --rw-gold-bg: #FBE5C8;
+    --rw-gold-fg: #9C662B;
+    --rw-card-bg: #E4E2F8;
+    --rw-card-fg: #5D5599;
+    --rw-coin-bg: #DCEFF8;
+    --rw-coin-fg: #3D6F8E;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --next-label-fg: #9E9096;
+      --next-time-fg: #F3ECEE;
+      --next-small-fg: #B5A8AD;
+      --box-bg: #221C20;
+      --box-border: #4A343D;
+      --box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+      --dow-fg: #C5B6BC;
+      --card-bg: #292126;
+      --card-border: #402D35;
+      --name-fg: #F3ECEE;
+      --empty-fg: #86787E;
+      --sub-border: #47313B;
+      --pill-bg: #292126;
+      --pill-border: #402D35;
+      --pill-fg: #DFD3D8;
+      --pill-active-bg: #35242C;
+      --pill-active-border: #684252;
+      --off-bg: #362C31;
+      --off-fg: #9A8C92;
+      --on-bg: #1F362B;
+      --on-fg: #93D9B0;
+      --rw-default-bg: #38301E;
+      --rw-default-fg: #E6C473;
+      --rw-gold-bg: #3D2B1B;
+      --rw-gold-fg: #F5B971;
+      --rw-card-bg: #2B2742;
+      --rw-card-fg: #C2BDF2;
+      --rw-coin-bg: #1E3240;
+      --rw-coin-fg: #9BD0F0;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --next-label-fg: #9E9096;
+    --next-time-fg: #F3ECEE;
+    --next-small-fg: #B5A8AD;
+    --box-bg: #221C20;
+    --box-border: #4A343D;
+    --box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+    --dow-fg: #C5B6BC;
+    --card-bg: #292126;
+    --card-border: #402D35;
+    --name-fg: #F3ECEE;
+    --empty-fg: #86787E;
+    --sub-border: #47313B;
+    --pill-bg: #292126;
+    --pill-border: #402D35;
+    --pill-fg: #DFD3D8;
+    --pill-active-bg: #35242C;
+    --pill-active-border: #684252;
+    --off-bg: #362C31;
+    --off-fg: #9A8C92;
+    --on-bg: #1F362B;
+    --on-fg: #93D9B0;
+    --rw-default-bg: #38301E;
+    --rw-default-fg: #E6C473;
+    --rw-gold-bg: #3D2B1B;
+    --rw-gold-fg: #F5B971;
+    --rw-card-bg: #2B2742;
+    --rw-card-fg: #C2BDF2;
+    --rw-coin-bg: #1E3240;
+    --rw-coin-fg: #9BD0F0;
+  }
+
   /* 상단 NEXT 카운트다운 */
   .next-wrap {
     text-align: center;
-    margin-bottom: 8px;
+    margin-bottom: 7px;
   }
   .next-label {
     font-size: 9px;
     font-weight: 800;
-    color: #9E9692;
+    color: var(--next-label-fg);
     letter-spacing: 0.8px;
     margin-bottom: 1px;
   }
   .next-time {
-    font-size: 16px;
+    font-size: 15.5px;
     font-weight: 900;
-    color: #5C5552;
+    color: var(--next-time-fg);
     letter-spacing: -0.3px;
   }
   .next-time small {
     font-size: 9.5px;
     font-weight: 800;
-    color: #8E8682;
+    color: var(--next-small-fg);
     margin: 0 2px 0 1px;
   }
 
   /* 베이비핑크 메인 카드 */
   .island-box {
-    width: 158px;
-    background: #FDF5F7;
-    border: 1.5px solid #F9E5E9;
-    border-radius: 24px;
-    padding: 13px 10px 11px;
-    box-shadow: 0 4px 16px rgba(244, 182, 198, 0.12);
+    width: 100%;
+    max-width: 210px;
+    background: var(--box-bg);
+    border: 1.5px solid var(--box-border);
+    border-radius: 22px;
+    padding: 12px 10px 10px;
+    box-shadow: var(--box-shadow);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 7px;
+    gap: 6.5px;
   }
 
   .dow-title {
-    font-size: 11px;
+    font-size: 10.5px;
     font-weight: 800;
-    color: #8C827E;
+    color: var(--dow-fg);
     letter-spacing: 0.5px;
     margin-bottom: 1px;
   }
@@ -70,21 +169,21 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 5.5px;
   }
 
   .i-card {
-    background: #FFFFFF;
-    border: 1px solid #F6E2E7;
-    border-radius: 14px;
-    padding: 8px 6px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 13px;
+    padding: 7px 6px;
     text-align: center;
   }
   .i-name {
     font-size: 10.5px;
     font-weight: 800;
-    color: #4A4442;
-    margin-bottom: 4px;
+    color: var(--name-fg);
+    margin-bottom: 3.5px;
     word-break: keep-all;
     line-height: 1.25;
   }
@@ -94,16 +193,16 @@
     font-weight: 800;
     padding: 2px 8px;
     border-radius: 6px;
-    background: #F7EED3;
-    color: #8C7742;
+    background: var(--rw-default-bg);
+    color: var(--rw-default-fg);
   }
-  .i-reward.gold { background: #FBE5C8; color: #9C662B; }
-  .i-reward.card { background: #E4E2F8; color: #5D5599; }
-  .i-reward.coin { background: #DCEFF8; color: #3D6F8E; }
+  .i-reward.gold { background: var(--rw-gold-bg); color: var(--rw-gold-fg); }
+  .i-reward.card { background: var(--rw-card-bg); color: var(--rw-card-fg); }
+  .i-reward.coin { background: var(--rw-coin-bg); color: var(--rw-coin-fg); }
 
   .empty-txt {
     font-size: 10px;
-    color: #B5AEAB;
+    color: var(--empty-fg);
     padding: 16px 0;
     text-align: center;
   }
@@ -112,28 +211,28 @@
   .sub-contents {
     width: 100%;
     margin-top: 2px;
-    padding-top: 7px;
-    border-top: 1px dashed #F2D7DF;
+    padding-top: 6.5px;
+    border-top: 1px dashed var(--sub-border);
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 5px;
   }
   .sub-pill {
-    background: #FFFFFF;
-    border: 1px solid #F6E2E7;
+    background: var(--pill-bg);
+    border: 1px solid var(--pill-border);
     border-radius: 10px;
     padding: 5px 4px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: 3.5px;
     font-size: 9.5px;
     font-weight: 800;
-    color: #6B625F;
+    color: var(--pill-fg);
   }
   .sub-pill.active {
-    background: #FFF9FC;
-    border-color: #F4C6D4;
+    background: var(--pill-active-bg);
+    border-color: var(--pill-active-border);
   }
   .sub-state {
     font-size: 9px;
@@ -142,12 +241,41 @@
     border-radius: 5px;
   }
   .sub-state.on {
-    background: #D5F2E1;
-    color: #2F7A50;
+    background: var(--on-bg);
+    color: var(--on-fg);
   }
   .sub-state.off {
-    background: #F1EFEF;
-    color: #ADA6A3;
+    background: var(--off-bg);
+    color: var(--off-fg);
+  }
+
+  @media (max-width: 480px) {
+    body {
+      padding: 4px 2px;
+    }
+    .next-wrap {
+      margin-bottom: 5px;
+    }
+    .next-time {
+      font-size: 14px;
+    }
+    .island-box {
+      max-width: 100%;
+      border-radius: 18px;
+      padding: 10px 8px 9px;
+      gap: 5px;
+    }
+    .i-card {
+      border-radius: 11px;
+      padding: 6px 5px;
+    }
+    .i-name {
+      font-size: 10px;
+    }
+    .sub-pill {
+      padding: 4px 3px;
+      font-size: 9px;
+    }
   }
 </style>
 </head>
@@ -177,6 +305,11 @@
   </div>
 
 <script>
+  (function applyThemeParam() {
+    const t = new URLSearchParams(location.search).get("theme");
+    if (t === "dark" || t === "light") document.documentElement.setAttribute("data-theme", t);
+  })();
+
   const API_URL = "https://notion-cal.binhaha329.workers.dev/island";
   const DAYS_EN = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
