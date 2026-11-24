@@ -16,7 +16,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 6px 4px;
+    padding: 4px;
   }
 
   :root {
@@ -51,147 +51,145 @@
     --rw-coin-fg: #3D6F8E;
   }
 
+  /* 다크모드: 차분한 다크슬레이트/차콜 위에 파스텔 포인트 */
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --next-label-fg: #9E9096;
-      --next-time-fg: #F3ECEE;
-      --next-small-fg: #B5A8AD;
-      --box-bg: #221C20;
-      --box-border: #4A343D;
-      --box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
-      --dow-fg: #C5B6BC;
-      --card-bg: #292126;
-      --card-border: #402D35;
-      --name-fg: #F3ECEE;
-      --empty-fg: #86787E;
-      --sub-border: #47313B;
-      --pill-bg: #292126;
-      --pill-border: #402D35;
-      --pill-fg: #DFD3D8;
-      --pill-active-bg: #35242C;
-      --pill-active-border: #684252;
-      --off-bg: #362C31;
-      --off-fg: #9A8C92;
-      --on-bg: #1F362B;
-      --on-fg: #93D9B0;
-      --rw-default-bg: #38301E;
-      --rw-default-fg: #E6C473;
-      --rw-gold-bg: #3D2B1B;
-      --rw-gold-fg: #F5B971;
-      --rw-card-bg: #2B2742;
-      --rw-card-fg: #C2BDF2;
-      --rw-coin-bg: #1E3240;
-      --rw-coin-fg: #9BD0F0;
+      --next-label-fg: #9B98A6;
+      --next-time-fg: #F4F2F8;
+      --next-small-fg: #B8B4C4;
+      --box-bg: #1B1A20;
+      --box-border: #383342;
+      --box-shadow: 0 6px 20px rgba(0, 0, 0, 0.42);
+      --dow-fg: #C8C2D4;
+      --card-bg: #24232B;
+      --card-border: #3A3646;
+      --name-fg: #F4F2F8;
+      --empty-fg: #878296;
+      --sub-border: #363242;
+      --pill-bg: #24232B;
+      --pill-border: #3A3646;
+      --pill-fg: #DEDAE8;
+      --pill-active-bg: #2D2738;
+      --pill-active-border: #5E4E78;
+      --off-bg: #312F3A;
+      --off-fg: #9A95A8;
+      --on-bg: #1C352B;
+      --on-fg: #8EE0B5;
+      --rw-default-bg: #352F20;
+      --rw-default-fg: #E8C978;
+      --rw-gold-bg: #3B2B1C;
+      --rw-gold-fg: #F7BC74;
+      --rw-card-bg: #292642;
+      --rw-card-fg: #C4BFF7;
+      --rw-coin-bg: #1D3140;
+      --rw-coin-fg: #9AD2F5;
     }
   }
 
   :root[data-theme="dark"] {
-    --next-label-fg: #9E9096;
-    --next-time-fg: #F3ECEE;
-    --next-small-fg: #B5A8AD;
-    --box-bg: #221C20;
-    --box-border: #4A343D;
-    --box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
-    --dow-fg: #C5B6BC;
-    --card-bg: #292126;
-    --card-border: #402D35;
-    --name-fg: #F3ECEE;
-    --empty-fg: #86787E;
-    --sub-border: #47313B;
-    --pill-bg: #292126;
-    --pill-border: #402D35;
-    --pill-fg: #DFD3D8;
-    --pill-active-bg: #35242C;
-    --pill-active-border: #684252;
-    --off-bg: #362C31;
-    --off-fg: #9A8C92;
-    --on-bg: #1F362B;
-    --on-fg: #93D9B0;
-    --rw-default-bg: #38301E;
-    --rw-default-fg: #E6C473;
-    --rw-gold-bg: #3D2B1B;
-    --rw-gold-fg: #F5B971;
-    --rw-card-bg: #2B2742;
-    --rw-card-fg: #C2BDF2;
-    --rw-coin-bg: #1E3240;
-    --rw-coin-fg: #9BD0F0;
+    --next-label-fg: #9B98A6;
+    --next-time-fg: #F4F2F8;
+    --next-small-fg: #B8B4C4;
+    --box-bg: #1B1A20;
+    --box-border: #383342;
+    --box-shadow: 0 6px 20px rgba(0, 0, 0, 0.42);
+    --dow-fg: #C8C2D4;
+    --card-bg: #24232B;
+    --card-border: #3A3646;
+    --name-fg: #F4F2F8;
+    --empty-fg: #878296;
+    --sub-border: #363242;
+    --pill-bg: #24232B;
+    --pill-border: #3A3646;
+    --pill-fg: #DEDAE8;
+    --pill-active-bg: #2D2738;
+    --pill-active-border: #5E4E78;
+    --off-bg: #312F3A;
+    --off-fg: #9A95A8;
+    --on-bg: #1C352B;
+    --on-fg: #8EE0B5;
+    --rw-default-bg: #352F20;
+    --rw-default-fg: #E8C978;
+    --rw-gold-bg: #3B2B1C;
+    --rw-gold-fg: #F7BC74;
+    --rw-card-bg: #292642;
+    --rw-card-fg: #C4BFF7;
+    --rw-coin-bg: #1D3140;
+    --rw-coin-fg: #9AD2F5;
   }
 
-  /* 상단 NEXT 카운트다운 */
   .next-wrap {
     text-align: center;
-    margin-bottom: 7px;
+    margin-bottom: 5px;
   }
   .next-label {
-    font-size: 9px;
+    font-size: 8.5px;
     font-weight: 800;
     color: var(--next-label-fg);
     letter-spacing: 0.8px;
     margin-bottom: 1px;
   }
   .next-time {
-    font-size: 15.5px;
+    font-size: 14.5px;
     font-weight: 900;
     color: var(--next-time-fg);
     letter-spacing: -0.3px;
   }
   .next-time small {
-    font-size: 9.5px;
+    font-size: 9px;
     font-weight: 800;
     color: var(--next-small-fg);
-    margin: 0 2px 0 1px;
+    margin: 0 1.5px;
   }
 
-  /* 베이비핑크 메인 카드 */
   .island-box {
     width: 100%;
     max-width: 210px;
     background: var(--box-bg);
     border: 1.5px solid var(--box-border);
-    border-radius: 22px;
-    padding: 12px 10px 10px;
+    border-radius: 20px;
+    padding: 10px 9px 9px;
     box-shadow: var(--box-shadow);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6.5px;
+    gap: 5px;
   }
 
   .dow-title {
-    font-size: 10.5px;
+    font-size: 10px;
     font-weight: 800;
     color: var(--dow-fg);
     letter-spacing: 0.5px;
-    margin-bottom: 1px;
   }
 
   .island-list {
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 5.5px;
+    gap: 4.5px;
   }
 
   .i-card {
     background: var(--card-bg);
     border: 1px solid var(--card-border);
-    border-radius: 13px;
-    padding: 7px 6px;
+    border-radius: 12px;
+    padding: 6px 5px;
     text-align: center;
   }
   .i-name {
-    font-size: 10.5px;
+    font-size: 10px;
     font-weight: 800;
     color: var(--name-fg);
-    margin-bottom: 3.5px;
+    margin-bottom: 3px;
     word-break: keep-all;
-    line-height: 1.25;
+    line-height: 1.2;
   }
   .i-reward {
     display: inline-block;
-    font-size: 9px;
+    font-size: 8.5px;
     font-weight: 800;
-    padding: 2px 8px;
+    padding: 1.5px 7px;
     border-radius: 6px;
     background: var(--rw-default-bg);
     color: var(--rw-default-fg);
@@ -203,30 +201,29 @@
   .empty-txt {
     font-size: 10px;
     color: var(--empty-fg);
-    padding: 16px 0;
+    padding: 12px 0;
     text-align: center;
   }
 
-  /* 하단 필보 · 카게 미니 뱃지 영역 */
   .sub-contents {
     width: 100%;
-    margin-top: 2px;
-    padding-top: 6.5px;
+    margin-top: 1px;
+    padding-top: 5.5px;
     border-top: 1px dashed var(--sub-border);
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 5px;
+    gap: 4.5px;
   }
   .sub-pill {
     background: var(--pill-bg);
     border: 1px solid var(--pill-border);
-    border-radius: 10px;
-    padding: 5px 4px;
+    border-radius: 9px;
+    padding: 4px 3px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 3.5px;
-    font-size: 9.5px;
+    gap: 3px;
+    font-size: 9px;
     font-weight: 800;
     color: var(--pill-fg);
   }
@@ -235,9 +232,9 @@
     border-color: var(--pill-active-border);
   }
   .sub-state {
-    font-size: 9px;
+    font-size: 8.5px;
     font-weight: 900;
-    padding: 1px 5px;
+    padding: 1px 4.5px;
     border-radius: 5px;
   }
   .sub-state.on {
@@ -251,30 +248,30 @@
 
   @media (max-width: 480px) {
     body {
-      padding: 4px 2px;
+      padding: 2px;
     }
     .next-wrap {
-      margin-bottom: 5px;
+      margin-bottom: 4px;
     }
     .next-time {
-      font-size: 14px;
+      font-size: 13.5px;
     }
     .island-box {
       max-width: 100%;
-      border-radius: 18px;
-      padding: 10px 8px 9px;
-      gap: 5px;
+      border-radius: 16px;
+      padding: 8px 7px 7px;
+      gap: 4px;
     }
     .i-card {
-      border-radius: 11px;
-      padding: 6px 5px;
+      border-radius: 10px;
+      padding: 5px 4px;
     }
     .i-name {
-      font-size: 10px;
+      font-size: 9.5px;
     }
     .sub-pill {
-      padding: 4px 3px;
-      font-size: 9px;
+      padding: 3.5px 2px;
+      font-size: 8.5px;
     }
   }
 </style>
@@ -291,7 +288,6 @@
       <div class="empty-txt">불러오는 중...</div>
     </div>
 
-    <!-- 오늘 필보 · 카게 출현 여부 -->
     <div class="sub-contents">
       <div class="sub-pill" id="pillBoss">
         <span>필보</span>
@@ -321,7 +317,6 @@
   }
 
   function getLoaDateStr(d) {
-    // 로스트아크 일일 초기화(오전 06:00) 기준 오늘 날짜 계산
     const shifted = new Date(d.getTime() - 6 * 3600 * 1000);
     const y = shifted.getFullYear();
     const m = String(shifted.getMonth() + 1).padStart(2, "0");
@@ -378,7 +373,6 @@
       const kst = getKstNow();
       const todayKey = getLoaDateStr(kst);
 
-      // 1) 오늘 모험섬 필터링 및 가장 가까운 출현 시간 계산
       const todayIslands = [];
       let earliestUpcoming = null;
 
@@ -417,7 +411,6 @@
         });
       }
 
-      // 2) 오늘 필보 · 카게 출현 여부 표시
       const bossOn = hasTodaySchedule(fieldBoss, todayKey, kst);
       const gateOn = hasTodaySchedule(chaosGate, todayKey, kst);
 
