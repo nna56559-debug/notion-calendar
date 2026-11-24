@@ -19,6 +19,7 @@
     --card-bg: #FFFFFF;
     --card-border: #F9E5E9;
     --card-shadow: 0 4px 16px rgba(244, 182, 198, 0.1);
+    --scroll-thumb: #F2DCE2;
     --badge-bg: #FCE6ED;
     --badge-fg: #C95B7A;
     --inp-border: #F2DCE2;
@@ -76,6 +77,7 @@
       --card-bg: #1B1A20;
       --card-border: #383342;
       --card-shadow: 0 6px 20px rgba(0, 0, 0, 0.42);
+      --scroll-thumb: #4B3846;
       --badge-bg: #3B252E;
       --badge-fg: #F5A3BC;
       --inp-border: #3A3646;
@@ -133,6 +135,7 @@
     --card-bg: #1B1A20;
     --card-border: #383342;
     --card-shadow: 0 6px 20px rgba(0, 0, 0, 0.42);
+    --scroll-thumb: #4B3846;
     --badge-bg: #3B252E;
     --badge-fg: #F5A3BC;
     --inp-border: #3A3646;
@@ -190,6 +193,7 @@
 
   .spec-card {
     width: 100%;
+    height: 410px;
     background: var(--card-bg);
     border: 1.5px solid var(--card-border);
     border-radius: 22px;
@@ -198,6 +202,7 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+    overflow: hidden;
   }
 
   .s-head {
@@ -205,6 +210,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 6px;
+    flex-shrink: 0;
   }
   .s-badge {
     font-size: 10px;
@@ -246,6 +252,19 @@
   }
   .search-btn:hover { background: var(--btn-hover-bg); }
 
+  #contentArea {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  #contentArea::-webkit-scrollbar { width: 4px; }
+  #contentArea::-webkit-scrollbar-track { background: transparent; }
+  #contentArea::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 999px; }
+
   .prof-box {
     background: var(--prof-bg);
     border: 1px solid var(--prof-border);
@@ -254,6 +273,7 @@
     display: flex;
     flex-direction: column;
     gap: 3px;
+    flex-shrink: 0;
   }
   .prof-top {
     display: flex;
@@ -297,6 +317,7 @@
     display: flex;
     flex-direction: column;
     gap: 3.5px;
+    flex-shrink: 0;
   }
   .sec-label {
     font-size: 9px;
@@ -400,6 +421,10 @@
     color: var(--gem-rad-fg);
   }
   .empty-txt {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
     font-size: 10px;
     color: var(--empty-fg);
@@ -411,6 +436,7 @@
       padding: 2px;
     }
     .spec-card {
+      height: 350px;
       border-radius: 16px;
       padding: 9px 10px;
       gap: 6px;
