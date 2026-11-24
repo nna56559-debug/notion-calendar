@@ -19,20 +19,119 @@
     padding: 4px;
   }
 
+  :root {
+    --page-bg: transparent;
+    --card-bg: #FFFFFF;
+    --pink-border: #F9E5E9;
+    --pink-shadow: 0 4px 14px rgba(244, 182, 198, 0.08);
+    --green-border: #E2EFE6;
+    --green-shadow: 0 4px 14px rgba(174, 217, 235, 0.08);
+    --pink-badge-bg: #FCE6ED;
+    --pink-badge-fg: #C95B7A;
+    --pink-add-bg: #FCE8EE;
+    --pink-add-fg: #C95B7A;
+    --green-badge-bg: #E2F2E8;
+    --green-badge-fg: #3D7A56;
+    --green-add-bg: #E2F2E8;
+    --green-add-fg: #3D7A56;
+    --item-bg: #FFFFFF;
+    --pink-item-border: #F6E2E7;
+    --green-item-border: #E2EFE6;
+    --title-fg: #4A4442;
+    --title-ph: #C5BCBA;
+    --pink-focus-bg: #FFF8FA;
+    --green-focus-bg: #F4FBF6;
+    --del-fg: #B8AFA9;
+    --del-hover-fg: #D96B8A;
+    --note-fg: #8A817C;
+    --note-ph: #CBC4C0;
+    --note-focus-bg: #F9F7F6;
+    --note-focus-fg: #5C5350;
+    --empty-fg: #B5AEAB;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --page-bg: #191919;
+      --card-bg: #1B1A20;
+      --pink-border: #3F313A;
+      --pink-shadow: 0 6px 18px rgba(0, 0, 0, 0.38);
+      --green-border: #2D3D36;
+      --green-shadow: 0 6px 18px rgba(0, 0, 0, 0.38);
+      --pink-badge-bg: #3B252E;
+      --pink-badge-fg: #F5A3BC;
+      --pink-add-bg: #3B252E;
+      --pink-add-fg: #F5A3BC;
+      --green-badge-bg: #1E362B;
+      --green-badge-fg: #8EE0B5;
+      --green-add-bg: #1E362B;
+      --green-add-fg: #8EE0B5;
+      --item-bg: #24232B;
+      --pink-item-border: #42323D;
+      --green-item-border: #2E4239;
+      --title-fg: #F4F2F8;
+      --title-ph: #7C778C;
+      --pink-focus-bg: #2D232B;
+      --green-focus-bg: #212E28;
+      --del-fg: #8E899E;
+      --del-hover-fg: #F5A3BC;
+      --note-fg: #B5B0C4;
+      --note-ph: #736E82;
+      --note-focus-bg: #2C2A35;
+      --note-focus-fg: #EAE6F5;
+      --empty-fg: #878296;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --page-bg: #191919;
+    --card-bg: #1B1A20;
+    --pink-border: #3F313A;
+    --pink-shadow: 0 6px 18px rgba(0, 0, 0, 0.38);
+    --green-border: #2D3D36;
+    --green-shadow: 0 6px 18px rgba(0, 0, 0, 0.38);
+    --pink-badge-bg: #3B252E;
+    --pink-badge-fg: #F5A3BC;
+    --pink-add-bg: #3B252E;
+    --pink-add-fg: #F5A3BC;
+    --green-badge-bg: #1E362B;
+    --green-badge-fg: #8EE0B5;
+    --green-add-bg: #1E362B;
+    --green-add-fg: #8EE0B5;
+    --item-bg: #24232B;
+    --pink-item-border: #42323D;
+    --green-item-border: #2E4239;
+    --title-fg: #F4F2F8;
+    --title-ph: #7C778C;
+    --pink-focus-bg: #2D232B;
+    --green-focus-bg: #212E28;
+    --del-fg: #8E899E;
+    --del-hover-fg: #F5A3BC;
+    --note-fg: #B5B0C4;
+    --note-ph: #736E82;
+    --note-focus-bg: #2C2A35;
+    --note-focus-fg: #EAE6F5;
+    --empty-fg: #878296;
+  }
+
+  html, body {
+    background: var(--page-bg);
+  }
+
   .board-box {
     width: 100%;
-    background: #FFFFFF;
-    border: 1.5px solid #F9E5E9;
+    background: var(--card-bg);
+    border: 1.5px solid var(--pink-border);
     border-radius: 20px;
     padding: 11px 12px;
-    box-shadow: 0 4px 14px rgba(244, 182, 198, 0.08);
+    box-shadow: var(--pink-shadow);
     display: flex;
     flex-direction: column;
     gap: 7px;
   }
   .board-box.green {
-    border-color: #E2EFE6;
-    box-shadow: 0 4px 14px rgba(174, 217, 235, 0.08);
+    border-color: var(--green-border);
+    box-shadow: var(--green-shadow);
   }
 
   .b-head {
@@ -45,20 +144,20 @@
     font-weight: 800;
     padding: 2.5px 8px;
     border-radius: 7px;
-    background: #FCE6ED;
-    color: #C95B7A;
+    background: var(--pink-badge-bg);
+    color: var(--pink-badge-fg);
   }
   .green .b-badge {
-    background: #E2F2E8;
-    color: #3D7A56;
+    background: var(--green-badge-bg);
+    color: var(--green-badge-fg);
   }
   .add-btn {
     border: none;
     width: 20px;
     height: 20px;
     border-radius: 7px;
-    background: #FCE8EE;
-    color: #C95B7A;
+    background: var(--pink-add-bg);
+    color: var(--pink-add-fg);
     font-size: 13px;
     font-weight: 800;
     cursor: pointer;
@@ -67,26 +166,26 @@
     justify-content: center;
   }
   .green .add-btn {
-    background: #E2F2E8;
-    color: #3D7A56;
+    background: var(--green-add-bg);
+    color: var(--green-add-fg);
   }
 
   .card-list { display: flex; flex-direction: column; gap: 6px; }
   .m-card {
     position: relative;
-    background: #FFFFFF;
+    background: var(--item-bg);
     border-radius: 13px;
     padding: 8px 9px;
-    border: 1px solid #F6E2E7;
+    border: 1px solid var(--pink-item-border);
   }
-  .green .m-card { border-color: #E2EFE6; }
+  .green .m-card { border-color: var(--green-item-border); }
 
   .m-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 4px; }
   .m-title {
     flex: 1;
     font-size: 11px;
     font-weight: 800;
-    color: #4A4442;
+    color: var(--title-fg);
     line-height: 1.3;
     word-break: break-all;
     outline: none;
@@ -94,37 +193,70 @@
     padding: 1px 2px;
     min-height: 15px;
   }
-  .m-title:empty::before { content: "제목 입력..."; color: #C5BCBA; font-weight: 600; }
-  .m-title:focus { background: #FFF8FA; }
-  .green .m-title:focus { background: #F4FBF6; }
+  .m-title:empty::before { content: "제목 입력..."; color: var(--title-ph); font-weight: 600; }
+  .m-title:focus { background: var(--pink-focus-bg); }
+  .green .m-title:focus { background: var(--green-focus-bg); }
 
   .del-btn {
     opacity: 0;
     border: none;
     background: transparent;
-    color: #B8AFA9;
+    color: var(--del-fg);
     font-size: 11px;
     font-weight: 700;
     cursor: pointer;
     padding: 0 2px;
   }
   .m-card:hover .del-btn { opacity: 1; }
-  .del-btn:hover { color: #D96B8A; }
+  .del-btn:hover { color: var(--del-hover-fg); }
 
   .m-note {
     margin-top: 3px;
     font-size: 9.5px;
     font-weight: 600;
-    color: #8A817C;
+    color: var(--note-fg);
     line-height: 1.35;
     outline: none;
     border-radius: 4px;
     padding: 1px 2px;
     min-height: 14px;
   }
-  .m-note:empty::before { content: "메모 입력..."; color: #CBC4C0; font-weight: 500; }
-  .m-note:focus { background: #F9F7F6; color: #5C5350; }
-  .empty-txt { text-align: center; font-size: 10px; color: #B5AEAB; padding: 12px 0; }
+  .m-note:empty::before { content: "메모 입력..."; color: var(--note-ph); font-weight: 500; }
+  .m-note:focus { background: var(--note-focus-bg); color: var(--note-focus-fg); }
+  .empty-txt { text-align: center; font-size: 10px; color: var(--empty-fg); padding: 12px 0; }
+
+  @media (max-width: 480px) {
+    body {
+      gap: 7px;
+      padding: 2px;
+    }
+    .board-box {
+      border-radius: 16px;
+      padding: 9px 10px;
+      gap: 6px;
+    }
+    .card-list {
+      gap: 5px;
+    }
+    .m-card {
+      border-radius: 11px;
+      padding: 7px 8px;
+    }
+    .m-title {
+      font-size: 10.5px;
+    }
+    .m-note {
+      font-size: 9px;
+    }
+    .del-btn {
+      opacity: 0.75;
+      padding: 0 3px;
+    }
+    .empty-txt {
+      padding: 8px 0;
+      font-size: 9.5px;
+    }
+  }
 </style>
 </head>
 <body>
@@ -145,45 +277,183 @@
   </div>
 
 <script>
-  const API_BASE = "https://notion-cal.binhaha329.workers.dev";
-  let items = [];
+  (function applyThemeParam() {
+    const t = new URLSearchParams(location.search).get("theme");
+    if (t === "dark" || t === "light") document.documentElement.setAttribute("data-theme", t);
+  })();
 
-  async function loadMemos() {
+  const API_BASE = "https://notion-cal.binhaha329.workers.dev";
+  const STORAGE_KEY = "notion_coupon_exchange_memos_v1";
+  const DELETED_KEY = "notion_coupon_exchange_deleted_v1";
+
+  let items = [];
+  let deletedIds = new Set();
+
+  function loadDeletedIds() {
     try {
-      const res = await fetch(`${API_BASE}/memo?t=${Date.now()}`);
-      const data = await res.json();
-      if (Array.isArray(data.items)) {
-        items = data.items;
-        render();
-      }
+      const arr = JSON.parse(localStorage.getItem(DELETED_KEY) || "[]");
+      if (Array.isArray(arr)) deletedIds = new Set(arr.map(String));
     } catch (e) {}
   }
 
+  function saveDeletedIds() {
+    try {
+      localStorage.setItem(DELETED_KEY, JSON.stringify([...deletedIds].slice(-200)));
+    } catch (e) {}
+  }
+
+  function normalizeGroup(g) {
+    const s = String(g || "").trim();
+    if (s.includes("교환")) return "교환";
+    if (s.includes("쿠폰")) return "쿠폰";
+    return s || "쿠폰";
+  }
+
+  function sanitizeItem(raw) {
+    if (!raw || typeof raw !== "object") return null;
+    const pageId = String(raw.pageId || raw.id || "").trim();
+    if (!pageId || deletedIds.has(pageId)) return null;
+    return {
+      pageId,
+      title: String(raw.title ?? ""),
+      group: normalizeGroup(raw.group),
+      note: String(raw.note ?? ""),
+      updatedAt: Number(raw.updatedAt || Date.now()),
+      _creating: null
+    };
+  }
+
+  function saveLocalItems() {
+    try {
+      const clean = items.map(it => ({
+        pageId: it.pageId,
+        title: it.title,
+        group: it.group,
+        note: it.note,
+        updatedAt: it.updatedAt || Date.now()
+      }));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(clean));
+    } catch (e) {}
+  }
+
+  function loadLocalItems() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      if (Array.isArray(parsed)) {
+        return parsed.map(sanitizeItem).filter(Boolean);
+      }
+    } catch (e) {}
+    return [];
+  }
+
+  async function loadMemos() {
+    loadDeletedIds();
+    const localList = loadLocalItems();
+    if (localList.length > 0) {
+      items = localList;
+      render();
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/memo?t=${Date.now()}`);
+      const data = await res.json();
+      if (!data || !Array.isArray(data.items)) {
+        if (items.length === 0) render();
+        return;
+      }
+
+      const serverItems = data.items.map(sanitizeItem).filter(Boolean);
+      const serverMap = new Map(serverItems.map(it => [it.pageId, it]));
+      const merged = [...serverItems];
+
+      for (const loc of items) {
+        if (deletedIds.has(loc.pageId)) continue;
+        if (!serverMap.has(loc.pageId)) {
+          merged.push({
+            ...loc,
+            _creating: loc._creating || null
+          });
+        } else {
+          const srv = serverMap.get(loc.pageId);
+          if ((loc.updatedAt || 0) > (srv.updatedAt || 0)) {
+            srv.title = loc.title;
+            srv.note = loc.note;
+            srv.group = loc.group;
+            srv.updatedAt = loc.updatedAt;
+          }
+        }
+      }
+
+      items = merged;
+      saveLocalItems();
+      render();
+    } catch (e) {
+      if (items.length === 0) render();
+    }
+  }
+
   function addCard(group) {
-    const tempId = "temp_" + Date.now();
-    const newItem = { pageId: tempId, title: "", group, note: "", _creating: null };
+    const normGroup = normalizeGroup(group);
+    const tempId = "temp_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6);
+    const newItem = {
+      pageId: tempId,
+      title: "",
+      group: normGroup,
+      note: "",
+      updatedAt: Date.now(),
+      _creating: null
+    };
     items.push(newItem);
+    saveLocalItems();
     render(tempId);
 
     newItem._creating = fetch(`${API_BASE}/memo`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "create", title: newItem.title || "새 메모", group, note: newItem.note })
+      body: JSON.stringify({
+        action: "create",
+        title: newItem.title || "새 메모",
+        group: normGroup,
+        note: newItem.note
+      })
     })
       .then(res => res.json())
       .then(data => {
         if (data && data.pageId) {
-          newItem.pageId = data.pageId;
+          const realId = String(data.pageId);
+          if (deletedIds.has(tempId)) {
+            deletedIds.add(realId);
+            saveDeletedIds();
+            return fetch(`${API_BASE}/memo`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ action: "delete", pageId: realId })
+            }).catch(() => {});
+          }
+          newItem.pageId = realId;
+          saveLocalItems();
+          if (newItem.title.trim() || newItem.note.trim()) {
+            return syncCard(newItem);
+          }
         }
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => {
+        newItem._creating = null;
+      });
   }
 
   async function syncCard(item) {
+    if (!item) return;
+    item.updatedAt = Date.now();
+    saveLocalItems();
+
     if (item._creating) {
       await item._creating;
     }
-    if (String(item.pageId).startsWith("temp_")) return;
+    if (!item.pageId || String(item.pageId).startsWith("temp_") || deletedIds.has(item.pageId)) {
+      return;
+    }
 
     const titleToSave = item.title.trim() || "새 메모";
     const noteToSave = item.note.trim();
@@ -196,32 +466,45 @@
           action: "update",
           pageId: item.pageId,
           title: titleToSave,
-          note: noteToSave
+          note: noteToSave,
+          group: item.group
         })
       });
     } catch (e) {}
   }
 
   async function deleteCard(item) {
+    if (!item) return;
+    const oldId = item.pageId;
+    if (oldId) {
+      deletedIds.add(String(oldId));
+      saveDeletedIds();
+    }
     items = items.filter(it => it !== item);
+    saveLocalItems();
     render();
+
     if (item._creating) {
       await item._creating;
     }
-    if (String(item.pageId).startsWith("temp_")) return;
-    try {
-      await fetch(`${API_BASE}/memo`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "delete", pageId: item.pageId })
-      });
-    } catch (e) {}
+    const finalId = item.pageId;
+    if (finalId && !String(finalId).startsWith("temp_")) {
+      deletedIds.add(String(finalId));
+      saveDeletedIds();
+      try {
+        await fetch(`${API_BASE}/memo`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "delete", pageId: finalId })
+        });
+      } catch (e) {}
+    }
   }
 
   function renderGroup(groupName, containerId, focusPageId) {
     const el = document.getElementById(containerId);
     el.innerHTML = "";
-    const filtered = items.filter(it => it.group === groupName);
+    const filtered = items.filter(it => normalizeGroup(it.group) === groupName);
 
     if (filtered.length === 0) {
       el.innerHTML = `<div class="empty-txt">항목 없음</div>`;
@@ -249,12 +532,16 @@
       const onChange = () => {
         item.title = titleEl.textContent;
         item.note = noteEl.textContent;
+        item.updatedAt = Date.now();
+        saveLocalItems();
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(() => syncCard(item), 500);
       };
       const onBlur = () => {
         item.title = titleEl.textContent;
         item.note = noteEl.textContent;
+        item.updatedAt = Date.now();
+        saveLocalItems();
         clearTimeout(debounceTimer);
         syncCard(item);
       };
