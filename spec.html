@@ -407,7 +407,6 @@
     color: var(--grid-bold);
   }
 
-  /* 팔찌: 각 줄 한 줄 배치 + 악세 상/중/하 색 칩 */
   .br-box {
     background: var(--br-box-bg);
     border: 1px solid var(--br-box-border);
@@ -543,41 +542,22 @@
     return rawList;
   }
 
-  function normalizeTier(rawTier, text) {
+  function normalizeTier(rawTier) {
     const t = String(rawTier || "").toLowerCase();
     if (t === "high" || t === "상" || t === "3") return "high";
     if (t === "mid" || t === "중" || t === "2") return "mid";
-    if (t === "low" || t === "하" || t === "1") return "low";
-
-    if (/상/.test(text)) return "high";
-    if (/중/.test(text)) return "mid";
-    if (/하/.test(text)) return "low";
     return "low";
   }
 
-  function isBrokenBraceletText(txt) {
-    return /bEquip|itemIrochiCount|leftStr|rightStr|topStr|아이템\s*티어|고대\s*팔찌|유물\s*팔찌|["{}\[\]]/i.test(txt);
-  }
-
   function parseBraceletItem(item) {
-    if (!item) return null;
-    if (typeof item === "string") {
-      const s = item.trim();
-      if (!s || isBrokenBraceletText(s)) return null;
-      const tier = normalizeTier("", s);
-      const isStat = STATS_KEYWORDS.some(k => s.startsWith(k + " ") || s === k);
-      return { text: s, tier, isStat };
-    }
-    if (typeof item === "object") {
-      const rawText = String(item.label || item.text || item.name || item.option || "").trim();
-      if (!rawText || isBrokenBraceletText(rawText)) return null;
-      const tier = normalizeTier(item.tier || item.grade, rawText);
-      const isStat = typeof item.isStat === "boolean"
-        ? item.isStat
-        : STATS_KEYWORDS.some(k => rawText.startsWith(k + " ") || rawText === k);
-      return { text: rawText, tier, isStat };
-    }
-    return null;
+    if (!item || typeof item !== "object") return null;
+    const text = String(item.text || item.label || item.name || "").trim();
+    if (!text) return null;
+    const tier = normalizeTier(item.tier || item.grade);
+    const isStat = typeof item.isStat === "boolean"
+      ? item.isStat
+      : STATS_KEYWORDS.some(k => text.startsWith(k + " ") || text === k);
+    return { text, tier, isStat };
   }
 
   function buildBraceletData(data) {
@@ -589,13 +569,13 @@
     if (Array.isArray(br.stats)) {
       br.stats.forEach(s => {
         const p = parseBraceletItem(s);
-        if (p) stats.push({ ...p, isStat: true });
+        if (p) stats.push({ text: p.text, tier: p.tier });
       });
     }
     if (Array.isArray(br.options)) {
       br.options.forEach(o => {
         const p = parseBraceletItem(o);
-        if (p && options.length < 3) options.push({ ...p, isStat: false });
+        if (p) options.push({ text: p.text, tier: p.tier });
       });
     }
     return { stats, options };
