@@ -17,13 +17,95 @@
     justify-content: center;
     padding: 4px;
   }
+
+  :root {
+    --page-bg: transparent;
+    --card-bg: #FFFFFF;
+    --card-border: #F9E5E9;
+    --card-shadow: 0 4px 14px rgba(244, 182, 198, 0.08);
+    --badge-bg: #E4F1FA;
+    --badge-fg: #3D7496;
+    --btn-hover-filter: brightness(0.97);
+    --pink-bg: #FDF3F6;
+    --pink-border: #F5DCE3;
+    --pink-fg: #C95B7A;
+    --lav-bg: #F6F3FD;
+    --lav-border: #E5DDF7;
+    --lav-fg: #6B56A8;
+    --blue-bg: #F3F9FD;
+    --blue-border: #DCECF7;
+    --blue-fg: #3D7496;
+    --mint-bg: #F3FAF6;
+    --mint-border: #DCEEE3;
+    --mint-fg: #3D7A56;
+    --gold-bg: #FCF8EE;
+    --gold-border: #F2E6C8;
+    --gold-fg: #A87620;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --page-bg: #191919;
+      --card-bg: #1B1A20;
+      --card-border: #383342;
+      --card-shadow: 0 6px 20px rgba(0, 0, 0, 0.42);
+      --badge-bg: #243947;
+      --badge-fg: #9BD0F0;
+      --btn-hover-filter: brightness(1.08);
+      --pink-bg: #2E2028;
+      --pink-border: #4A313E;
+      --pink-fg: #F5A3BC;
+      --lav-bg: #282338;
+      --lav-border: #41385C;
+      --lav-fg: #C2BDF2;
+      --blue-bg: #1C2B36;
+      --blue-border: #2C4354;
+      --blue-fg: #9BD0F0;
+      --mint-bg: #1C352B;
+      --mint-border: #2E5243;
+      --mint-fg: #8EE0B5;
+      --gold-bg: #352F20;
+      --gold-border: #524830;
+      --gold-fg: #F2C46D;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --page-bg: #191919;
+    --card-bg: #1B1A20;
+    --card-border: #383342;
+    --card-shadow: 0 6px 20px rgba(0, 0, 0, 0.42);
+    --badge-bg: #243947;
+    --badge-fg: #9BD0F0;
+    --btn-hover-filter: brightness(1.08);
+    --pink-bg: #2E2028;
+    --pink-border: #4A313E;
+    --pink-fg: #F5A3BC;
+    --lav-bg: #282338;
+    --lav-border: #41385C;
+    --lav-fg: #C2BDF2;
+    --blue-bg: #1C2B36;
+    --blue-border: #2C4354;
+    --blue-fg: #9BD0F0;
+    --mint-bg: #1C352B;
+    --mint-border: #2E5243;
+    --mint-fg: #8EE0B5;
+    --gold-bg: #352F20;
+    --gold-border: #524830;
+    --gold-fg: #F2C46D;
+  }
+
+  html, body {
+    background: var(--page-bg);
+  }
+
   .link-card {
     width: 100%;
-    background: #FFFFFF;
-    border: 1.5px solid #F9E5E9;
+    background: var(--card-bg);
+    border: 1.5px solid var(--card-border);
     border-radius: 20px;
     padding: 11px 12px;
-    box-shadow: 0 4px 14px rgba(244, 182, 198, 0.08);
+    box-shadow: var(--card-shadow);
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -38,8 +120,8 @@
     font-weight: 800;
     padding: 2.5px 8px;
     border-radius: 7px;
-    background: #E4F1FA;
-    color: #3D7496;
+    background: var(--badge-bg);
+    color: var(--badge-fg);
   }
   .grid {
     display: grid;
@@ -59,14 +141,33 @@
   }
   .q-btn:hover {
     transform: translateY(-1px);
-    filter: brightness(0.97);
+    filter: var(--btn-hover-filter);
   }
   .q-wide { grid-column: span 2; }
-  .q-pink { background: #FDF3F6; border: 1px solid #F5DCE3; color: #C95B7A; }
-  .q-lav  { background: #F6F3FD; border: 1px solid #E5DDF7; color: #6B56A8; }
-  .q-blue { background: #F3F9FD; border: 1px solid #DCECF7; color: #3D7496; }
-  .q-mint { background: #F3FAF6; border: 1px solid #DCEEE3; color: #3D7A56; }
-  .q-gold { background: #FCF8EE; border: 1px solid #F2E6C8; color: #A87620; }
+  .q-pink { background: var(--pink-bg); border: 1px solid var(--pink-border); color: var(--pink-fg); }
+  .q-lav  { background: var(--lav-bg);  border: 1px solid var(--lav-border);  color: var(--lav-fg); }
+  .q-blue { background: var(--blue-bg); border: 1px solid var(--blue-border); color: var(--blue-fg); }
+  .q-mint { background: var(--mint-bg); border: 1px solid var(--mint-border); color: var(--mint-fg); }
+  .q-gold { background: var(--gold-bg); border: 1px solid var(--gold-border); color: var(--gold-fg); }
+
+  @media (max-width: 480px) {
+    body {
+      padding: 2px;
+    }
+    .link-card {
+      border-radius: 16px;
+      padding: 9px 10px;
+      gap: 6px;
+    }
+    .grid {
+      gap: 5px;
+    }
+    .q-btn {
+      padding: 6px 5px;
+      border-radius: 9px;
+      font-size: 10px;
+    }
+  }
 </style>
 </head>
 <body>
@@ -82,5 +183,12 @@
       <a class="q-btn q-gold q-wide" href="https://lostark.game.onstove.com" target="_blank" rel="noopener noreferrer">공식홈</a>
     </div>
   </div>
+
+<script>
+  (function applyThemeParam() {
+    const t = new URLSearchParams(location.search).get("theme");
+    if (t === "dark" || t === "light") document.documentElement.setAttribute("data-theme", t);
+  })();
+</script>
 </body>
 </html>
