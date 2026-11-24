@@ -9,69 +9,144 @@
   html, body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; background: transparent; width: 100%; overflow-x: hidden; }
   body { padding: 6px; }
 
+  :root {
+    --page-bg: transparent;
+    --box-bg: #FFFDFB;
+    --box-border: #FADADD;
+    --box-shadow: 0 6px 20px rgba(244, 162, 184, 0.14);
+    --scroll-track: #FFF5F7;
+    --scroll-thumb: #F2DCE2;
+    --card-bg: #FFFFFF;
+    --card-border: #FCE4E8;
+    --card-hover-border: #F29CB4;
+    --card-hover-shadow: 0 6px 14px rgba(244, 151, 182, 0.22);
+    --thumb-bg: #FFF5F7;
+    --meta-bg: #FFFDFC;
+    --title-fg: #4A4442;
+    --date-fg: #C95B7A;
+    --date-bg: #FFF0F3;
+    --date-border: #FADADD;
+    --empty-fg: #B8AFA9;
+    --modal-backdrop: rgba(65, 52, 56, 0.55);
+    --modal-bg: #FFFDFB;
+    --modal-border: #FADADD;
+    --modal-shadow: 0 14px 36px rgba(0, 0, 0, 0.2);
+    --modal-title-fg: #5C5552;
+    --modal-date-fg: #D96B8A;
+    --close-bg: rgba(255, 253, 251, 0.92);
+    --close-fg: #D96B8A;
+    --close-hover-bg: #FADADD;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --page-bg: #191919;
+      --box-bg: #1B1A20;
+      --box-border: #383342;
+      --box-shadow: 0 6px 20px rgba(0, 0, 0, 0.42);
+      --scroll-track: #222128;
+      --scroll-thumb: #4B3846;
+      --card-bg: #24232B;
+      --card-border: #3A3646;
+      --card-hover-border: #F28BA8;
+      --card-hover-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+      --thumb-bg: #2B2933;
+      --meta-bg: #24232B;
+      --title-fg: #F4F2F8;
+      --date-fg: #F5A3BC;
+      --date-bg: #36222B;
+      --date-border: #573644;
+      --empty-fg: #878296;
+      --modal-backdrop: rgba(10, 9, 13, 0.72);
+      --modal-bg: #1B1A20;
+      --modal-border: #4A343D;
+      --modal-shadow: 0 14px 36px rgba(0, 0, 0, 0.6);
+      --modal-title-fg: #F4F2F8;
+      --modal-date-fg: #F5A3BC;
+      --close-bg: rgba(36, 35, 43, 0.92);
+      --close-fg: #F5A3BC;
+      --close-hover-bg: #3B252E;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --page-bg: #191919;
+    --box-bg: #1B1A20;
+    --box-border: #383342;
+    --box-shadow: 0 6px 20px rgba(0, 0, 0, 0.42);
+    --scroll-track: #222128;
+    --scroll-thumb: #4B3846;
+    --card-bg: #24232B;
+    --card-border: #3A3646;
+    --card-hover-border: #F28BA8;
+    --card-hover-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+    --thumb-bg: #2B2933;
+    --meta-bg: #24232B;
+    --title-fg: #F4F2F8;
+    --date-fg: #F5A3BC;
+    --date-bg: #36222B;
+    --date-border: #573644;
+    --empty-fg: #878296;
+    --modal-backdrop: rgba(10, 9, 13, 0.72);
+    --modal-bg: #1B1A20;
+    --modal-border: #4A343D;
+    --modal-shadow: 0 14px 36px rgba(0, 0, 0, 0.6);
+    --modal-title-fg: #F4F2F8;
+    --modal-date-fg: #F5A3BC;
+    --close-bg: rgba(36, 35, 43, 0.92);
+    --close-fg: #F5A3BC;
+    --close-hover-bg: #3B252E;
+  }
+
+  html, body {
+    background: var(--page-bg);
+  }
+
   .gallery-box {
     width: 100%;
-    background: #FFFDFB;
-    border: 1.5px solid #FADADD;
+    background: var(--box-bg);
+    border: 1.5px solid var(--box-border);
     border-radius: 22px;
-    padding: 14px;
-    box-shadow: 0 6px 20px rgba(244, 162, 184, 0.14);
+    padding: 12px;
+    box-shadow: var(--box-shadow);
     display: flex;
     flex-direction: column;
-    gap: 10px;
   }
 
-  .g-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-  }
-  .g-badge {
-    font-size: 10.5px;
-    font-weight: 800;
-    padding: 3px 9px;
-    border-radius: 8px;
-    background: #FCE6ED;
-    color: #C95B7A;
-  }
-  .g-count {
-    font-size: 10px;
-    font-weight: 800;
-    color: #9A908D;
-  }
-
+  /* 1열(가로 1줄) 스트립 배치 */
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(116px, 1fr));
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(122px, 148px);
     gap: 10px;
-    max-height: 230px;
-    overflow-y: auto;
-    padding-right: 4px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 6px;
   }
-  .grid::-webkit-scrollbar { width: 4px; }
-  .grid::-webkit-scrollbar-thumb { background: #F2DCE2; border-radius: 999px; }
+  .grid::-webkit-scrollbar { height: 5px; }
+  .grid::-webkit-scrollbar-track { background: var(--scroll-track); border-radius: 999px; }
+  .grid::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 999px; }
 
   .g-card {
     display: flex;
     flex-direction: column;
     border-radius: 14px;
     overflow: hidden;
-    border: 1.5px solid #FCE4E8;
-    background: #FFFFFF;
+    border: 1.5px solid var(--card-border);
+    background: var(--card-bg);
     cursor: pointer;
     transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
   }
   .g-card:hover {
     transform: translateY(-2px);
-    border-color: #F29CB4;
-    box-shadow: 0 6px 14px rgba(244, 151, 182, 0.22);
+    border-color: var(--card-hover-border);
+    box-shadow: var(--card-hover-shadow);
   }
 
   .g-thumb {
     width: 100%;
     aspect-ratio: 4 / 3;
-    background: #FFF5F7;
+    background: var(--thumb-bg);
     overflow: hidden;
   }
   .g-thumb img {
@@ -86,12 +161,12 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
-    background: #FFFDFC;
+    background: var(--meta-bg);
   }
   .g-title {
     font-size: 11px;
     font-weight: 800;
-    color: #4A4442;
+    color: var(--title-fg);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -100,9 +175,9 @@
     align-self: flex-start;
     font-size: 9.5px;
     font-weight: 700;
-    color: #C95B7A;
-    background: #FFF0F3;
-    border: 1px solid #FADADD;
+    color: var(--date-fg);
+    background: var(--date-bg);
+    border: 1px solid var(--date-border);
     padding: 1px 6px;
     border-radius: 999px;
   }
@@ -110,8 +185,8 @@
   .empty {
     text-align: center;
     font-size: 12px;
-    color: #B8AFA9;
-    padding: 28px 10px;
+    color: var(--empty-fg);
+    padding: 24px 10px;
   }
 
   /* 원본 크게 보기 모달 */
@@ -119,7 +194,7 @@
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(65, 52, 56, 0.55);
+    background: var(--modal-backdrop);
     backdrop-filter: blur(4px);
     z-index: 999;
     align-items: center;
@@ -130,8 +205,8 @@
 
   .modal-card {
     position: relative;
-    background: #FFFDFB;
-    border: 2px solid #FADADD;
+    background: var(--modal-bg);
+    border: 2px solid var(--modal-border);
     border-radius: 22px;
     padding: 12px;
     max-width: 92vw;
@@ -139,7 +214,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--modal-shadow);
     animation: popIn 0.18s ease;
   }
   @keyframes popIn { from { transform: scale(0.94); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -164,7 +239,7 @@
   .modal-title {
     font-size: 12.5px;
     font-weight: 700;
-    color: #5C5552;
+    color: var(--modal-title-fg);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -172,9 +247,9 @@
   .modal-date {
     font-size: 11px;
     font-weight: 700;
-    color: #D96B8A;
-    background: #FFF0F3;
-    border: 1px solid #FADADD;
+    color: var(--modal-date-fg);
+    background: var(--date-bg);
+    border: 1px solid var(--date-border);
     padding: 2px 9px;
     border-radius: 999px;
     flex-shrink: 0;
@@ -186,9 +261,9 @@
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    border: 1.5px solid #FADADD;
-    background: rgba(255, 253, 251, 0.92);
-    color: #D96B8A;
+    border: 1.5px solid var(--modal-border);
+    background: var(--close-bg);
+    color: var(--close-fg);
     font-size: 14px;
     font-weight: 800;
     cursor: pointer;
@@ -196,15 +271,39 @@
     align-items: center;
     justify-content: center;
   }
-  .close-btn:hover { background: #FADADD; }
+  .close-btn:hover { background: var(--close-hover-bg); }
+
+  @media (max-width: 480px) {
+    body {
+      padding: 2px;
+    }
+    .gallery-box {
+      border-radius: 16px;
+      padding: 8px;
+    }
+    .grid {
+      grid-auto-columns: minmax(104px, 122px);
+      gap: 7px;
+    }
+    .g-card {
+      border-radius: 11px;
+    }
+    .g-meta {
+      padding: 5px 7px;
+      gap: 3px;
+    }
+    .g-title {
+      font-size: 10px;
+    }
+    .g-date {
+      font-size: 8.5px;
+      padding: 1px 5px;
+    }
+  }
 </style>
 </head>
 <body>
   <div class="gallery-box">
-    <div class="g-head">
-      <span class="g-badge">갤러리</span>
-      <span class="g-count" id="gCount"></span>
-    </div>
     <div id="content"><div class="empty">사진을 불러오는 중...</div></div>
   </div>
 
@@ -220,6 +319,11 @@
   </div>
 
 <script>
+  (function applyThemeParam() {
+    const t = new URLSearchParams(location.search).get("theme");
+    if (t === "dark" || t === "light") document.documentElement.setAttribute("data-theme", t);
+  })();
+
   const GALLERY_API = "https://notion-cal.binhaha329.workers.dev/gallery";
   const modal = document.getElementById("photoModal");
   const modalImg = document.getElementById("modalImg");
@@ -249,18 +353,14 @@
 
   async function loadGallery() {
     const box = document.getElementById("content");
-    const countEl = document.getElementById("gCount");
     try {
       const res = await fetch(`${GALLERY_API}?t=${Date.now()}`);
       const photos = await res.json();
 
       if (!Array.isArray(photos) || photos.length === 0) {
-        countEl.textContent = "";
         box.innerHTML = `<div class="empty">노션 갤러리 DB에 사진을 올려보세요</div>`;
         return;
       }
-
-      countEl.textContent = `${photos.length}장`;
 
       const grid = document.createElement("div");
       grid.className = "grid";
@@ -302,7 +402,6 @@
       box.innerHTML = "";
       box.appendChild(grid);
     } catch (e) {
-      countEl.textContent = "";
       box.innerHTML = `<div class="empty">사진을 불러오지 못했습니다</div>`;
     }
   }
