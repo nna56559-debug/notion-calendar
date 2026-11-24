@@ -48,17 +48,26 @@
     --high-bg: #FFF8D6;
     --high-border: #F3DF8A;
     --high-fg: #9E7200;
+    --high-chip-bg: #EAB308;
+    --high-chip-fg: #FFFFFF;
     --mid-bg: #F5EEFF;
     --mid-border: #E0CEF7;
     --mid-fg: #6E42A8;
+    --mid-chip-bg: #9333EA;
+    --mid-chip-fg: #FFFFFF;
     --low-bg: #EAF6FF;
     --low-border: #CBE6FA;
     --low-fg: #2E6F9E;
+    --low-chip-bg: #0284C7;
+    --low-chip-fg: #FFFFFF;
     --grid-bg: #F0F9FF;
     --grid-border: #CBE8FA;
     --grid-fg: #266A99;
     --grid-bold: #1A4E75;
     --grid-dot: #38BDF8;
+    --br-box-bg: #FAF9FB;
+    --br-box-border: #EFEAF3;
+    --br-name-fg: #4A4442;
     --gem-bg: #FDF4F7;
     --gem-border: #F5DCE3;
     --gem-fg: #C95B7A;
@@ -106,17 +115,26 @@
       --high-bg: #3B321B;
       --high-border: #5E4F29;
       --high-fg: #F7D477;
+      --high-chip-bg: #CA8A04;
+      --high-chip-fg: #FFFDF5;
       --mid-bg: #2C2440;
       --mid-border: #483A69;
       --mid-fg: #CBB8FA;
+      --mid-chip-bg: #9333EA;
+      --mid-chip-fg: #FAF5FF;
       --low-bg: #1C2E3D;
       --low-border: #2C4961;
       --low-fg: #9AD2F5;
+      --low-chip-bg: #0284C7;
+      --low-chip-fg: #F0F9FF;
       --grid-bg: #1B2D3B;
       --grid-border: #2B475C;
       --grid-fg: #9BD0F0;
       --grid-bold: #E2F3FD;
       --grid-dot: #56CCF2;
+      --br-box-bg: #24232B;
+      --br-box-border: #3A3646;
+      --br-name-fg: #F4F2F8;
       --gem-bg: #2E2028;
       --gem-border: #4A313E;
       --gem-fg: #F5A3BC;
@@ -164,17 +182,26 @@
     --high-bg: #3B321B;
     --high-border: #5E4F29;
     --high-fg: #F7D477;
+    --high-chip-bg: #CA8A04;
+    --high-chip-fg: #FFFDF5;
     --mid-bg: #2C2440;
     --mid-border: #483A69;
     --mid-fg: #CBB8FA;
+    --mid-chip-bg: #9333EA;
+    --mid-chip-fg: #FAF5FF;
     --low-bg: #1C2E3D;
     --low-border: #2C4961;
     --low-fg: #9AD2F5;
+    --low-chip-bg: #0284C7;
+    --low-chip-fg: #F0F9FF;
     --grid-bg: #1B2D3B;
     --grid-border: #2B475C;
     --grid-fg: #9BD0F0;
     --grid-bold: #E2F3FD;
     --grid-dot: #56CCF2;
+    --br-box-bg: #24232B;
+    --br-box-border: #3A3646;
+    --br-name-fg: #F4F2F8;
     --gem-bg: #2E2028;
     --gem-border: #4A313E;
     --gem-fg: #F5A3BC;
@@ -401,6 +428,55 @@
     color: var(--grid-bold);
   }
 
+  /* 로아와 스타일 팔찌 (특성 / 1옵션 2옵션 3옵션 한 줄) */
+  .br-box {
+    background: var(--br-box-bg);
+    border: 1px solid var(--br-box-border);
+    border-radius: 8px;
+    padding: 5px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .br-line {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .br-line::-webkit-scrollbar { display: none; }
+  .br-group-tag {
+    font-size: 8.5px;
+    font-weight: 800;
+    color: var(--sec-label);
+    flex-shrink: 0;
+  }
+  .br-entry {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 9px;
+    font-weight: 800;
+    color: var(--br-name-fg);
+    flex-shrink: 0;
+  }
+  .br-grade {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    font-weight: 900;
+    line-height: 1;
+    padding: 2px 3.5px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .br-grade.high { background: var(--high-chip-bg); color: var(--high-chip-fg); }
+  .br-grade.mid  { background: var(--mid-chip-bg);  color: var(--mid-chip-fg); }
+  .br-grade.low  { background: var(--low-chip-bg);  color: var(--low-chip-fg); }
+
   .gem-pill {
     font-size: 9px;
     font-weight: 800;
@@ -490,12 +566,13 @@
   })();
 
   const API_BASE = "https://notion-cal.binhaha329.workers.dev";
+  const STATS_KEYWORDS = ["치명", "특화", "신속", "제압", "인내", "숙련"];
 
   function buildEquipments(data) {
     const rawList = Array.isArray(data.equipments) ? [...data.equipments] : [];
     const hasGauntlet = rawList.some(e => e && String(e.part || "").includes("완갑"));
     if (!hasGauntlet) {
-      const extraGauntlet = data.gauntlet || data.bracer || null;
+      const extraGauntlet = data.gauntlet || null;
       if (extraGauntlet && typeof extraGauntlet === "object") {
         rawList.push({
           part: extraGauntlet.part || "완갑",
@@ -507,6 +584,93 @@
       }
     }
     return rawList;
+  }
+
+  function normalizeGrade(rawTier, text) {
+    const t = String(rawTier || "").toLowerCase();
+    if (t === "high" || t === "상" || t === "3") return "high";
+    if (t === "mid" || t === "중" || t === "2") return "mid";
+    if (t === "low" || t === "하" || t === "1") return "low";
+
+    if (/(?:^|\s|\[|\()상(?:$|\s|\]|\))/.test(text) || text.endsWith("상")) return "high";
+    if (/(?:^|\s|\[|\()중(?:$|\s|\]|\))/.test(text) || text.endsWith("중")) return "mid";
+    if (/(?:^|\s|\[|\()하(?:$|\s|\]|\))/.test(text) || text.endsWith("하")) return "low";
+    return "";
+  }
+
+  function gradeLabel(grade) {
+    if (grade === "high") return "상";
+    if (grade === "mid") return "중";
+    if (grade === "low") return "하";
+    return "";
+  }
+
+  function cleanOptionLabel(rawText) {
+    return String(rawText || "")
+      .replace(/\s*[+\-]?\d+(?:\.\d+)?%?\s*$/, "")
+      .replace(/\s*[\[(]?(?:상|중|하)[\])]?\s*$/g, "")
+      .trim();
+  }
+
+  function parseBraceletEntry(item) {
+    if (!item) return null;
+    if (typeof item === "string") {
+      const s = item.trim();
+      if (!s) return null;
+      const grade = normalizeGrade("", s);
+      const label = cleanOptionLabel(s) || s;
+      const isStat = STATS_KEYWORDS.some(k => label === k || label.startsWith(k + " "));
+      return { label, grade, isStat };
+    }
+    if (typeof item === "object") {
+      const rawText = String(item.text || item.label || item.name || item.option || "").trim();
+      if (!rawText) return null;
+      const grade = normalizeGrade(item.tier || item.grade, rawText);
+      const label = cleanOptionLabel(rawText) || rawText;
+      const isStat = typeof item.isStat === "boolean"
+        ? item.isStat
+        : STATS_KEYWORDS.some(k => label === k || label.startsWith(k + " "));
+      return { label, grade, isStat };
+    }
+    return null;
+  }
+
+  function buildBraceletData(data) {
+    const br = data.bracelet;
+    const stats = [];
+    const options = [];
+    if (!br) return { stats, options };
+
+    let rawItems = [];
+    if (Array.isArray(br)) {
+      rawItems = br;
+    } else if (typeof br === "string") {
+      rawItems = br.split(/[·|\n,]/);
+    } else if (typeof br === "object") {
+      if (Array.isArray(br.stats)) {
+        br.stats.forEach(s => {
+          const parsed = parseBraceletEntry(s);
+          if (parsed) stats.push({ ...parsed, isStat: true });
+        });
+      }
+      const list = Array.isArray(br.options) ? br.options : (Array.isArray(br.opts) ? br.opts : []);
+      rawItems = list;
+    }
+
+    rawItems.forEach(item => {
+      const parsed = parseBraceletEntry(item);
+      if (!parsed) return;
+      if (parsed.isStat) stats.push(parsed);
+      else options.push(parsed);
+    });
+
+    return { stats, options: options.slice(0, 3) };
+  }
+
+  function renderBraceletEntryHtml(entry) {
+    const gl = gradeLabel(entry.grade);
+    const chipHtml = gl ? `<span class="br-grade ${entry.grade}">${gl}</span>` : "";
+    return `<span class="br-entry">${entry.label}${chipHtml}</span>`;
   }
 
   function formatGemPills(list) {
@@ -570,6 +734,27 @@
             ).join("")
           : `<span class="grid-pill">미적용</span>`;
 
+        const brData = buildBraceletData(data);
+        const brStatsHtml = brData.stats.length > 0
+          ? brData.stats.map(renderBraceletEntryHtml).join("")
+          : `<span class="br-entry">-</span>`;
+        const brOptsHtml = brData.options.length > 0
+          ? brData.options.map(renderBraceletEntryHtml).join("")
+          : `<span class="br-entry">-</span>`;
+
+        const brHtml = `
+          <div class="br-box">
+            <div class="br-line">
+              <span class="br-group-tag">특성</span>
+              ${brStatsHtml}
+            </div>
+            <div class="br-line">
+              <span class="br-group-tag">옵션</span>
+              ${brOptsHtml}
+            </div>
+          </div>
+        `;
+
         const sourceGems = (Array.isArray(data.gems) && data.gems.length > 0)
           ? data.gems
           : (Array.isArray(data.boundGems) ? data.boundGems : []);
@@ -600,6 +785,11 @@
           <div class="sec-row">
             <span class="sec-label">아크 그리드</span>
             <div class="tag-wrap">${gridHtml}</div>
+          </div>
+
+          <div class="sec-row">
+            <span class="sec-label">팔찌</span>
+            ${brHtml}
           </div>
 
           <div class="sec-row">
