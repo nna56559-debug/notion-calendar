@@ -361,7 +361,8 @@
     background: var(--acc-bg);
     border: 1px solid var(--acc-border);
     border-radius: 7px;
-    padding: 2.5px 7px;
+    padding: 3px 7px;
+    flex-wrap: wrap;
   }
   .acc-part {
     font-weight: 800;
@@ -373,12 +374,15 @@
     flex-wrap: wrap;
     justify-content: flex-end;
     gap: 3px;
+    flex: 1;
+    min-width: 0;
   }
   .opt-pill {
     font-size: 8.5px;
     font-weight: 800;
-    padding: 1px 5px;
+    padding: 1.5px 5.5px;
     border-radius: 5px;
+    white-space: nowrap;
   }
   .opt-high { background: var(--high-bg); border: 1px solid var(--high-border); color: var(--high-fg); }
   .opt-mid  { background: var(--mid-bg); border: 1px solid var(--mid-border); color: var(--mid-fg); }
@@ -419,18 +423,20 @@
   .br-line {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 4px;
-    white-space: nowrap;
-    overflow-x: auto;
-    scrollbar-width: none;
   }
-  .br-line::-webkit-scrollbar { display: none; }
   .br-pill {
     font-size: 8.5px;
     font-weight: 800;
     padding: 1.5px 5.5px;
     border-radius: 5px;
-    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .br-empty {
+    font-size: 8.5px;
+    font-weight: 700;
+    color: var(--empty-fg);
   }
 
   .gem-pill {
@@ -564,21 +570,23 @@
     const br = data.bracelet;
     const stats = [];
     const options = [];
-    if (!br || typeof br !== "object") return { stats, options };
+    const hasBraceletField = Boolean(br && typeof br === "object");
 
-    if (Array.isArray(br.stats)) {
-      br.stats.forEach(s => {
-        const p = parseBraceletItem(s);
-        if (p) stats.push({ text: p.text, tier: p.tier });
-      });
+    if (hasBraceletField) {
+      if (Array.isArray(br.stats)) {
+        br.stats.forEach(s => {
+          const p = parseBraceletItem(s);
+          if (p) stats.push({ text: p.text, tier: p.tier });
+        });
+      }
+      if (Array.isArray(br.options)) {
+        br.options.forEach(o => {
+          const p = parseBraceletItem(o);
+          if (p) options.push({ text: p.text, tier: p.tier });
+        });
+      }
     }
-    if (Array.isArray(br.options)) {
-      br.options.forEach(o => {
-        const p = parseBraceletItem(o);
-        if (p) options.push({ text: p.text, tier: p.tier });
-      });
-    }
-    return { stats, options };
+    return { stats, options, hasBraceletField };
   }
 
   function formatGemPills(list) {
@@ -653,6 +661,9 @@
           brLines.push(
             `<div class="br-line">${brData.options.map(o => `<span class="br-pill opt-${o.tier}">${o.text}</span>`).join("")}</div>`
           );
+        }
+        if (brLines.length === 0 && brData.hasBraceletField) {
+          brLines.push(`<div class="br-line"><span class="br-empty">등록된 특성/옵션 없음</span></div>`);
         }
         const brHtml = brLines.length > 0
           ? `<div class="sec-row"><span class="sec-label">팔찌</span><div class="br-box">${brLines.join("")}</div></div>`
