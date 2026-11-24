@@ -41,8 +41,8 @@
     --title-ph: #C5BCBA;
     --pink-focus-bg: #FFF8FA;
     --green-focus-bg: #F4FBF6;
-    --del-fg: #B8AFA9;
-    --del-hover-fg: #D96B8A;
+    --act-fg: #B8AFA9;
+    --act-hover-fg: #D96B8A;
     --note-fg: #8A817C;
     --note-ph: #CBC4C0;
     --note-focus-bg: #F9F7F6;
@@ -73,8 +73,8 @@
       --title-ph: #7C778C;
       --pink-focus-bg: #2D232B;
       --green-focus-bg: #212E28;
-      --del-fg: #8E899E;
-      --del-hover-fg: #F5A3BC;
+      --act-fg: #8E899E;
+      --act-hover-fg: #F5A3BC;
       --note-fg: #B5B0C4;
       --note-ph: #736E82;
       --note-focus-bg: #2C2A35;
@@ -105,8 +105,8 @@
     --title-ph: #7C778C;
     --pink-focus-bg: #2D232B;
     --green-focus-bg: #212E28;
-    --del-fg: #8E899E;
-    --del-hover-fg: #F5A3BC;
+    --act-fg: #8E899E;
+    --act-hover-fg: #F5A3BC;
     --note-fg: #B5B0C4;
     --note-ph: #736E82;
     --note-focus-bg: #2C2A35;
@@ -114,9 +114,7 @@
     --empty-fg: #878296;
   }
 
-  html, body {
-    background: var(--page-bg);
-  }
+  html, body { background: var(--page-bg); }
 
   .board-box {
     width: 100%;
@@ -197,18 +195,24 @@
   .m-title:focus { background: var(--pink-focus-bg); }
   .green .m-title:focus { background: var(--green-focus-bg); }
 
-  .del-btn {
+  .m-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
     opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+  .m-card:hover .m-actions { opacity: 1; }
+  .act-btn {
     border: none;
     background: transparent;
-    color: var(--del-fg);
-    font-size: 11px;
+    color: var(--act-fg);
+    font-size: 10.5px;
     font-weight: 700;
     cursor: pointer;
     padding: 0 2px;
   }
-  .m-card:hover .del-btn { opacity: 1; }
-  .del-btn:hover { color: var(--del-hover-fg); }
+  .act-btn:hover { color: var(--act-hover-fg); }
 
   .m-note {
     margin-top: 3px;
@@ -226,36 +230,14 @@
   .empty-txt { text-align: center; font-size: 10px; color: var(--empty-fg); padding: 12px 0; }
 
   @media (max-width: 480px) {
-    body {
-      gap: 7px;
-      padding: 2px;
-    }
-    .board-box {
-      border-radius: 16px;
-      padding: 9px 10px;
-      gap: 6px;
-    }
-    .card-list {
-      gap: 5px;
-    }
-    .m-card {
-      border-radius: 11px;
-      padding: 7px 8px;
-    }
-    .m-title {
-      font-size: 10.5px;
-    }
-    .m-note {
-      font-size: 9px;
-    }
-    .del-btn {
-      opacity: 0.75;
-      padding: 0 3px;
-    }
-    .empty-txt {
-      padding: 8px 0;
-      font-size: 9.5px;
-    }
+    body { gap: 7px; padding: 2px; }
+    .board-box { border-radius: 16px; padding: 9px 10px; gap: 6px; }
+    .card-list { gap: 5px; }
+    .m-card { border-radius: 11px; padding: 7px 8px; }
+    .m-title { font-size: 10.5px; }
+    .m-note { font-size: 9px; }
+    .m-actions { opacity: 0.78; }
+    .empty-txt { padding: 8px 0; font-size: 9.5px; }
   }
 </style>
 </head>
@@ -283,40 +265,61 @@
   })();
 
   const API_BASE = "https://notion-cal.binhaha329.workers.dev";
-  const STORAGE_KEY = "notion_coupon_exchange_memos_v1";
-  const DELETED_KEY = "notion_coupon_exchange_deleted_v1";
+  const STORAGE_KEY = "notion_coupon_exchange_memos_v2";
+  const DELETED_KEY = "notion_coupon_exchange_deleted_v2";
+  const GROUP_MAP_KEY = "notion_coupon_exchange_groups_v1";
 
   let items = [];
   let deletedIds = new Set();
+  let groupOverrides = {};
 
-  function loadDeletedIds() {
+  function loadMeta() {
     try {
       const arr = JSON.parse(localStorage.getItem(DELETED_KEY) || "[]");
       if (Array.isArray(arr)) deletedIds = new Set(arr.map(String));
     } catch (e) {}
-  }
-
-  function saveDeletedIds() {
     try {
-      localStorage.setItem(DELETED_KEY, JSON.stringify([...deletedIds].slice(-200)));
+      const gm = JSON.parse(localStorage.getItem(GROUP_MAP_KEY) || "{}");
+      if (gm && typeof gm === "object") groupOverrides = gm;
     } catch (e) {}
   }
 
-  function normalizeGroup(g) {
-    const s = String(g || "").trim();
+  function saveMeta() {
+    try {
+      localStorage.setItem(DELETED_KEY, JSON.stringify([...deletedIds].slice(-200)));
+      localStorage.setItem(GROUP_MAP_KEY, JSON.stringify(groupOverrides));
+    } catch (e) {}
+  }
+
+  function resolveGroup(rawGroup, pageId, title) {
+    const s = String(rawGroup || "").trim();
     if (s.includes("교환")) return "교환";
     if (s.includes("쿠폰")) return "쿠폰";
-    return s || "쿠폰";
+    if (pageId && groupOverrides[pageId]) return groupOverrides[pageId];
+    if (title && groupOverrides[`title:${title.trim()}`]) return groupOverrides[`title:${title.trim()}`];
+    return "쿠폰";
+  }
+
+  function rememberGroup(item) {
+    if (!item) return;
+    if (item.pageId) groupOverrides[item.pageId] = item.group;
+    if (item.title && item.title.trim()) {
+      groupOverrides[`title:${item.title.trim()}`] = item.group;
+    }
+    saveMeta();
   }
 
   function sanitizeItem(raw) {
     if (!raw || typeof raw !== "object") return null;
     const pageId = String(raw.pageId || raw.id || "").trim();
     if (!pageId || deletedIds.has(pageId)) return null;
+    const title = String(raw.title ?? "");
+    const rawGroup = raw.group ?? raw.category ?? raw.type ?? raw.Group ?? "";
+    const group = resolveGroup(rawGroup, pageId, title);
     return {
       pageId,
-      title: String(raw.title ?? ""),
-      group: normalizeGroup(raw.group),
+      title,
+      group,
       note: String(raw.note ?? ""),
       updatedAt: Number(raw.updatedAt || Date.now()),
       _creating: null
@@ -339,15 +342,13 @@
   function loadLocalItems() {
     try {
       const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-      if (Array.isArray(parsed)) {
-        return parsed.map(sanitizeItem).filter(Boolean);
-      }
+      if (Array.isArray(parsed)) return parsed.map(sanitizeItem).filter(Boolean);
     } catch (e) {}
     return [];
   }
 
   async function loadMemos() {
-    loadDeletedIds();
+    loadMeta();
     const localList = loadLocalItems();
     if (localList.length > 0) {
       items = localList;
@@ -369,12 +370,10 @@
       for (const loc of items) {
         if (deletedIds.has(loc.pageId)) continue;
         if (!serverMap.has(loc.pageId)) {
-          merged.push({
-            ...loc,
-            _creating: loc._creating || null
-          });
+          merged.push({ ...loc, _creating: loc._creating || null });
         } else {
           const srv = serverMap.get(loc.pageId);
+          if (groupOverrides[loc.pageId]) srv.group = groupOverrides[loc.pageId];
           if ((loc.updatedAt || 0) > (srv.updatedAt || 0)) {
             srv.title = loc.title;
             srv.note = loc.note;
@@ -385,6 +384,7 @@
       }
 
       items = merged;
+      items.forEach(rememberGroup);
       saveLocalItems();
       render();
     } catch (e) {
@@ -393,7 +393,7 @@
   }
 
   function addCard(group) {
-    const normGroup = normalizeGroup(group);
+    const normGroup = group === "교환" ? "교환" : "쿠폰";
     const tempId = "temp_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6);
     const newItem = {
       pageId: tempId,
@@ -404,6 +404,7 @@
       _creating: null
     };
     items.push(newItem);
+    rememberGroup(newItem);
     saveLocalItems();
     render(tempId);
 
@@ -423,7 +424,7 @@
           const realId = String(data.pageId);
           if (deletedIds.has(tempId)) {
             deletedIds.add(realId);
-            saveDeletedIds();
+            saveMeta();
             return fetch(`${API_BASE}/memo`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -431,10 +432,9 @@
             }).catch(() => {});
           }
           newItem.pageId = realId;
+          rememberGroup(newItem);
           saveLocalItems();
-          if (newItem.title.trim() || newItem.note.trim()) {
-            return syncCard(newItem);
-          }
+          return syncCard(newItem);
         }
       })
       .catch(() => {})
@@ -446,17 +446,11 @@
   async function syncCard(item) {
     if (!item) return;
     item.updatedAt = Date.now();
+    rememberGroup(item);
     saveLocalItems();
 
-    if (item._creating) {
-      await item._creating;
-    }
-    if (!item.pageId || String(item.pageId).startsWith("temp_") || deletedIds.has(item.pageId)) {
-      return;
-    }
-
-    const titleToSave = item.title.trim() || "새 메모";
-    const noteToSave = item.note.trim();
+    if (item._creating) await item._creating;
+    if (!item.pageId || String(item.pageId).startsWith("temp_") || deletedIds.has(item.pageId)) return;
 
     try {
       await fetch(`${API_BASE}/memo`, {
@@ -465,37 +459,41 @@
         body: JSON.stringify({
           action: "update",
           pageId: item.pageId,
-          title: titleToSave,
-          note: noteToSave,
+          title: item.title.trim() || "새 메모",
+          note: item.note.trim(),
           group: item.group
         })
       });
     } catch (e) {}
   }
 
+  function moveCardGroup(item) {
+    item.group = item.group === "교환" ? "쿠폰" : "교환";
+    rememberGroup(item);
+    saveLocalItems();
+    render();
+    syncCard(item);
+  }
+
   async function deleteCard(item) {
     if (!item) return;
-    const oldId = item.pageId;
-    if (oldId) {
-      deletedIds.add(String(oldId));
-      saveDeletedIds();
+    if (item.pageId) {
+      deletedIds.add(String(item.pageId));
+      saveMeta();
     }
     items = items.filter(it => it !== item);
     saveLocalItems();
     render();
 
-    if (item._creating) {
-      await item._creating;
-    }
-    const finalId = item.pageId;
-    if (finalId && !String(finalId).startsWith("temp_")) {
-      deletedIds.add(String(finalId));
-      saveDeletedIds();
+    if (item._creating) await item._creating;
+    if (item.pageId && !String(item.pageId).startsWith("temp_")) {
+      deletedIds.add(String(item.pageId));
+      saveMeta();
       try {
         await fetch(`${API_BASE}/memo`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "delete", pageId: finalId })
+          body: JSON.stringify({ action: "delete", pageId: item.pageId })
         });
       } catch (e) {}
     }
@@ -504,7 +502,7 @@
   function renderGroup(groupName, containerId, focusPageId) {
     const el = document.getElementById(containerId);
     el.innerHTML = "";
-    const filtered = items.filter(it => normalizeGroup(it.group) === groupName);
+    const filtered = items.filter(it => it.group === groupName);
 
     if (filtered.length === 0) {
       el.innerHTML = `<div class="empty-txt">항목 없음</div>`;
@@ -533,6 +531,7 @@
         item.title = titleEl.textContent;
         item.note = noteEl.textContent;
         item.updatedAt = Date.now();
+        rememberGroup(item);
         saveLocalItems();
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(() => syncCard(item), 500);
@@ -541,6 +540,7 @@
         item.title = titleEl.textContent;
         item.note = noteEl.textContent;
         item.updatedAt = Date.now();
+        rememberGroup(item);
         saveLocalItems();
         clearTimeout(debounceTimer);
         syncCard(item);
@@ -557,14 +557,27 @@
         }
       };
 
+      const actions = document.createElement("div");
+      actions.className = "m-actions";
+
+      const moveBtn = document.createElement("button");
+      moveBtn.type = "button";
+      moveBtn.className = "act-btn";
+      moveBtn.title = item.group === "교환" ? "쿠폰으로 이동" : "교환으로 이동";
+      moveBtn.textContent = "⇄";
+      moveBtn.onclick = () => moveCardGroup(item);
+
       const del = document.createElement("button");
       del.type = "button";
-      del.className = "del-btn";
+      del.className = "act-btn";
       del.textContent = "×";
       del.onclick = () => deleteCard(item);
 
+      actions.appendChild(moveBtn);
+      actions.appendChild(del);
+
       top.appendChild(titleEl);
-      top.appendChild(del);
+      top.appendChild(actions);
       card.appendChild(top);
       card.appendChild(noteEl);
       el.appendChild(card);
