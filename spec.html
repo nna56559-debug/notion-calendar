@@ -617,7 +617,12 @@
       const data = await res.json();
 
       if (!data || !data.ok) {
-        area.innerHTML = `<div class="empty-txt">캐릭터 정보를 찾을 수 없어요</div>`;
+        const msg = data?.reason === "profile_status_503"
+          ? "로스트아크 서버 점검 중이에요"
+          : data?.reason === "profile_status_429"
+          ? "요청이 많아 잠시 후 다시 시도해 주세요"
+          : "캐릭터 정보를 찾을 수 없어요";
+        area.innerHTML = `<div class="empty-txt">${msg}</div>`;
       } else {
         const subParts = [data.server, data.job, data.guild ? `길드 ${data.guild}` : ""].filter(Boolean);
         const cpHtml = data.combatPower ? `<span class="cp-tag">전투력 ${data.combatPower}</span>` : "";
