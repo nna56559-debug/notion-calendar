@@ -9,6 +9,237 @@
   html, body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; background: transparent; width: 100%; overflow-x: hidden; }
   body { display: flex; justify-content: center; align-items: flex-start; padding: 6px; }
 
+  :root {
+    --page-bg: transparent;
+    --card-bg: #FFFFFF;
+    --card-border: #F9E5E9;
+    --card-shadow: 0 4px 18px rgba(244, 182, 198, 0.1);
+    --month-fg: #AED9EB;
+    --wk-fg: #AED9EB;
+    --wknd-fg: #E5A5B4;
+    --sel-bg: #FDF0F4;
+    --sel-outline: #F49BB8;
+    --day-fg: #4A4442;
+    --day-hover-bg: #FCEEF2;
+    --muted-fg: #B5AEAB;
+    --weekend-fg: #B85C6A;
+    --sel-day-fg: #D96B8A;
+    --dot-fg: #9ED5EB;
+    --reset-fg: #B5ABA8;
+    --nav-fg: #AED9EB;
+    --nav-hover-bg: #FCEEF2;
+    --nav-hover-fg: #E58FA7;
+    --detail-date-fg: #8AC8E4;
+    --count-bg: #FFF0F3;
+    --count-border: #F8DCE1;
+    --count-fg: #E07A8E;
+    --back-bg: #FFF5F7;
+    --back-border: #F6DCE2;
+    --back-fg: #D96B8A;
+    --scroll-thumb: #F5D5DE;
+    --empty-fg: #B8AFA9;
+    --ev-bg: #FFFFFF;
+    --ev-border: #EFECEB;
+    --ev-purple-bg: #F3EFFB;
+    --ev-yellow-bg: #FBF5DD;
+    --ev-pink-bg: #FBECEB;
+    --ev-title-fg: #3D3836;
+    --arrow-fg: #B8AFA9;
+    --time-bg: rgba(255,255,255,0.92);
+    --time-fg: #7C7470;
+    --chk-bg: rgba(255,255,255,0.92);
+    --chk-border: #E5A4B8;
+    --diff-bg: #E4D8F8;
+    --diff-fg: #684E94;
+    --diff-norm-bg: #F2E2B1;
+    --diff-norm-fg: #7D6A3B;
+    --diff-hard-bg: #F5D2D0;
+    --diff-hard-fg: #8C4A4A;
+    --prof-bg: #F4DFCC;
+    --prof-fg: #875A36;
+    --prof-bansuk-bg: #D1E6F9;
+    --prof-bansuk-fg: #366494;
+    --prof-clgyeong-bg: #D5E8DC;
+    --prof-clgyeong-fg: #3A6B4C;
+    --prof-try-bg: #E5E4E2;
+    --prof-try-fg: #6B6866;
+    --dealer-bg: #FADCE2;
+    --dealer-fg: #B8526A;
+    --supp-bg: #D5F2E1;
+    --supp-fg: #337D54;
+    --p-card-bg: #FDFBFC;
+    --p-card-border: #F5E6EA;
+    --p-friend-bg: #E8F1F8;
+    --p-friend-fg: #6B8BA4;
+    --p-spec-fg: #7C7572;
+    --p-memo-bg: #F9EFE2;
+    --p-memo-fg: #8A6A46;
+    --col-empty-bg: #FDF9FA;
+    --col-empty-border: #F2DCE2;
+    --empty-apply-bg: #FDF8F9;
+    --empty-apply-border: #F3D9E0;
+    --empty-apply-fg: #9E9390;
+    --gmemo-bg: #FDF8F9;
+    --gmemo-border: #F5E6EA;
+    --gmemo-fg: #6B625F;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --page-bg: #191919;
+      --card-bg: #1B1A20;
+      --card-border: #383342;
+      --card-shadow: 0 6px 20px rgba(0, 0, 0, 0.42);
+      --month-fg: #9BD0F0;
+      --wk-fg: #9BD0F0;
+      --wknd-fg: #F5A3BC;
+      --sel-bg: #2E2028;
+      --sel-outline: #F28BA8;
+      --day-fg: #EFEAF0;
+      --day-hover-bg: #2A2229;
+      --muted-fg: #7C7582;
+      --weekend-fg: #F29BB5;
+      --sel-day-fg: #F5A3BC;
+      --dot-fg: #9BD0F0;
+      --reset-fg: #9E95A4;
+      --nav-fg: #9BD0F0;
+      --nav-hover-bg: #2A2229;
+      --nav-hover-fg: #F5A3BC;
+      --detail-date-fg: #9BD0F0;
+      --count-bg: #36222B;
+      --count-border: #573644;
+      --count-fg: #F5A3BC;
+      --back-bg: #2E2028;
+      --back-border: #4D3340;
+      --back-fg: #F5A3BC;
+      --scroll-thumb: #4B3846;
+      --empty-fg: #878296;
+      --ev-bg: #24232B;
+      --ev-border: #3A3646;
+      --ev-purple-bg: #282338;
+      --ev-yellow-bg: #332D1E;
+      --ev-pink-bg: #332229;
+      --ev-title-fg: #F4F2F8;
+      --arrow-fg: #9A95A8;
+      --time-bg: rgba(27,26,32,0.88);
+      --time-fg: #D5CFE0;
+      --chk-bg: #2A232B;
+      --chk-border: #784D5C;
+      --diff-bg: #332B4A;
+      --diff-fg: #C8B8F5;
+      --diff-norm-bg: #3B331E;
+      --diff-norm-fg: #E8CA78;
+      --diff-hard-bg: #3D2426;
+      --diff-hard-fg: #F5A3A8;
+      --prof-bg: #382A1E;
+      --prof-fg: #F2C08A;
+      --prof-bansuk-bg: #1E3142;
+      --prof-bansuk-fg: #9BD0F0;
+      --prof-clgyeong-bg: #1D352B;
+      --prof-clgyeong-fg: #8EE0B5;
+      --prof-try-bg: #312F3A;
+      --prof-try-fg: #C5C0D2;
+      --dealer-bg: #3B222B;
+      --dealer-fg: #F5A3BC;
+      --supp-bg: #1C352B;
+      --supp-fg: #8EE0B5;
+      --p-card-bg: #24232B;
+      --p-card-border: #3A3646;
+      --p-friend-bg: #1E3142;
+      --p-friend-fg: #9BD0F0;
+      --p-spec-fg: #B8B2C6;
+      --p-memo-bg: #352D20;
+      --p-memo-fg: #F2C46D;
+      --col-empty-bg: #222128;
+      --col-empty-border: #383342;
+      --empty-apply-bg: #222128;
+      --empty-apply-border: #383342;
+      --empty-apply-fg: #9A95A8;
+      --gmemo-bg: #24232B;
+      --gmemo-border: #3A3646;
+      --gmemo-fg: #D5CFE0;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --page-bg: #191919;
+    --card-bg: #1B1A20;
+    --card-border: #383342;
+    --card-shadow: 0 6px 20px rgba(0, 0, 0, 0.42);
+    --month-fg: #9BD0F0;
+    --wk-fg: #9BD0F0;
+    --wknd-fg: #F5A3BC;
+    --sel-bg: #2E2028;
+    --sel-outline: #F28BA8;
+    --day-fg: #EFEAF0;
+    --day-hover-bg: #2A2229;
+    --muted-fg: #7C7582;
+    --weekend-fg: #F29BB5;
+    --sel-day-fg: #F5A3BC;
+    --dot-fg: #9BD0F0;
+    --reset-fg: #9E95A4;
+    --nav-fg: #9BD0F0;
+    --nav-hover-bg: #2A2229;
+    --nav-hover-fg: #F5A3BC;
+    --detail-date-fg: #9BD0F0;
+    --count-bg: #36222B;
+    --count-border: #573644;
+    --count-fg: #F5A3BC;
+    --back-bg: #2E2028;
+    --back-border: #4D3340;
+    --back-fg: #F5A3BC;
+    --scroll-thumb: #4B3846;
+    --empty-fg: #878296;
+    --ev-bg: #24232B;
+    --ev-border: #3A3646;
+    --ev-purple-bg: #282338;
+    --ev-yellow-bg: #332D1E;
+    --ev-pink-bg: #332229;
+    --ev-title-fg: #F4F2F8;
+    --arrow-fg: #9A95A8;
+    --time-bg: rgba(27,26,32,0.88);
+    --time-fg: #D5CFE0;
+    --chk-bg: #2A232B;
+    --chk-border: #784D5C;
+    --diff-bg: #332B4A;
+    --diff-fg: #C8B8F5;
+    --diff-norm-bg: #3B331E;
+    --diff-norm-fg: #E8CA78;
+    --diff-hard-bg: #3D2426;
+    --diff-hard-fg: #F5A3A8;
+    --prof-bg: #382A1E;
+    --prof-fg: #F2C08A;
+    --prof-bansuk-bg: #1E3142;
+    --prof-bansuk-fg: #9BD0F0;
+    --prof-clgyeong-bg: #1D352B;
+    --prof-clgyeong-fg: #8EE0B5;
+    --prof-try-bg: #312F3A;
+    --prof-try-fg: #C5C0D2;
+    --dealer-bg: #3B222B;
+    --dealer-fg: #F5A3BC;
+    --supp-bg: #1C352B;
+    --supp-fg: #8EE0B5;
+    --p-card-bg: #24232B;
+    --p-card-border: #3A3646;
+    --p-friend-bg: #1E3142;
+    --p-friend-fg: #9BD0F0;
+    --p-spec-fg: #B8B2C6;
+    --p-memo-bg: #352D20;
+    --p-memo-fg: #F2C46D;
+    --col-empty-bg: #222128;
+    --col-empty-border: #383342;
+    --empty-apply-bg: #222128;
+    --empty-apply-border: #383342;
+    --empty-apply-fg: #9A95A8;
+    --gmemo-bg: #24232B;
+    --gmemo-border: #3A3646;
+    --gmemo-fg: #D5CFE0;
+  }
+
+  html, body {
+    background: var(--page-bg);
+  }
+
   /* 2단 레이아웃: 캘린더 / 우측 카드(일정 목록 ↔ 명단 전환) */
   .wrap {
     width: 100%;
@@ -21,11 +252,11 @@
   }
 
   .card {
-    background: #FFFFFF;
-    border: 1.5px solid #F9E5E9;
+    background: var(--card-bg);
+    border: 1.5px solid var(--card-border);
     border-radius: 24px;
     padding: 20px 18px 16px;
-    box-shadow: 0 4px 18px rgba(244, 182, 198, 0.1);
+    box-shadow: var(--card-shadow);
   }
   .cal-card { flex: 0 1 280px; width: 280px; }
   .right-card {
@@ -39,12 +270,12 @@
 
   /* 달력 상단 월 타이틀 */
   .cal-header { text-align: center; margin-bottom: 14px; }
-  .month-title { font-size: 18px; font-weight: 800; color: #AED9EB; letter-spacing: -0.3px; }
+  .month-title { font-size: 18px; font-weight: 800; color: var(--month-fg); letter-spacing: -0.3px; }
 
   /* 요일 및 날짜 간격 */
   .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; margin-bottom: 8px; }
-  .weekdays span { font-size: 10.5px; font-weight: 700; color: #AED9EB; }
-  .weekdays span.wknd { color: #E5A5B4; }
+  .weekdays span { font-size: 10.5px; font-weight: 700; color: var(--wk-fg); }
+  .weekdays span.wknd { color: var(--wknd-fg); }
   .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 7px 3px; text-align: center; place-items: center; }
 
   /* 선택 분홍 테두리 간격 */
@@ -60,19 +291,19 @@
     transition: all 0.15s ease;
   }
   .day-wrap.selected {
-    background: #FDF0F4;
-    outline: 2px solid #F49BB8;
+    background: var(--sel-bg);
+    outline: 2px solid var(--sel-outline);
     outline-offset: 0px;
   }
 
   .day {
     width: 26px; height: 24px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 11px; font-weight: 600; color: #4A4442; border-radius: 8px; transition: all 0.15s ease;
+    font-size: 11px; font-weight: 600; color: var(--day-fg); border-radius: 8px; transition: all 0.15s ease;
   }
-  .day-wrap:hover .day { background: #FCEEF2; }
-  .day.muted { color: #B5AEAB; font-weight: 500; }
-  .day.weekend { color: #B85C6A; }
+  .day-wrap:hover .day { background: var(--day-hover-bg); }
+  .day.muted { color: var(--muted-fg); font-weight: 500; }
+  .day.weekend { color: var(--weekend-fg); }
 
   /* 일정 있는 날 (밀키 베이비핑크) */
   .day.has-event { background: #F6B4CA !important; color: #FFFFFF !important; font-weight: 700; }
@@ -86,7 +317,7 @@
 
   .day-wrap.selected .day:not(.has-event):not(.today) {
     background: transparent;
-    color: #D96B8A;
+    color: var(--sel-day-fg);
     font-weight: 800;
   }
 
@@ -94,7 +325,7 @@
   .dot {
     width: 3.5px; height: 3.5px;
     border-radius: 50%;
-    background: #9ED5EB;
+    background: var(--dot-fg);
     margin-top: 2px;
   }
   .dot.empty { background: transparent; }
@@ -115,16 +346,16 @@
     transform: translateX(-50%);
     font-size: 9.5px;
     font-weight: 700;
-    color: #B5ABA8;
+    color: var(--reset-fg);
     letter-spacing: 0.4px;
     white-space: nowrap;
   }
   .nav-btns { display: flex; align-items: center; gap: 6px; position: relative; z-index: 1; }
   .nav-btn {
-    border: none; background: transparent; color: #AED9EB; font-size: 12px; font-weight: 700;
+    border: none; background: transparent; color: var(--nav-fg); font-size: 12px; font-weight: 700;
     width: 18px; height: 18px; border-radius: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center;
   }
-  .nav-btn:hover { background: #FCEEF2; color: #E58FA7; }
+  .nav-btn:hover { background: var(--nav-hover-bg); color: var(--nav-hover-fg); }
 
   /* 우측 카드 헤더 */
   .detail-header {
@@ -137,14 +368,14 @@
     flex-shrink: 0;
   }
   .header-left { display: flex; align-items: center; gap: 7px; min-width: 0; flex: 1; }
-  .detail-date { font-size: 12.5px; font-weight: 800; color: #8AC8E4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .count-badge { font-size: 10px; font-weight: 700; color: #E07A8E; background: #FFF0F3; padding: 2px 8px; border-radius: 999px; border: 1px solid #F8DCE1; flex-shrink: 0; }
+  .detail-date { font-size: 12.5px; font-weight: 800; color: var(--detail-date-fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .count-badge { font-size: 10px; font-weight: 700; color: var(--count-fg); background: var(--count-bg); padding: 2px 8px; border-radius: 999px; border: 1px solid var(--count-border); flex-shrink: 0; }
 
   /* 뒤로가기(← 목록) 버튼 */
   .back-btn {
-    border: 1px solid #F6DCE2;
-    background: #FFF5F7;
-    color: #D96B8A;
+    border: 1px solid var(--back-border);
+    background: var(--back-bg);
+    color: var(--back-fg);
     font-family: inherit;
     font-size: 10px;
     font-weight: 800;
@@ -176,13 +407,13 @@
   }
   .event-list::-webkit-scrollbar { width: 4px; }
   .event-list::-webkit-scrollbar-track { background: transparent; }
-  .event-list::-webkit-scrollbar-thumb { background: #F5D5DE; border-radius: 99px; }
+  .event-list::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 99px; }
 
-  .empty-msg { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 11.5px; color: #B8AFA9; text-align: center; padding: 20px 0; }
+  .empty-msg { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 11.5px; color: var(--empty-fg); text-align: center; padding: 20px 0; }
 
   .ev-item {
-    background: #FFFFFF;
-    border: 1.5px solid #EFECEB;
+    background: var(--ev-bg);
+    border: 1.5px solid var(--ev-border);
     border-radius: 14px;
     padding: 10px 12px;
     cursor: pointer;
@@ -193,24 +424,24 @@
     border-color: #F49BB8;
     transform: translateY(-1px);
   }
-  .ev-item.bg-purple { background: #F3EFFB; border-color: transparent; }
-  .ev-item.bg-yellow { background: #FBF5DD; border-color: transparent; }
-  .ev-item.bg-pink { background: #FBECEB; border-color: transparent; }
+  .ev-item.bg-purple { background: var(--ev-purple-bg); border-color: transparent; }
+  .ev-item.bg-yellow { background: var(--ev-yellow-bg); border-color: transparent; }
+  .ev-item.bg-pink { background: var(--ev-pink-bg); border-color: transparent; }
   .ev-item.cleared { opacity: 0.45; }
 
   .ev-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 7px; }
   .ev-title-area { display: flex; align-items: center; gap: 5px; flex: 1; min-width: 0; }
-  .ev-title { font-size: 12px; font-weight: 800; color: #3D3836; line-height: 1.35; word-break: keep-all; }
-  .arrow-hint { font-size: 11px; font-weight: 800; color: #B8AFA9; }
+  .ev-title { font-size: 12px; font-weight: 800; color: var(--ev-title-fg); line-height: 1.35; word-break: keep-all; }
+  .arrow-hint { font-size: 11px; font-weight: 800; color: var(--arrow-fg); }
   .ev-item:hover .arrow-hint { color: #E57A9B; }
 
   .ev-right { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
-  .ev-time { font-size: 10px; font-weight: 700; color: #7C7470; background: rgba(255,255,255,0.92); padding: 2px 7px; border-radius: 999px; }
+  .ev-time { font-size: 10px; font-weight: 700; color: var(--time-fg); background: var(--time-bg); padding: 2px 7px; border-radius: 999px; }
 
   /* 🚀출발 원클릭 체크박스 */
   .clear-check {
     width: 16px; height: 16px; border-radius: 5px;
-    border: 1.5px solid #E5A4B8; background: rgba(255,255,255,0.92);
+    border: 1.5px solid var(--chk-border); background: var(--chk-bg);
     display: flex; align-items: center; justify-content: center;
     cursor: pointer; transition: all 0.15s ease; flex-shrink: 0;
   }
@@ -220,18 +451,18 @@
   .clear-check.checked svg { opacity: 1; }
 
   .ev-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
-  .tag-diff { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 6px; background: #E4D8F8; color: #684E94; }
-  .tag-diff.normal { background: #F2E2B1; color: #7D6A3B; }
-  .tag-diff.hard { background: #F5D2D0; color: #8C4A4A; }
+  .tag-diff { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 6px; background: var(--diff-bg); color: var(--diff-fg); }
+  .tag-diff.normal { background: var(--diff-norm-bg); color: var(--diff-norm-fg); }
+  .tag-diff.hard { background: var(--diff-hard-bg); color: var(--diff-hard-fg); }
 
   .prof-select {
     font-family: inherit; font-size: 10px; font-weight: 700;
-    background: #F4DFCC; color: #875A36;
+    background: var(--prof-bg); color: var(--prof-fg);
     border: none; border-radius: 6px; padding: 2px 7px; cursor: pointer; outline: none;
   }
-  .prof-select.st-bansuk { background: #D1E6F9; color: #366494; }
-  .prof-select.st-clgyeong { background: #D5E8DC; color: #3A6B4C; }
-  .prof-select.st-try { background: #E5E4E2; color: #6B6866; }
+  .prof-select.st-bansuk { background: var(--prof-bansuk-bg); color: var(--prof-bansuk-fg); }
+  .prof-select.st-clgyeong { background: var(--prof-clgyeong-bg); color: var(--prof-clgyeong-fg); }
+  .prof-select.st-try { background: var(--prof-try-bg); color: var(--prof-try-fg); }
 
   /* 뷰 2: 명단 (딜러 왼쪽 · 서포터 오른쪽 2단 분할 + 내부 스크롤) */
   .member-body {
@@ -245,7 +476,7 @@
   }
   .member-body::-webkit-scrollbar { width: 4px; }
   .member-body::-webkit-scrollbar-track { background: transparent; }
-  .member-body::-webkit-scrollbar-thumb { background: #F5D5DE; border-radius: 99px; }
+  .member-body::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 99px; }
 
   .roles-grid {
     display: grid;
@@ -266,60 +497,104 @@
     font-size: 9.5px; font-weight: 800;
     padding: 2.5px 8px; border-radius: 7px; margin-bottom: 6px;
   }
-  .role-badge.dealer { background: #FADCE2; color: #B8526A; }
-  .role-badge.supporter { background: #D5F2E1; color: #337D54; }
+  .role-badge.dealer { background: var(--dealer-bg); color: var(--dealer-fg); }
+  .role-badge.supporter { background: var(--supp-bg); color: var(--supp-fg); }
 
   .p-card {
-    background: #FDFBFC;
-    border: 1px solid #F5E6EA;
+    background: var(--p-card-bg);
+    border: 1px solid var(--p-card-border);
     border-radius: 10px;
     padding: 6px 8px;
     margin-bottom: 5px;
   }
   .p-card:last-child { margin-bottom: 0; }
   .p-top { display: flex; align-items: center; justify-content: space-between; gap: 4px; margin-bottom: 1.5px; }
-  .p-name { font-size: 11px; font-weight: 800; color: #3D3836; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .p-friend { font-size: 8.5px; font-weight: 700; color: #6B8BA4; background: #E8F1F8; padding: 1px 5px; border-radius: 4px; flex-shrink: 0; }
-  .p-spec { font-size: 9.5px; font-weight: 600; color: #7C7572; line-height: 1.3; word-break: keep-all; }
+  .p-name { font-size: 11px; font-weight: 800; color: var(--ev-title-fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .p-friend { font-size: 8.5px; font-weight: 700; color: var(--p-friend-fg); background: var(--p-friend-bg); padding: 1px 5px; border-radius: 4px; flex-shrink: 0; }
+  .p-spec { font-size: 9.5px; font-weight: 600; color: var(--p-spec-fg); line-height: 1.3; word-break: keep-all; }
   .p-memo {
     display: inline-block; margin-top: 4px;
-    font-size: 9px; font-weight: 700; color: #8A6A46;
-    background: #F9EFE2; padding: 2px 6px; border-radius: 5px;
+    font-size: 9px; font-weight: 700; color: var(--p-memo-fg);
+    background: var(--p-memo-bg); padding: 2px 6px; border-radius: 5px;
     line-height: 1.25; word-break: break-all;
   }
 
   .col-empty {
-    background: #FDF9FA;
-    border: 1px dashed #F2DCE2;
+    background: var(--col-empty-bg);
+    border: 1px dashed var(--col-empty-border);
     border-radius: 10px;
     padding: 10px 6px;
     font-size: 10px;
     font-weight: 600;
-    color: #B8AFA9;
+    color: var(--empty-fg);
     text-align: center;
   }
 
   .empty-apply {
-    background: #FDF8F9;
-    border: 1px dashed #F3D9E0;
+    background: var(--empty-apply-bg);
+    border: 1px dashed var(--empty-apply-border);
     border-radius: 11px;
     padding: 16px 10px;
     font-size: 11px;
     font-weight: 600;
-    color: #9E9390;
+    color: var(--empty-apply-fg);
     text-align: center;
   }
   .general-memo {
     margin-top: 2px;
-    background: #FDF8F9;
-    border: 1px solid #F5E6EA;
+    background: var(--gmemo-bg);
+    border: 1px solid var(--gmemo-border);
     border-radius: 10px;
     padding: 7px 10px;
     font-size: 10px;
-    color: #6B625F;
+    color: var(--gmemo-fg);
     line-height: 1.4;
     white-space: pre-wrap;
     flex-shrink: 0;
+  }
+
+  @media (max-width: 480px) {
+    body {
+      padding: 2px;
+    }
+    .wrap {
+      gap: 8px;
+    }
+    .card {
+      border-radius: 16px;
+      padding: 12px 11px 11px;
+    }
+    .cal-card {
+      flex: 1 1 100%;
+      width: 100%;
+      max-width: 100%;
+    }
+    .right-card {
+      flex: 1 1 100%;
+      width: 100%;
+      max-width: 100%;
+      height: 290px;
+    }
+    .cal-header {
+      margin-bottom: 8px;
+    }
+    .month-title {
+      font-size: 15px;
+    }
+    .days {
+      gap: 4px 2px;
+    }
+    .day {
+      width: 24px;
+      height: 22px;
+      font-size: 10.5px;
+    }
+    .cal-footer {
+      margin-top: 8px;
+    }
+    .roles-grid {
+      gap: 6px;
+    }
   }
 </style>
 </head>
@@ -360,6 +635,11 @@
 </div>
 
 <script>
+  (function applyThemeParam() {
+    const t = new URLSearchParams(location.search).get("theme");
+    if (t === "dark" || t === "light") document.documentElement.setAttribute("data-theme", t);
+  })();
+
   const API_URL = "https://notion-cal.binhaha329.workers.dev";
   const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   const PROF_OPTIONS = ["숙제", "반숙", "클경", "트라이"];
