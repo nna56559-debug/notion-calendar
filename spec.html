@@ -428,7 +428,7 @@
     color: var(--grid-bold);
   }
 
-  /* 로아와 스타일 팔찌 (특성 / 1옵션 2옵션 3옵션 한 줄) */
+  /* 팔찌 한 줄 영역 */
   .br-box {
     background: var(--br-box-bg);
     border: 1px solid var(--br-box-border);
@@ -447,12 +447,6 @@
     scrollbar-width: none;
   }
   .br-line::-webkit-scrollbar { display: none; }
-  .br-group-tag {
-    font-size: 8.5px;
-    font-weight: 800;
-    color: var(--sec-label);
-    flex-shrink: 0;
-  }
   .br-entry {
     display: inline-flex;
     align-items: center;
@@ -636,7 +630,13 @@
   }
 
   function buildBraceletData(data) {
-    const br = data.bracelet;
+    const br = data.bracelet
+      || data.bracer
+      || data.braceletEffects
+      || data.braceletOptions
+      || data.braceletStats
+      || (Array.isArray(data.bracelets) ? data.bracelets[0] : null);
+
     const stats = [];
     const options = [];
     if (!br) return { stats, options };
@@ -653,7 +653,9 @@
           if (parsed) stats.push({ ...parsed, isStat: true });
         });
       }
-      const list = Array.isArray(br.options) ? br.options : (Array.isArray(br.opts) ? br.opts : []);
+      const list = Array.isArray(br.options)
+        ? br.options
+        : (Array.isArray(br.opts) ? br.opts : (Array.isArray(br.effects) ? br.effects : []));
       rawItems = list;
     }
 
@@ -735,25 +737,16 @@
           : `<span class="grid-pill">미적용</span>`;
 
         const brData = buildBraceletData(data);
-        const brStatsHtml = brData.stats.length > 0
-          ? brData.stats.map(renderBraceletEntryHtml).join("")
-          : `<span class="br-entry">-</span>`;
-        const brOptsHtml = brData.options.length > 0
-          ? brData.options.map(renderBraceletEntryHtml).join("")
-          : `<span class="br-entry">-</span>`;
-
-        const brHtml = `
-          <div class="br-box">
-            <div class="br-line">
-              <span class="br-group-tag">특성</span>
-              ${brStatsHtml}
-            </div>
-            <div class="br-line">
-              <span class="br-group-tag">옵션</span>
-              ${brOptsHtml}
-            </div>
-          </div>
-        `;
+        const brLines = [];
+        if (brData.stats.length > 0) {
+          brLines.push(`<div class="br-line">${brData.stats.map(renderBraceletEntryHtml).join("")}</div>`);
+        }
+        if (brData.options.length > 0) {
+          brLines.push(`<div class="br-line">${brData.options.map(renderBraceletEntryHtml).join("")}</div>`);
+        }
+        const brHtml = brLines.length > 0
+          ? `<div class="sec-row"><span class="sec-label">팔찌</span><div class="br-box">${brLines.join("")}</div></div>`
+          : "";
 
         const sourceGems = (Array.isArray(data.gems) && data.gems.length > 0)
           ? data.gems
@@ -787,10 +780,7 @@
             <div class="tag-wrap">${gridHtml}</div>
           </div>
 
-          <div class="sec-row">
-            <span class="sec-label">팔찌</span>
-            ${brHtml}
-          </div>
+          ${brHtml}
 
           <div class="sec-row">
             <span class="sec-label">보석</span>
