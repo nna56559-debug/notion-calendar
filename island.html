@@ -20,6 +20,7 @@
   }
 
   :root {
+    --page-bg: transparent;
     --next-label-fg: #9E9692;
     --next-time-fg: #5C5552;
     --next-small-fg: #8E8682;
@@ -51,9 +52,9 @@
     --rw-coin-fg: #3D6F8E;
   }
 
-  /* 다크모드: 차분한 다크슬레이트/차콜 위에 파스텔 포인트 */
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
+      --page-bg: #191919;
       --next-label-fg: #9B98A6;
       --next-time-fg: #F4F2F8;
       --next-small-fg: #B8B4C4;
@@ -87,6 +88,7 @@
   }
 
   :root[data-theme="dark"] {
+    --page-bg: #191919;
     --next-label-fg: #9B98A6;
     --next-time-fg: #F4F2F8;
     --next-small-fg: #B8B4C4;
@@ -116,6 +118,10 @@
     --rw-card-fg: #C4BFF7;
     --rw-coin-bg: #1D3140;
     --rw-coin-fg: #9AD2F5;
+  }
+
+  html, body {
+    background: var(--page-bg);
   }
 
   .next-wrap {
