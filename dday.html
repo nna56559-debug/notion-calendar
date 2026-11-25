@@ -9,8 +9,6 @@
 
   :root {
     color-scheme: light dark;
-    --badge-bg: #FCE6ED;
-    --badge-color: #C95B7A;
     --add-bg: #FCE6ED;
     --add-color: #C95B7A;
     --add-hover: #F9D5E1;
@@ -33,8 +31,6 @@
 
   @media (prefers-color-scheme: dark) {
     :root {
-      --badge-bg: #4A2C37;
-      --badge-color: #F7A8BE;
       --add-bg: #4A2C37;
       --add-color: #F7A8BE;
       --add-hover: #5C3644;
@@ -76,38 +72,27 @@
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 7px;
+    gap: 6px;
   }
 
+  /* 노션 '...' 오버레이와 겹치지 않도록 왼쪽에 배치하고 우측 여백 확보 */
   .d-head {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     gap: 6px;
-    padding: 0 2px;
+    padding: 2px 44px 0 4px;
+    min-height: 22px;
   }
-  .d-head-left {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  .d-badge {
-    background: var(--badge-bg);
-    color: var(--badge-color);
-    font-size: 10px;
-    font-weight: 800;
-    padding: 3px 9px;
-    border-radius: 8px;
-    letter-spacing: -0.2px;
-  }
+
   .sync-btn {
     border: none;
     background: transparent;
     color: var(--icon-color);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -193,7 +178,7 @@
     cursor: pointer;
   }
   .btn-cancel { background: var(--btn-cancel-bg); color: var(--btn-cancel-color); }
-  .btn-save { background: var(--badge-bg); color: var(--badge-color); }
+  .btn-save { background: var(--add-bg); color: var(--add-color); }
 
   /* 테두리 없는 연핑크 디데이 카드 리스트 */
   .d-list {
@@ -289,8 +274,8 @@
   }
 
   @media (max-width: 480px) {
-    .d-wrap { gap: 6px; }
-    .d-badge { font-size: 9.5px; padding: 3px 8px; }
+    .d-wrap { gap: 5px; }
+    .d-head { padding: 2px 42px 0 2px; }
     .d-slot {
       border-radius: 12px;
       padding: 11px 8px 9px;
@@ -305,11 +290,8 @@
 <body>
   <div class="d-wrap">
     <div class="d-head">
-      <div class="d-head-left">
-        <span class="d-badge">D-Day</span>
-        <button type="button" class="sync-btn" id="syncBtn" title="새로고침" onclick="fetchItems()">↻</button>
-      </div>
       <button type="button" class="add-btn" title="디데이 추가" onclick="openForm()">+</button>
+      <button type="button" class="sync-btn" id="syncBtn" title="새로고침" onclick="fetchItems()">↻</button>
     </div>
 
     <div class="d-form" id="ddayForm">
@@ -492,7 +474,7 @@
     const listEl = document.getElementById("ddayList");
 
     if (!ddayItems || ddayItems.length === 0) {
-      listEl.innerHTML = `<div class="empty-txt">우측 상단 + 버튼으로 디데이 추가</div>`;
+      listEl.innerHTML = `<div class="empty-txt">왼쪽 상단 + 버튼으로 디데이 추가</div>`;
       return;
     }
 
