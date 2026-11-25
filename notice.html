@@ -7,6 +7,7 @@
   @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
   :root {
+    color-scheme: light dark;
     --card-bg: #FFFFFF;
     --card-border: #F9E5E9;
     --card-shadow: 0 4px 16px rgba(244, 182, 198, 0.1);
@@ -49,11 +50,13 @@
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body {
     font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: transparent;
+    background: transparent !important;
+    background-color: transparent !important;
     width: 100%;
+    min-height: 100%;
     overflow-x: hidden;
   }
-  body { display: flex; justify-content: center; padding: 4px; }
+  body { display: flex; justify-content: center; align-items: flex-start; padding: 0; }
 
   .n-card {
     width: 100%;
@@ -143,7 +146,6 @@
   .empty-txt { text-align: center; font-size: 10px; color: var(--empty-color); padding: 26px 0; }
 
   @media (max-width: 480px) {
-    body { padding: 2px; }
     .n-card {
       border-radius: 18px;
       padding: 10px 11px;
