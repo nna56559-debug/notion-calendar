@@ -663,15 +663,16 @@
           : `<span class="grid-pill">미적용</span>`;
 
         const brData = buildBraceletData(data);
+        const allBrOpts = [...brData.options].filter(o => !/^도약\b/.test(o.text));
         const brLines = [];
         if (brData.stats.length > 0) {
           brLines.push(
             `<div class="br-line">${brData.stats.map(s => `<span class="br-pill opt-${s.tier}">${s.text}</span>`).join("")}</div>`
           );
         }
-        if (brData.options.length > 0) {
+        if (allBrOpts.length > 0) {
           brLines.push(
-            `<div class="br-line">${brData.options.map(o => `<span class="br-pill opt-${o.tier}">${o.text}</span>`).join("")}</div>`
+            `<div class="br-line">${allBrOpts.map(o => `<span class="br-pill opt-${o.tier}">${o.text}</span>`).join("")}</div>`
           );
         }
         if (brLines.length === 0 && brData.hasBraceletField) {
@@ -680,7 +681,7 @@
         const brHtml = brLines.length > 0
           ? `<div class="sec-row"><span class="sec-label">팔찌</span><div class="br-box">${brLines.join("")}</div></div>`
           : "";
-
+        
         const sourceGems = (Array.isArray(data.gems) && data.gems.length > 0)
           ? data.gems
           : (Array.isArray(data.boundGems) ? data.boundGems : []);
