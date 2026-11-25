@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+  :root {
+    color-scheme: light dark;
+    --card-bg: #FFFFFF;
+    --card-border: #F9E5E9;
+    --card-shadow: 0 4px 16px rgba(244, 182, 198, 0.1);
+    --badge-bg: #FCE6ED;
+    --badge-color: #C95B7A;
+    --add-bg: #FCE6ED;
+    --add-color: #C95B7A;
+    --add-hover: #F9D5E1;
+    --item-bg: #FDFBFC;
+    --item-border: #F5E8EC;
+    --item-hover-bg: #FFF6F9;
+    --item-hover-border: #F2C4D2;
+    --title-color: #4A4442;
+    --date-color: #A69D9A;
+    --dday-bg: #FCE6ED;
+    --dday-color: #C95B7A;
+    --dday-today-bg: #FFF3D6;
+    --dday-today-color: #B8821E;
+    --dday-past-bg: #F3EFEF;
+    --dday-past-color: #9A918E;
+    --form-bg: #FFF8FA;
+    --form-border: #F4DCE3;
+    --input-bg: #FFFFFF;
+    --input-border: #EED8DF;
+    --input-color: #4A4442;
+    --btn-cancel-bg: #F2ECEE;
+    --btn-cancel-color: #857B7E;
+    --icon-color: #B8AEB1;
+    --icon-hover: #C95B7A;
+    --empty-color: #B5AEAB;
+    --scroll-thumb: #F2DCE2;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --card-bg: #1E1C1D;
+      --card-border: #382B30;
+      --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+      --badge-bg: #4A2C37;
+      --badge-color: #F7A8BE;
+      --add-bg: #4A2C37;
+      --add-color: #F7A8BE;
+      --add-hover: #5C3644;
+      --item-bg: #262324;
+      --item-border: #362C30;
+      --item-hover-bg: #31262B;
+      --item-hover-border: #5E3B47;
+      --title-color: #EAE4E6;
+      --date-color: #968C90;
+      --dday-bg: #4A2C37;
+      --dday-color: #F7A8BE;
+      --dday-today-bg: #47391E;
+      --dday-today-color: #F5C76B;
+      --dday-past-bg: #2D292B;
+      --dday-past-color: #8A8184;
+      --form-bg: #262123;
+      --form-border: #423037;
+      --input-bg: #1C1A1B;
+      --input-border: #3E3136;
+      --input-color: #EAE4E6;
+      --btn-cancel-bg: #322C2E;
+      --btn-cancel-color: #A89EA1;
+      --icon-color: #7F7578;
+      --icon-hover: #F7A8BE;
+      --empty-color: #7D7477;
+      --scroll-thumb: #46363C;
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: transparent !important;
+    background-color: transparent !important;
+    width: 100%;
+    min-height: 100%;
+    overflow-x: hidden;
+  }
+  body { display: flex; justify-content: center; align-items: flex-start; padding: 0; }
+
+  .d-card {
+    width: 100%;
+    min-width: 0;
+    background: var(--card-bg);
+    border: 1.5px solid var(--card-border);
+    border-radius: 22px;
+    padding: 12px 13px;
+    box-shadow: var(--card-shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .d-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+  }
+  .d-badge {
+    background: var(--badge-bg);
+    color: var(--badge-color);
+    font-size: 10px;
+    font-weight: 800;
+    padding: 3px 9px;
+    border-radius: 8px;
+    letter-spacing: -0.2px;
+  }
+  .add-btn {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: none;
+    background: var(--add-bg);
+    color: var(--add-color);
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+  }
+  .add-btn:hover { background: var(--add-hover); }
+  .add-btn:active { transform: scale(0.92); }
+
+  /* 입력 폼 (쿠폰/교환 카드 스타일) */
+  .d-form {
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+    background: var(--form-bg);
+    border: 1px solid var(--form-border);
+    border-radius: 12px;
+    padding: 8px 9px;
+  }
+  .d-form.open { display: flex; }
+
+  .d-input {
+    width: 100%;
+    border: 1px solid var(--input-border);
+    background: var(--input-bg);
+    color: var(--input-color);
+    font-family: inherit;
+    font-size: 10.5px;
+    font-weight: 600;
+    padding: 5px 8px;
+    border-radius: 8px;
+    outline: none;
+  }
+  .d-input:focus { border-color: var(--badge-color); }
+
+  .d-form-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 5px;
+  }
+  .d-check {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 9.5px;
+    font-weight: 700;
+    color: var(--date-color);
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+  }
+  .d-check input { accent-color: #C95B7A; width: 11px; height: 11px; cursor: pointer; }
+
+  .d-btns { display: flex; gap: 4px; }
+  .btn-sm {
+    border: none;
+    font-family: inherit;
+    font-size: 9.5px;
+    font-weight: 800;
+    padding: 4px 9px;
+    border-radius: 7px;
+    cursor: pointer;
+  }
+  .btn-cancel { background: var(--btn-cancel-bg); color: var(--btn-cancel-color); }
+  .btn-save { background: var(--badge-bg); color: var(--badge-color); }
+
+  /* 디데이 리스트 */
+  .d-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 230px;
+    overflow-y: auto;
+  }
+  .d-list::-webkit-scrollbar { width: 3px; }
+  .d-list::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 999px; }
+
+  .d-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 7px;
+    min-width: 0;
+    background: var(--item-bg);
+    border: 1px solid var(--item-border);
+    border-radius: 12px;
+    padding: 7px 9px;
+    transition: all 0.15s ease;
+  }
+  .d-item:hover {
+    background: var(--item-hover-bg);
+    border-color: var(--item-hover-border);
+  }
+
+  .d-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .d-title {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: var(--title-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .d-date {
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--date-color);
+  }
+
+  .d-right {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+  }
+  .dday-pill {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 3px 7px;
+    border-radius: 8px;
+    background: var(--dday-bg);
+    color: var(--dday-color);
+    letter-spacing: -0.2px;
+  }
+  .dday-pill.today {
+    background: var(--dday-today-bg);
+    color: var(--dday-today-color);
+  }
+  .dday-pill.past {
+    background: var(--dday-past-bg);
+    color: var(--dday-past-color);
+  }
+
+  .d-actions {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .act-btn {
+    border: none;
+    background: transparent;
+    color: var(--icon-color);
+    font-size: 10px;
+    font-weight: 700;
+    width: 16px;
+    height: 16px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: color 0.15s ease;
+  }
+  .act-btn:hover { color: var(--icon-hover); }
+
+  .empty-txt {
+    text-align: center;
+    font-size: 9.5px;
+    font-weight: 600;
+    color: var(--empty-color);
+    padding: 18px 0;
+  }
+
+  @media (max-width: 480px) {
+    .d-card {
+      border-radius: 18px;
+      padding: 10px 11px;
+      gap: 6px;
+    }
+    .d-badge { font-size: 9.5px; padding: 3px 8px; }
+    .d-item { padding: 6px 8px; border-radius: 10px; }
+    .d-title { font-size: 10px; }
+    .d-date { font-size: 8.5px; }
+    .dday-pill { font-size: 9.5px; padding: 2.5px 6px; }
+  }
+</style>
+</head>
+<body>
+  <div class="d-card">
+    <div class="d-head">
+      <span class="d-badge">D-Day</span>
+      <button type="button" class="add-btn" id="toggleFormBtn" title="디데이 추가" onclick="openForm()">+</button>
+    </div>
+
+    <div class="d-form" id="ddayForm">
+      <input type="text" class="d-input" id="inputTitle" placeholder="일정 이름 (예: 카제로스 출시)" maxlength="24">
+      <input type="date" class="d-input" id="inputDate">
+      <div class="d-form-row">
+        <label class="d-check" title="체크 시 시작일을 1일차로 계산">
+          <input type="checkbox" id="inputIncludeStart">
+          <span>시작일 포함 (+1일)</span>
+        </label>
+        <div class="d-btns">
+          <button type="button" class="btn-sm btn-cancel" onclick="closeForm()">취소</button>
+          <button type="button" class="btn-sm btn-save" onclick="saveItem()">저장</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-list" id="ddayList"></div>
+  </div>
+
+<script>
+  const STORAGE_KEY = "lostark_sidebar_dday_v1";
+  let editingId = null;
+
+  const defaultItems = [
+    { id: "sample_1", title: "디데이 예시 (+ 눌러 추가)", date: getOffsetDateStr(14), includeStart: false }
+  ];
+
+  function getOffsetDateStr(days) {
+    const d = new Date();
+    d.setDate(d.getDate() + days);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  function loadItems() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return [...defaultItems];
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function persistItems(items) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    } catch (e) {}
+  }
+
+  function calcDday(dateStr, includeStart) {
+    const [y, m, d] = dateStr.split("-").map(Number);
+    if (!y || !m || !d) return { label: "D-?", cls: "", diff: 0 };
+
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const target = new Date(y, m - 1, d);
+    const diffDays = Math.round((target - today) / (1000 * 60 * 60 * 24));
+
+    if (diffDays > 0) {
+      return { label: `D-${diffDays}`, cls: "", diff: diffDays };
+    }
+    if (diffDays === 0) {
+      return { label: includeStart ? "D+1" : "D-Day", cls: "today", diff: 0 };
+    }
+    const passed = Math.abs(diffDays) + (includeStart ? 1 : 0);
+    return { label: `D+${passed}`, cls: "past", diff: diffDays };
+  }
+
+  function openForm(item = null) {
+    const form = document.getElementById("ddayForm");
+    const titleEl = document.getElementById("inputTitle");
+    const dateEl = document.getElementById("inputDate");
+    const incEl = document.getElementById("inputIncludeStart");
+
+    if (item) {
+      editingId = item.id;
+      titleEl.value = item.title;
+      dateEl.value = item.date;
+      incEl.checked = Boolean(item.includeStart);
+    } else {
+      editingId = null;
+      titleEl.value = "";
+      dateEl.value = getOffsetDateStr(0);
+      incEl.checked = false;
+    }
+
+    form.classList.add("open");
+    titleEl.focus();
+  }
+
+  function closeForm() {
+    editingId = null;
+    document.getElementById("ddayForm").classList.remove("open");
+  }
+
+  function saveItem() {
+    const title = document.getElementById("inputTitle").value.trim();
+    const date = document.getElementById("inputDate").value;
+    const includeStart = document.getElementById("inputIncludeStart").checked;
+
+    if (!title || !date) return;
+
+    const items = loadItems().filter((it) => it.id !== "sample_1");
+
+    if (editingId) {
+      const idx = items.findIndex((it) => it.id === editingId);
+      if (idx !== -1) {
+        items[idx] = { ...items[idx], title, date, includeStart };
+      }
+    } else {
+      items.push({
+        id: `dday_${Date.now()}`,
+        title,
+        date,
+        includeStart,
+      });
+    }
+
+    // 다가오는 일정(D-Day / D-N) 우선, 그다음 지난 일정(D+N) 순으로 정렬
+    items.sort((a, b) => {
+      const da = calcDday(a.date, a.includeStart).diff;
+      const db = calcDday(b.date, b.includeStart).diff;
+      if (da >= 0 && db >= 0) return da - db;
+      if (da >= 0 && db < 0) return -1;
+      if (da < 0 && db >= 0) return 1;
+      return db - da;
+    });
+
+    persistItems(items);
+    closeForm();
+    render();
+  }
+
+  function deleteItem(id) {
+    const items = loadItems().filter((it) => it.id !== id);
+    persistItems(items);
+    render();
+  }
+
+  function render() {
+    const listEl = document.getElementById("ddayList");
+    const items = loadItems();
+
+    if (items.length === 0) {
+      listEl.innerHTML = `<div class="empty-txt">우측 상단 + 버튼으로 디데이 추가</div>`;
+      return;
+    }
+
+    listEl.innerHTML = "";
+    items.forEach((item) => {
+      const info = calcDday(item.date, item.includeStart);
+
+      const row = document.createElement("div");
+      row.className = "d-item";
+
+      const left = document.createElement("div");
+      left.className = "d-info";
+
+      const title = document.createElement("div");
+      title.className = "d-title";
+      title.textContent = item.title;
+
+      const date = document.createElement("div");
+      date.className = "d-date";
+      date.textContent = `~ ${item.date.replace(/-/g, ".")}`;
+
+      left.appendChild(title);
+      left.appendChild(date);
+
+      const right = document.createElement("div");
+      right.className = "d-right";
+
+      const pill = document.createElement("span");
+      pill.className = `dday-pill ${info.cls}`.trim();
+      pill.textContent = info.label;
+
+      const actions = document.createElement("div");
+      actions.className = "d-actions";
+
+      const editBtn = document.createElement("button");
+      editBtn.type = "button";
+      editBtn.className = "act-btn";
+      editBtn.title = "수정";
+      editBtn.textContent = "✎";
+      editBtn.onclick = () => openForm(item);
+
+      const delBtn = document.createElement("button");
+      delBtn.type = "button";
+      delBtn.className = "act-btn";
+      delBtn.title = "삭제";
+      delBtn.textContent = "✕";
+      delBtn.onclick = () => deleteItem(item.id);
+
+      actions.appendChild(editBtn);
+      actions.appendChild(delBtn);
+
+      right.appendChild(pill);
+      right.appendChild(actions);
+
+      row.appendChild(left);
+      row.appendChild(right);
+      listEl.appendChild(row);
+    });
+  }
+
+  document.getElementById("inputTitle").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") saveItem();
+  });
+
+  render();
+</script>
+</body>
+</html>
