@@ -5,6 +5,47 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <style>
   @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+  :root {
+    --card-bg: #FFFFFF;
+    --card-border: #F9E5E9;
+    --card-shadow: 0 4px 16px rgba(244, 182, 198, 0.1);
+    --tab-bg: #F5F2F3;
+    --tab-color: #8E8487;
+    --tab-active-bg: #FCE6ED;
+    --tab-active-color: #C95B7A;
+    --hint-color: #B8B0AD;
+    --scroll-thumb: #F2DCE2;
+    --item-bg: #FDFBFC;
+    --item-border: #F5E8EC;
+    --item-hover-bg: #FFF6F9;
+    --item-hover-border: #F2C4D2;
+    --title-color: #4A4442;
+    --date-color: #A69D9A;
+    --empty-color: #B5AEAB;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --card-bg: #1E1C1D;
+      --card-border: #382B30;
+      --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+      --tab-bg: #2A2628;
+      --tab-color: #A3989C;
+      --tab-active-bg: #4A2C37;
+      --tab-active-color: #F7A8BE;
+      --hint-color: #7D7477;
+      --scroll-thumb: #46363C;
+      --item-bg: #262324;
+      --item-border: #362C30;
+      --item-hover-bg: #31262B;
+      --item-hover-border: #5E3B47;
+      --title-color: #EAE4E6;
+      --date-color: #968C90;
+      --empty-color: #7D7477;
+    }
+  }
+
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body {
     font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -16,11 +57,12 @@
 
   .n-card {
     width: 100%;
-    background: #FFFFFF;
-    border: 1.5px solid #F9E5E9;
+    min-width: 0;
+    background: var(--card-bg);
+    border: 1.5px solid var(--card-border);
     border-radius: 22px;
     padding: 12px 14px;
-    box-shadow: 0 4px 16px rgba(244, 182, 198, 0.1);
+    box-shadow: var(--card-shadow);
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -29,24 +71,31 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 6px;
   }
-  .tabs { display: flex; gap: 5px; }
+  .tabs { display: flex; gap: 5px; flex-shrink: 0; }
   .tab-btn {
     border: none;
-    background: #F5F2F3;
-    color: #8E8487;
+    background: var(--tab-bg);
+    color: var(--tab-color);
     font-family: inherit;
     font-size: 10px;
     font-weight: 800;
     padding: 3px 9px;
     border-radius: 8px;
     cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
   }
   .tab-btn.active {
-    background: #FCE6ED;
-    color: #C95B7A;
+    background: var(--tab-active-bg);
+    color: var(--tab-active-color);
   }
-  .hint { font-size: 9px; font-weight: 600; color: #B8B0AD; }
+  .hint {
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--hint-color);
+    white-space: nowrap;
+  }
 
   .n-list {
     display: flex;
@@ -56,28 +105,31 @@
     overflow-y: auto;
   }
   .n-list::-webkit-scrollbar { width: 3px; }
-  .n-list::-webkit-scrollbar-thumb { background: #F2DCE2; border-radius: 999px; }
+  .n-list::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 999px; }
 
   .n-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 8px;
+    min-width: 0;
     text-decoration: none;
-    background: #FDFBFC;
-    border: 1px solid #F5E8EC;
+    background: var(--item-bg);
+    border: 1px solid var(--item-border);
     border-radius: 9px;
     padding: 6px 9px;
     transition: all 0.15s ease;
   }
   .n-item:hover {
-    background: #FFF6F9;
-    border-color: #F2C4D2;
+    background: var(--item-hover-bg);
+    border-color: var(--item-hover-border);
   }
   .n-title {
+    flex: 1;
+    min-width: 0;
     font-size: 10.5px;
     font-weight: 700;
-    color: #4A4442;
+    color: var(--title-color);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -85,10 +137,36 @@
   .n-date {
     font-size: 9px;
     font-weight: 700;
-    color: #A69D9A;
+    color: var(--date-color);
     flex-shrink: 0;
   }
-  .empty-txt { text-align: center; font-size: 10px; color: #B5AEAB; padding: 26px 0; }
+  .empty-txt { text-align: center; font-size: 10px; color: var(--empty-color); padding: 26px 0; }
+
+  @media (max-width: 480px) {
+    body { padding: 2px; }
+    .n-card {
+      border-radius: 18px;
+      padding: 10px 11px;
+      gap: 6px;
+    }
+    .tab-btn {
+      font-size: 9.5px;
+      padding: 3px 8px;
+    }
+    .hint { font-size: 8.5px; }
+    .n-list {
+      max-height: 165px;
+      gap: 4px;
+    }
+    .n-item {
+      padding: 5px 8px;
+      gap: 6px;
+      border-radius: 8px;
+    }
+    .n-title { font-size: 10px; }
+    .n-date { font-size: 8.5px; }
+    .empty-txt { padding: 20px 0; font-size: 9.5px; }
+  }
 </style>
 </head>
 <body>
