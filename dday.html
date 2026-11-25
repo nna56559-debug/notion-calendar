@@ -9,26 +9,19 @@
 
   :root {
     color-scheme: light dark;
-    --wrap-bg: #FFFFFF;
-    --wrap-border: #F9E5E9;
-    --wrap-shadow: 0 4px 16px rgba(244, 182, 198, 0.1);
     --badge-bg: #FCE6ED;
     --badge-color: #C95B7A;
     --add-bg: #FCE6ED;
     --add-color: #C95B7A;
     --add-hover: #F9D5E1;
     --slot-bg: #FDF7F9;
-    --slot-border: #F8E7EC;
-    --slot-hover-border: #F2C4D2;
     --title-color: #B88A97;
     --dday-color: #FF6FA2;
     --dday-today-color: #E59A1C;
     --dday-past-color: #B69AA3;
     --date-color: #B9A5AC;
-    --form-bg: #FFF8FA;
-    --form-border: #F4DCE3;
+    --form-bg: #FDF7F9;
     --input-bg: #FFFFFF;
-    --input-border: #EED8DF;
     --input-color: #4A4442;
     --btn-cancel-bg: #F2ECEE;
     --btn-cancel-color: #857B7E;
@@ -40,26 +33,19 @@
 
   @media (prefers-color-scheme: dark) {
     :root {
-      --wrap-bg: #1E1C1D;
-      --wrap-border: #382B30;
-      --wrap-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
       --badge-bg: #4A2C37;
       --badge-color: #F7A8BE;
       --add-bg: #4A2C37;
       --add-color: #F7A8BE;
       --add-hover: #5C3644;
       --slot-bg: #272225;
-      --slot-border: #3A2C32;
-      --slot-hover-border: #5E3B47;
       --title-color: #C4A3AE;
       --dday-color: #FF82B0;
       --dday-today-color: #F5C76B;
       --dday-past-color: #968188;
       --date-color: #8F7D83;
-      --form-bg: #262123;
-      --form-border: #423037;
-      --input-bg: #1C1A1B;
-      --input-border: #3E3136;
+      --form-bg: #272225;
+      --input-bg: #1E1B1D;
       --input-color: #EAE4E6;
       --btn-cancel-bg: #322C2E;
       --btn-cancel-color: #A89EA1;
@@ -84,14 +70,13 @@
   .d-wrap {
     width: 100%;
     min-width: 0;
-    background: var(--wrap-bg);
-    border: 1.5px solid var(--wrap-border);
-    border-radius: 22px;
-    padding: 12px 13px;
-    box-shadow: var(--wrap-shadow);
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 7px;
   }
 
   .d-head {
@@ -99,6 +84,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 6px;
+    padding: 0 2px;
   }
   .d-head-left {
     display: flex;
@@ -158,25 +144,24 @@
     flex-direction: column;
     gap: 6px;
     background: var(--form-bg);
-    border: 1px solid var(--form-border);
-    border-radius: 12px;
-    padding: 8px 9px;
+    border: none;
+    border-radius: 14px;
+    padding: 9px 10px;
   }
   .d-form.open { display: flex; }
 
   .d-input {
     width: 100%;
-    border: 1px solid var(--input-border);
+    border: none;
     background: var(--input-bg);
     color: var(--input-color);
     font-family: inherit;
     font-size: 10.5px;
     font-weight: 600;
-    padding: 5px 8px;
+    padding: 6px 8px;
     border-radius: 8px;
     outline: none;
   }
-  .d-input:focus { border-color: var(--badge-color); }
 
   .d-form-row {
     display: flex;
@@ -210,7 +195,7 @@
   .btn-cancel { background: var(--btn-cancel-bg); color: var(--btn-cancel-color); }
   .btn-save { background: var(--badge-bg); color: var(--badge-color); }
 
-  /* 레퍼런스 스타일 디데이 카드 리스트 */
+  /* 테두리 없는 연핑크 디데이 카드 리스트 */
   .d-list {
     display: flex;
     flex-direction: column;
@@ -224,7 +209,8 @@
   .d-slot {
     position: relative;
     background: var(--slot-bg);
-    border: 1px solid var(--slot-border);
+    border: none;
+    box-shadow: none;
     border-radius: 14px;
     padding: 13px 10px 11px;
     display: flex;
@@ -233,10 +219,6 @@
     justify-content: center;
     gap: 4px;
     text-align: center;
-    transition: border-color 0.15s ease, transform 0.12s ease;
-  }
-  .d-slot:hover {
-    border-color: var(--slot-hover-border);
   }
 
   .d-slot-actions {
@@ -307,11 +289,7 @@
   }
 
   @media (max-width: 480px) {
-    .d-wrap {
-      border-radius: 18px;
-      padding: 10px 11px;
-      gap: 6px;
-    }
+    .d-wrap { gap: 6px; }
     .d-badge { font-size: 9.5px; padding: 3px 8px; }
     .d-slot {
       border-radius: 12px;
