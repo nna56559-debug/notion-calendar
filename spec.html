@@ -211,11 +211,13 @@
     overflow: hidden;
   }
 
+  /* 우측 '...' 더보기 영역과 겹치지 않도록 왼쪽 정렬 및 우측 여백 확보 */
   .s-head {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     gap: 6px;
+    padding-right: 42px;
     flex-shrink: 0;
   }
   .s-badge {
@@ -231,9 +233,11 @@
     display: flex;
     align-items: center;
     gap: 4px;
+    min-width: 0;
   }
   .search-input {
-    width: 96px;
+    width: 88px;
+    min-width: 0;
     border: 1px solid var(--inp-border);
     background: var(--inp-bg);
     border-radius: 7px;
@@ -255,6 +259,7 @@
     padding: 3.5px 8px;
     border-radius: 7px;
     cursor: pointer;
+    flex-shrink: 0;
   }
   .search-btn:hover { background: var(--btn-hover-bg); }
 
@@ -479,8 +484,11 @@
       padding: 9px 10px;
       gap: 6px;
     }
+    .s-head {
+      padding-right: 38px;
+    }
     .search-input {
-      width: 78px;
+      width: 72px;
       font-size: 9.5px;
       padding: 2.5px 6px;
     }
@@ -511,7 +519,7 @@
     <div class="s-head">
       <span class="s-badge">캐릭터 조회</span>
       <div class="search-box">
-        <input type="text" class="search-input" id="nameInput" placeholder="닉네임 입력" onkeydown="if(event.key==='Enter') fetchSpec()">
+        <input type="text" class="search-input" id="nameInput" onkeydown="if(event.key==='Enter') fetchSpec()">
         <button type="button" class="search-btn" id="searchBtn" onclick="fetchSpec()">검색</button>
       </div>
     </div>
