@@ -903,10 +903,11 @@
     }
 
     const currentNick = String(document.getElementById("nickInput")?.value || myNick || "").trim();
-    const lastIdx = state.messages.length - 1;
 
     state.messages.forEach((msg, idx) => {
       const prev = state.messages[idx - 1];
+      const next = state.messages[idx + 1];
+
       const isNewDate = !prev || prev.date !== msg.date;
       if (isNewDate) {
         streamEl.appendChild(createDateDividerEl(msg.date));
@@ -914,8 +915,11 @@
 
       const isMine = Boolean(currentNick && msg.sender && msg.sender === currentNick);
       const prevIsMine = prev ? Boolean(currentNick && prev.sender && prev.sender === currentNick) : null;
+      const nextIsMine = next ? Boolean(currentNick && next.sender && next.sender === currentNick) : null;
+
       const sameGroupAsPrev = prev && !isNewDate && prev.sender === msg.sender && prevIsMine === isMine;
-      const isLastMessage = idx === lastIdx;
+      const nextIsNewDate = next && next.date !== msg.date;
+      const isLastInUserStreak = !next || nextIsNewDate || next.sender !== msg.sender || nextIsMine !== isMine;
 
       const block = document.createElement("div");
       block.className = "msg-block " + (isMine ? "mine" : "other");
@@ -946,7 +950,7 @@
       actions.appendChild(delBtn);
       meta.appendChild(actions);
 
-      if (isLastMessage && msg.time) {
+      if (isLastInUserStreak && msg.time) {
         const timeSpan = document.createElement("span");
         timeSpan.className = "msg-time";
         timeSpan.textContent = msg.time;
