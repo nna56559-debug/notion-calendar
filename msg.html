@@ -25,18 +25,6 @@
     --card-border: #F9E5E9;
     --card-shadow: 0 4px 16px rgba(244, 182, 198, 0.1);
     --scroll-thumb: #F2DCE2;
-    --badge-bg: #FCE6ED;
-    --badge-border: #F3C3D1;
-    --badge-fg: #C95B7A;
-    --count-fg: #A89D9A;
-    --clear-fg: #AED9EB;
-    --clear-hover-fg: #E58FA7;
-    --clear-hover-bg: #FDF5F7;
-    --clear-conf-bg: #FCE6ED;
-    --clear-conf-fg: #C95B7A;
-    --pin-bar-bg: #FDF5F7;
-    --pin-bar-border: #F5DCE3;
-    --pin-fg: #C95B7A;
     --bbl-pink-bg: #FCE8EE;
     --bbl-pink-border: #F5DCE3;
     --bbl-pink-fg: #4A4442;
@@ -46,6 +34,10 @@
     --bbl-lav-bg: #F2EBFC;
     --bbl-lav-border: #E4D7F7;
     --bbl-lav-fg: #494154;
+    --other-bbl-bg: #F7F4F6;
+    --other-bbl-border: #ECE4E8;
+    --other-bbl-fg: #4A4442;
+    --sender-fg: #C95B7A;
     --time-fg: #B0A6A3;
     --act-bg: #FFFFFF;
     --act-border: #F2DCE2;
@@ -55,6 +47,10 @@
     --inp-wrap-border: #F2DCE2;
     --inp-focus-border: #F29CB4;
     --inp-focus-bg: #FFFFFF;
+    --nick-border: #F2DCE2;
+    --nick-bg: #FCE8EE;
+    --nick-fg: #C95B7A;
+    --nick-req-border: #E86A8E;
     --txt-main: #4A4442;
     --inp-ph: #BEB5B2;
     --send-bg: #F28BA8;
@@ -72,18 +68,6 @@
       --card-border: #383342;
       --card-shadow: 0 6px 20px rgba(0, 0, 0, 0.42);
       --scroll-thumb: #4B3846;
-      --badge-bg: #3B252E;
-      --badge-border: #5E3A4A;
-      --badge-fg: #F5A3BC;
-      --count-fg: #8E879E;
-      --clear-fg: #7CB4CE;
-      --clear-hover-fg: #F5A3BC;
-      --clear-hover-bg: #2B2533;
-      --clear-conf-bg: #3B252E;
-      --clear-conf-fg: #F5A3BC;
-      --pin-bar-bg: #292230;
-      --pin-bar-border: #4A3548;
-      --pin-fg: #F5A3BC;
       --bbl-pink-bg: #36232D;
       --bbl-pink-border: #543646;
       --bbl-pink-fg: #F4F2F8;
@@ -93,6 +77,10 @@
       --bbl-lav-bg: #2D263B;
       --bbl-lav-border: #463B5C;
       --bbl-lav-fg: #F2EFFA;
+      --other-bbl-bg: #26252E;
+      --other-bbl-border: #3B3748;
+      --other-bbl-fg: #EAE6F4;
+      --sender-fg: #F5A3BC;
       --time-fg: #878296;
       --act-bg: #24232B;
       --act-border: #3F394D;
@@ -102,6 +90,10 @@
       --inp-wrap-border: #3A3646;
       --inp-focus-border: #C95B7A;
       --inp-focus-bg: #2C2A35;
+      --nick-border: #5E3A4A;
+      --nick-bg: #3B252E;
+      --nick-fg: #F5A3BC;
+      --nick-req-border: #F5A3BC;
       --txt-main: #F4F2F8;
       --inp-ph: #878296;
       --send-bg: #C95B7A;
@@ -119,18 +111,6 @@
     --card-border: #383342;
     --card-shadow: 0 6px 20px rgba(0, 0, 0, 0.42);
     --scroll-thumb: #4B3846;
-    --badge-bg: #3B252E;
-    --badge-border: #5E3A4A;
-    --badge-fg: #F5A3BC;
-    --count-fg: #8E879E;
-    --clear-fg: #7CB4CE;
-    --clear-hover-fg: #F5A3BC;
-    --clear-hover-bg: #2B2533;
-    --clear-conf-bg: #3B252E;
-    --clear-conf-fg: #F5A3BC;
-    --pin-bar-bg: #292230;
-    --pin-bar-border: #4A3548;
-    --pin-fg: #F5A3BC;
     --bbl-pink-bg: #36232D;
     --bbl-pink-border: #543646;
     --bbl-pink-fg: #F4F2F8;
@@ -140,6 +120,10 @@
     --bbl-lav-bg: #2D263B;
     --bbl-lav-border: #463B5C;
     --bbl-lav-fg: #F2EFFA;
+    --other-bbl-bg: #26252E;
+    --other-bbl-border: #3B3748;
+    --other-bbl-fg: #EAE6F4;
+    --sender-fg: #F5A3BC;
     --time-fg: #878296;
     --act-bg: #24232B;
     --act-border: #3F394D;
@@ -149,6 +133,10 @@
     --inp-wrap-border: #3A3646;
     --inp-focus-border: #C95B7A;
     --inp-focus-bg: #2C2A35;
+    --nick-border: #5E3A4A;
+    --nick-bg: #3B252E;
+    --nick-fg: #F5A3BC;
+    --nick-req-border: #F5A3BC;
     --txt-main: #F4F2F8;
     --inp-ph: #878296;
     --send-bg: #C95B7A;
@@ -178,91 +166,6 @@
     overflow: hidden;
   }
 
-  .c-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 6px;
-    padding-right: 34px;
-    flex-shrink: 0;
-  }
-  .c-left {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .c-badge {
-    border: 1px solid var(--badge-border);
-    font-size: 10.5px;
-    font-weight: 800;
-    padding: 2.5px 9px;
-    border-radius: 7px;
-    background: var(--badge-bg);
-    color: var(--badge-fg);
-  }
-  .c-count {
-    font-size: 9.5px;
-    font-weight: 700;
-    color: var(--count-fg);
-  }
-  .c-clear {
-    border: none;
-    background: transparent;
-    color: var(--clear-fg);
-    font-family: inherit;
-    font-size: 10px;
-    font-weight: 800;
-    cursor: pointer;
-    padding: 2px 6px;
-    border-radius: 6px;
-    transition: all 0.15s ease;
-  }
-  .c-clear:hover {
-    color: var(--clear-hover-fg);
-    background: var(--clear-hover-bg);
-  }
-  .c-clear.confirming {
-    background: var(--clear-conf-bg);
-    color: var(--clear-conf-fg);
-  }
-
-  /* 고정 메모 배너 */
-  .pin-banner {
-    display: none;
-    align-items: center;
-    justify-content: space-between;
-    gap: 6px;
-    background: var(--pin-bar-bg);
-    border: 1px solid var(--pin-bar-border);
-    border-radius: 9px;
-    padding: 4.5px 8px;
-    flex-shrink: 0;
-    cursor: pointer;
-  }
-  .pin-banner.visible {
-    display: flex;
-  }
-  .pin-text {
-    font-size: 10px;
-    font-weight: 800;
-    color: var(--pin-fg);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .pin-unpin {
-    border: none;
-    background: transparent;
-    color: var(--pin-fg);
-    font-size: 10px;
-    font-weight: 800;
-    cursor: pointer;
-    opacity: 0.75;
-    flex-shrink: 0;
-  }
-  .pin-unpin:hover { opacity: 1; }
-
-  /* 채팅 메시지 영역 */
   .chat-stream {
     flex: 1;
     min-height: 0;
@@ -270,7 +173,7 @@
     padding: 2px 3px 2px 1px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 7px;
   }
   .chat-stream::-webkit-scrollbar { width: 3px; }
   .chat-stream::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 999px; }
@@ -278,40 +181,65 @@
   .empty-chat {
     flex: 1;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 3px;
     text-align: center;
     font-size: 10.5px;
     font-weight: 700;
     color: var(--empty-fg);
   }
-  .empty-sub {
-    font-size: 9px;
-    font-weight: 600;
-    opacity: 0.85;
-  }
 
-  .msg-row {
+  .msg-block {
     display: flex;
-    align-items: flex-end;
-    justify-content: flex-end;
-    gap: 5px;
+    flex-direction: column;
+    gap: 2px;
     animation: popIn 0.16s ease-out;
   }
+  .msg-block.mine {
+    align-items: flex-end;
+  }
+  .msg-block.other {
+    align-items: flex-start;
+  }
+
   @keyframes popIn {
     from { opacity: 0; transform: translateY(4px); }
     to { opacity: 1; transform: translateY(0); }
   }
 
+  .msg-sender {
+    font-size: 9px;
+    font-weight: 800;
+    color: var(--sender-fg);
+    padding-left: 4px;
+  }
+
+  .msg-row {
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    gap: 5px;
+  }
+  .msg-block.mine .msg-row {
+    justify-content: flex-end;
+  }
+  .msg-block.other .msg-row {
+    justify-content: flex-start;
+  }
+
   .msg-meta {
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
     gap: 2px;
     flex-shrink: 0;
   }
+  .msg-block.mine .msg-meta {
+    align-items: flex-end;
+  }
+  .msg-block.other .msg-meta {
+    align-items: flex-start;
+  }
+
   .msg-actions {
     display: flex;
     align-items: center;
@@ -319,7 +247,7 @@
     opacity: 0;
     transition: opacity 0.15s ease;
   }
-  .msg-row:hover .msg-actions {
+  .msg-block:hover .msg-actions {
     opacity: 1;
   }
   .act-btn {
@@ -341,7 +269,7 @@
   }
   .act-btn:hover {
     color: var(--act-hover-fg);
-    border-color: var(--badge-border);
+    border-color: var(--nick-border);
   }
 
   .msg-time {
@@ -352,9 +280,8 @@
   }
 
   .msg-bubble {
-    max-width: 78%;
+    max-width: 76%;
     padding: 6.5px 10px;
-    border-radius: 13px 13px 4px 13px;
     font-size: 10.8px;
     font-weight: 700;
     line-height: 1.38;
@@ -362,9 +289,6 @@
     white-space: pre-wrap;
     cursor: pointer;
     transition: transform 0.12s ease, filter 0.12s ease;
-    background: var(--bbl-pink-bg);
-    border: 1px solid var(--bbl-pink-border);
-    color: var(--bbl-pink-fg);
   }
   .msg-bubble:hover {
     filter: brightness(0.985);
@@ -372,18 +296,43 @@
   .msg-bubble:active {
     transform: scale(0.98);
   }
-  .msg-bubble.tone-blue {
+
+  /* 내 말풍선 (오른쪽) */
+  .msg-block.mine .msg-bubble {
+    border-radius: 13px 13px 4px 13px;
+    background: var(--bbl-pink-bg);
+    border: 1px solid var(--bbl-pink-border);
+    color: var(--bbl-pink-fg);
+  }
+  .msg-block.mine .msg-bubble.tone-blue {
     background: var(--bbl-blue-bg);
     border-color: var(--bbl-blue-border);
     color: var(--bbl-blue-fg);
   }
-  .msg-bubble.tone-lav {
+  .msg-block.mine .msg-bubble.tone-lav {
     background: var(--bbl-lav-bg);
     border-color: var(--bbl-lav-border);
     color: var(--bbl-lav-fg);
   }
 
-  /* 하단 채팅 입력창 */
+  /* 상대 말풍선 (왼쪽) */
+  .msg-block.other .msg-bubble {
+    border-radius: 13px 13px 13px 4px;
+    background: var(--other-bbl-bg);
+    border: 1px solid var(--other-bbl-border);
+    color: var(--other-bbl-fg);
+  }
+  .msg-block.other .msg-bubble.tone-blue {
+    background: var(--bbl-blue-bg);
+    border-color: var(--bbl-blue-border);
+    color: var(--bbl-blue-fg);
+  }
+  .msg-block.other .msg-bubble.tone-lav {
+    background: var(--bbl-lav-bg);
+    border-color: var(--bbl-lav-border);
+    color: var(--bbl-lav-fg);
+  }
+
   .chat-input-bar {
     display: flex;
     align-items: flex-end;
@@ -391,7 +340,7 @@
     background: var(--inp-wrap-bg);
     border: 1.2px solid var(--inp-wrap-border);
     border-radius: 12px;
-    padding: 4px 5px 4px 9px;
+    padding: 4px 5px 4px 7px;
     flex-shrink: 0;
     transition: all 0.15s ease;
   }
@@ -399,6 +348,32 @@
     border-color: var(--inp-focus-border);
     background: var(--inp-focus-bg);
   }
+
+  .nick-input {
+    width: 56px;
+    border: 1px solid var(--nick-border);
+    background: var(--nick-bg);
+    color: var(--nick-fg);
+    border-radius: 7px;
+    padding: 2.5px 5px;
+    font-family: inherit;
+    font-size: 9.5px;
+    font-weight: 800;
+    text-align: center;
+    outline: none;
+    flex-shrink: 0;
+    margin-bottom: 1px;
+    transition: all 0.15s ease;
+  }
+  .nick-input::placeholder {
+    color: var(--nick-fg);
+    opacity: 0.65;
+  }
+  .nick-input.required {
+    border-color: var(--nick-req-border);
+    box-shadow: 0 0 0 2px rgba(232, 106, 142, 0.25);
+  }
+
   .chat-textarea {
     flex: 1;
     border: none;
@@ -424,7 +399,7 @@
     height: 14px;
     border-radius: 999px;
     border: 1.5px solid #FFFFFF;
-    box-shadow: 0 0 0 1px var(--badge-border);
+    box-shadow: 0 0 0 1px var(--nick-border);
     background: #F7B8CA;
     cursor: pointer;
     margin-bottom: 4px;
@@ -461,10 +436,9 @@
     stroke-linejoin: round;
   }
 
-  /* 복사 토스트 */
   .copy-toast {
     position: absolute;
-    top: 12px;
+    top: 10px;
     left: 50%;
     transform: translateX(-50%) translateY(-6px);
     background: var(--toast-bg);
@@ -493,6 +467,10 @@
     .msg-actions {
       opacity: 1;
     }
+    .nick-input {
+      width: 48px;
+      font-size: 9px;
+    }
     .msg-bubble {
       font-size: 10px;
       padding: 5.5px 9px;
@@ -507,28 +485,23 @@
   <div class="chat-card">
     <div class="copy-toast" id="copyToast">복사됨!</div>
 
-    <div class="c-head">
-      <div class="c-left">
-        <span class="c-badge">MEMO</span>
-        <span class="c-count" id="msgCount">0</span>
-      </div>
-      <button type="button" class="c-clear" id="clearAllBtn" onclick="handleClearAll()" title="전체 비우기">비우기</button>
-    </div>
-
-    <div class="pin-banner" id="pinBanner" onclick="copyPinned()">
-      <span class="pin-text" id="pinText"></span>
-      <button type="button" class="pin-unpin" onclick="unpinMessage(event)" title="고정 해제">×</button>
-    </div>
-
     <div class="chat-stream" id="chatStream"></div>
 
     <div class="chat-input-bar">
+      <input
+        type="text"
+        class="nick-input"
+        id="nickInput"
+        maxlength="10"
+        placeholder="이름*"
+        oninput="handleNickInput(this.value)"
+      >
       <button type="button" class="tone-dot-btn" id="toneBtn" onclick="cycleTone()" title="말풍선 색상 변경"></button>
       <textarea
         class="chat-textarea"
         id="chatInput"
         rows="1"
-        placeholder="메모 입력 (Enter 전송)"
+        placeholder="메시지 입력..."
         oninput="autoResize(this)"
         onkeydown="handleKeydown(event)"
       ></textarea>
@@ -548,12 +521,13 @@
   })();
 
   const API_BASE = "https://notion-cal.binhaha329.workers.dev";
-  const STORAGE_KEY = "lostark_pastel_chat_memo_v1";
+  const STORAGE_KEY = "lostark_pastel_chat_room_v1";
+  const NICK_KEY = "lostark_pastel_chat_nick_v1";
   const TONES = ["pink", "blue", "lav"];
 
+  let myNick = "";
   let state = {
     tone: "pink",
-    pinnedId: "",
     messages: []
   };
 
@@ -566,6 +540,38 @@
     return `${ampm} ${h12}:${m}`;
   }
 
+  function loadNick() {
+    try {
+      const saved = String(localStorage.getItem(NICK_KEY) || "").trim();
+      myNick = saved;
+      if (saved) document.getElementById("nickInput").value = saved;
+    } catch (e) {}
+  }
+
+  let nickReqTimer = null;
+  function highlightNickRequired() {
+    const nickEl = document.getElementById("nickInput");
+    nickEl.classList.add("required");
+    nickEl.focus();
+    showToast("이름을 먼저 입력해 주세요");
+    clearTimeout(nickReqTimer);
+    nickReqTimer = setTimeout(() => {
+      nickEl.classList.remove("required");
+    }, 1500);
+  }
+
+  function handleNickInput(val) {
+    const trimmed = String(val || "").trim();
+    myNick = trimmed;
+    const nickEl = document.getElementById("nickInput");
+    if (trimmed) nickEl.classList.remove("required");
+    try {
+      if (trimmed) localStorage.setItem(NICK_KEY, trimmed);
+      else localStorage.removeItem(NICK_KEY);
+    } catch (e) {}
+    render(false);
+  }
+
   function normalizeMessages(raw) {
     if (!raw || typeof raw !== "object") return null;
     const list = Array.isArray(raw.messages) ? raw.messages : [];
@@ -573,39 +579,53 @@
       .filter(m => m && typeof m.text === "string" && m.text.trim())
       .map((m, idx) => ({
         id: String(m.id || `m_${Date.now()}_${idx}`),
+        sender: String(m.sender || "").trim(),
         text: String(m.text),
         time: String(m.time || ""),
         tone: TONES.includes(m.tone) ? m.tone : "pink"
       }));
     return {
       tone: TONES.includes(raw.tone) ? raw.tone : "pink",
-      pinnedId: String(raw.pinnedId || ""),
       messages: cleaned
     };
   }
 
-  async function loadState() {
-    try {
-      const local = JSON.parse(localStorage.getItem(STORAGE_KEY));
-      const norm = normalizeMessages(local);
-      if (norm) {
-        state = norm;
-        render(true);
-      }
-    } catch (e) {}
+  function getSig(list) {
+    return (list || []).map(m => `${m.id}:${m.sender}:${m.text}:${m.time}:${m.tone}`).join("|");
+  }
+
+  async function loadState(isPolling = false) {
+    if (!isPolling) {
+      loadNick();
+      try {
+        const local = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        const norm = normalizeMessages(local);
+        if (norm) {
+          state = norm;
+          render(true);
+        }
+      } catch (e) {}
+    }
 
     try {
       const res = await fetch(`${API_BASE}/memo?t=${Date.now()}`);
       const data = await res.json();
       const rawMemo = data && (data.chatMemo || data.state || data);
       const norm = normalizeMessages(rawMemo);
-      if (norm && (norm.messages.length > 0 || state.messages.length === 0)) {
-        state = norm;
-        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
-        render(true);
+      if (norm && (norm.messages.length > 0 || !isPolling)) {
+        const prevSig = getSig(state.messages);
+        const nextSig = getSig(norm.messages);
+        if (prevSig !== nextSig || !isPolling) {
+          const hadNew = norm.messages.length > state.messages.length;
+          state = norm;
+          try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+          render(hadNew || !isPolling);
+        }
       }
     } catch (e) {}
   }
+
+  setInterval(() => loadState(true), 8000);
 
   let saveTimer = null;
   function saveState() {
@@ -647,12 +667,23 @@
   }
 
   function sendMessage() {
+    const nickInput = document.getElementById("nickInput");
+    const sender = String(nickInput.value || "").trim();
+    if (!sender) {
+      highlightNickRequired();
+      return;
+    }
+
     const input = document.getElementById("chatInput");
     const text = input.value.trim();
     if (!text) return;
 
+    myNick = sender;
+    try { localStorage.setItem(NICK_KEY, sender); } catch (e) {}
+
     state.messages.push({
       id: `m_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+      sender,
       text,
       time: formatTimeNow(),
       tone: state.tone
@@ -667,96 +698,56 @@
   function deleteMessage(id, e) {
     if (e) e.stopPropagation();
     state.messages = state.messages.filter(m => m.id !== id);
-    if (state.pinnedId === id) state.pinnedId = "";
     render(false);
     saveState();
-  }
-
-  function pinMessage(id, e) {
-    if (e) e.stopPropagation();
-    state.pinnedId = state.pinnedId === id ? "" : id;
-    render(false);
-    saveState();
-  }
-
-  function unpinMessage(e) {
-    if (e) e.stopPropagation();
-    state.pinnedId = "";
-    render(false);
-    saveState();
-  }
-
-  function copyPinned() {
-    const pinned = state.messages.find(m => m.id === state.pinnedId);
-    if (pinned) copyText(pinned.text);
   }
 
   let toastTimer = null;
-  function copyText(text) {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).catch(() => {});
-    }
+  function showToast(msg) {
     const toast = document.getElementById("copyToast");
+    toast.textContent = msg || "복사됨!";
     toast.classList.add("show");
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => {
       toast.classList.remove("show");
-    }, 1100);
+    }, 1200);
   }
 
-  let clearTimer = null;
-  function handleClearAll() {
-    if (state.messages.length === 0) return;
-    const btn = document.getElementById("clearAllBtn");
-    if (!btn.classList.contains("confirming")) {
-      btn.classList.add("confirming");
-      btn.textContent = "전체삭제?";
-      clearTimeout(clearTimer);
-      clearTimer = setTimeout(() => {
-        btn.classList.remove("confirming");
-        btn.textContent = "비우기";
-      }, 2800);
-      return;
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).catch(() => {});
     }
-
-    clearTimeout(clearTimer);
-    btn.classList.remove("confirming");
-    btn.textContent = "비우기";
-    state.messages = [];
-    state.pinnedId = "";
-    render(false);
-    saveState();
+    showToast("복사됨!");
   }
 
   function render(scrollToBottom) {
     updateToneDot();
-    document.getElementById("msgCount").textContent = state.messages.length;
-
-    const pinBanner = document.getElementById("pinBanner");
-    const pinText = document.getElementById("pinText");
-    const pinnedMsg = state.messages.find(m => m.id === state.pinnedId);
-    if (pinnedMsg) {
-      pinBanner.classList.add("visible");
-      pinText.textContent = `📌 ${pinnedMsg.text.replace(/\n+/g, " ")}`;
-    } else {
-      pinBanner.classList.remove("visible");
-      pinText.textContent = "";
-    }
-
     const streamEl = document.getElementById("chatStream");
     streamEl.innerHTML = "";
 
     if (state.messages.length === 0) {
-      streamEl.innerHTML = `
-        <div class="empty-chat">
-          <span>메모를 남겨보세요</span>
-          <span class="empty-sub">말풍선 클릭 시 복사 · 왼쪽 점으로 색상 변경</span>
-        </div>
-      `;
+      streamEl.innerHTML = `<div class="empty-chat">대화를 남겨보세요</div>`;
       return;
     }
 
-    state.messages.forEach(msg => {
+    const currentNick = String(document.getElementById("nickInput")?.value || myNick || "").trim();
+
+    state.messages.forEach((msg, idx) => {
+      const isMine = Boolean(currentNick && msg.sender && msg.sender === currentNick);
+      const prev = state.messages[idx - 1];
+      const prevIsMine = prev ? Boolean(currentNick && prev.sender && prev.sender === currentNick) : null;
+      const sameGroupAsPrev = prev && prev.sender === msg.sender && prev.time === msg.time && prevIsMine === isMine;
+
+      const block = document.createElement("div");
+      block.className = "msg-block " + (isMine ? "mine" : "other");
+
+      if (!isMine && msg.sender && !sameGroupAsPrev) {
+        const senderEl = document.createElement("div");
+        senderEl.className = "msg-sender";
+        senderEl.textContent = msg.sender;
+        block.appendChild(senderEl);
+      }
+
       const row = document.createElement("div");
       row.className = "msg-row";
 
@@ -766,13 +757,6 @@
       const actions = document.createElement("div");
       actions.className = "msg-actions";
 
-      const pinBtn = document.createElement("button");
-      pinBtn.type = "button";
-      pinBtn.className = "act-btn";
-      pinBtn.textContent = state.pinnedId === msg.id ? "★" : "☆";
-      pinBtn.title = "상단 고정";
-      pinBtn.onclick = (e) => pinMessage(msg.id, e);
-
       const delBtn = document.createElement("button");
       delBtn.type = "button";
       delBtn.className = "act-btn";
@@ -780,7 +764,6 @@
       delBtn.title = "삭제";
       delBtn.onclick = (e) => deleteMessage(msg.id, e);
 
-      actions.appendChild(pinBtn);
       actions.appendChild(delBtn);
 
       const timeSpan = document.createElement("span");
@@ -796,9 +779,16 @@
       bubble.title = "클릭 시 복사";
       bubble.onclick = () => copyText(msg.text);
 
-      row.appendChild(meta);
-      row.appendChild(bubble);
-      streamEl.appendChild(row);
+      if (isMine) {
+        row.appendChild(meta);
+        row.appendChild(bubble);
+      } else {
+        row.appendChild(bubble);
+        row.appendChild(meta);
+      }
+
+      block.appendChild(row);
+      streamEl.appendChild(block);
     });
 
     if (scrollToBottom) {
@@ -807,7 +797,7 @@
   }
 
   render(true);
-  loadState();
+  loadState(false);
 </script>
 </body>
 </html>
