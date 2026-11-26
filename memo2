@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: transparent;
+    width: 100%;
+    overflow-x: hidden;
+  }
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 4px;
+  }
+
+  :root {
+    --page-bg: transparent;
+    --card-bg: #FFFFFF;
+    --card-border: #F9E5E9;
+    --card-shadow: 0 4px 16px rgba(244, 182, 198, 0.1);
+    --scroll-thumb: #F2DCE2;
+    --badge-bg: #FCE6ED;
+    --badge-border: #F3C3D1;
+    --badge-fg: #C95B7A;
+    --count-fg: #A89D9A;
+    --clear-fg: #AED9EB;
+    --clear-hover-fg: #E58FA7;
+    --clear-hover-bg: #FDF5F7;
+    --clear-conf-bg: #FCE6ED;
+    --clear-conf-fg: #C95B7A;
+    --pin-bar-bg: #FDF5F7;
+    --pin-bar-border: #F5DCE3;
+    --pin-fg: #C95B7A;
+    --bbl-pink-bg: #FCE8EE;
+    --bbl-pink-border: #F5DCE3;
+    --bbl-pink-fg: #4A4442;
+    --bbl-blue-bg: #E6F3FB;
+    --bbl-blue-border: #D0E8F7;
+    --bbl-blue-fg: #3B4954;
+    --bbl-lav-bg: #F2EBFC;
+    --bbl-lav-border: #E4D7F7;
+    --bbl-lav-fg: #494154;
+    --time-fg: #B0A6A3;
+    --act-bg: #FFFFFF;
+    --act-border: #F2DCE2;
+    --act-fg: #9E8F94;
+    --act-hover-fg: #C95B7A;
+    --inp-wrap-bg: #FDFBFC;
+    --inp-wrap-border: #F2DCE2;
+    --inp-focus-border: #F29CB4;
+    --inp-focus-bg: #FFFFFF;
+    --txt-main: #4A4442;
+    --inp-ph: #BEB5B2;
+    --send-bg: #F28BA8;
+    --send-hover-bg: #E67595;
+    --send-fg: #FFFFFF;
+    --empty-fg: #B5AEAB;
+    --toast-bg: rgba(201, 91, 122, 0.92);
+    --toast-fg: #FFFFFF;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --page-bg: #191919;
+      --card-bg: #1B1A20;
+      --card-border: #383342;
+      --card-shadow: 0 6px 20px rgba(0, 0, 0, 0.42);
+      --scroll-thumb: #4B3846;
+      --badge-bg: #3B252E;
+      --badge-border: #5E3A4A;
+      --badge-fg: #F5A3BC;
+      --count-fg: #8E879E;
+      --clear-fg: #7CB4CE;
+      --clear-hover-fg: #F5A3BC;
+      --clear-hover-bg: #2B2533;
+      --clear-conf-bg: #3B252E;
+      --clear-conf-fg: #F5A3BC;
+      --pin-bar-bg: #292230;
+      --pin-bar-border: #4A3548;
+      --pin-fg: #F5A3BC;
+      --bbl-pink-bg: #36232D;
+      --bbl-pink-border: #543646;
+      --bbl-pink-fg: #F4F2F8;
+      --bbl-blue-bg: #223442;
+      --bbl-blue-border: #344F63;
+      --bbl-blue-fg: #ECF4FA;
+      --bbl-lav-bg: #2D263B;
+      --bbl-lav-border: #463B5C;
+      --bbl-lav-fg: #F2EFFA;
+      --time-fg: #878296;
+      --act-bg: #24232B;
+      --act-border: #3F394D;
+      --act-fg: #9A95A8;
+      --act-hover-fg: #F5A3BC;
+      --inp-wrap-bg: #24232B;
+      --inp-wrap-border: #3A3646;
+      --inp-focus-border: #C95B7A;
+      --inp-focus-bg: #2C2A35;
+      --txt-main: #F4F2F8;
+      --inp-ph: #878296;
+      --send-bg: #C95B7A;
+      --send-hover-bg: #DE6F8E;
+      --send-fg: #FFFFFF;
+      --empty-fg: #878296;
+      --toast-bg: rgba(201, 91, 122, 0.95);
+      --toast-fg: #FFFFFF;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --page-bg: #191919;
+    --card-bg: #1B1A20;
+    --card-border: #383342;
+    --card-shadow: 0 6px 20px rgba(0, 0, 0, 0.42);
+    --scroll-thumb: #4B3846;
+    --badge-bg: #3B252E;
+    --badge-border: #5E3A4A;
+    --badge-fg: #F5A3BC;
+    --count-fg: #8E879E;
+    --clear-fg: #7CB4CE;
+    --clear-hover-fg: #F5A3BC;
+    --clear-hover-bg: #2B2533;
+    --clear-conf-bg: #3B252E;
+    --clear-conf-fg: #F5A3BC;
+    --pin-bar-bg: #292230;
+    --pin-bar-border: #4A3548;
+    --pin-fg: #F5A3BC;
+    --bbl-pink-bg: #36232D;
+    --bbl-pink-border: #543646;
+    --bbl-pink-fg: #F4F2F8;
+    --bbl-blue-bg: #223442;
+    --bbl-blue-border: #344F63;
+    --bbl-blue-fg: #ECF4FA;
+    --bbl-lav-bg: #2D263B;
+    --bbl-lav-border: #463B5C;
+    --bbl-lav-fg: #F2EFFA;
+    --time-fg: #878296;
+    --act-bg: #24232B;
+    --act-border: #3F394D;
+    --act-fg: #9A95A8;
+    --act-hover-fg: #F5A3BC;
+    --inp-wrap-bg: #24232B;
+    --inp-wrap-border: #3A3646;
+    --inp-focus-border: #C95B7A;
+    --inp-focus-bg: #2C2A35;
+    --txt-main: #F4F2F8;
+    --inp-ph: #878296;
+    --send-bg: #C95B7A;
+    --send-hover-bg: #DE6F8E;
+    --send-fg: #FFFFFF;
+    --empty-fg: #878296;
+    --toast-bg: rgba(201, 91, 122, 0.95);
+    --toast-fg: #FFFFFF;
+  }
+
+  html, body {
+    background: var(--page-bg);
+  }
+
+  .chat-card {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    background: var(--card-bg);
+    border: 1.5px solid var(--card-border);
+    border-radius: 22px;
+    padding: 12px 13px 11px;
+    box-shadow: var(--card-shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    overflow: hidden;
+  }
+
+  .c-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    padding-right: 34px;
+    flex-shrink: 0;
+  }
+  .c-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .c-badge {
+    border: 1px solid var(--badge-border);
+    font-size: 10.5px;
+    font-weight: 800;
+    padding: 2.5px 9px;
+    border-radius: 7px;
+    background: var(--badge-bg);
+    color: var(--badge-fg);
+  }
+  .c-count {
+    font-size: 9.5px;
+    font-weight: 700;
+    color: var(--count-fg);
+  }
+  .c-clear {
+    border: none;
+    background: transparent;
+    color: var(--clear-fg);
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 800;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 6px;
+    transition: all 0.15s ease;
+  }
+  .c-clear:hover {
+    color: var(--clear-hover-fg);
+    background: var(--clear-hover-bg);
+  }
+  .c-clear.confirming {
+    background: var(--clear-conf-bg);
+    color: var(--clear-conf-fg);
+  }
+
+  /* 고정 메모 배너 */
+  .pin-banner {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    background: var(--pin-bar-bg);
+    border: 1px solid var(--pin-bar-border);
+    border-radius: 9px;
+    padding: 4.5px 8px;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .pin-banner.visible {
+    display: flex;
+  }
+  .pin-text {
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--pin-fg);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .pin-unpin {
+    border: none;
+    background: transparent;
+    color: var(--pin-fg);
+    font-size: 10px;
+    font-weight: 800;
+    cursor: pointer;
+    opacity: 0.75;
+    flex-shrink: 0;
+  }
+  .pin-unpin:hover { opacity: 1; }
+
+  /* 채팅 메시지 영역 */
+  .chat-stream {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 2px 3px 2px 1px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .chat-stream::-webkit-scrollbar { width: 3px; }
+  .chat-stream::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 999px; }
+
+  .empty-chat {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    text-align: center;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--empty-fg);
+  }
+  .empty-sub {
+    font-size: 9px;
+    font-weight: 600;
+    opacity: 0.85;
+  }
+
+  .msg-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    gap: 5px;
+    animation: popIn 0.16s ease-out;
+  }
+  @keyframes popIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    flex-shrink: 0;
+  }
+  .msg-actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+  .msg-row:hover .msg-actions {
+    opacity: 1;
+  }
+  .act-btn {
+    border: 1px solid var(--act-border);
+    background: var(--act-bg);
+    color: var(--act-fg);
+    font-family: inherit;
+    font-size: 8.5px;
+    font-weight: 800;
+    width: 15px;
+    height: 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    transition: all 0.12s ease;
+  }
+  .act-btn:hover {
+    color: var(--act-hover-fg);
+    border-color: var(--badge-border);
+  }
+
+  .msg-time {
+    font-size: 8.5px;
+    font-weight: 700;
+    color: var(--time-fg);
+    white-space: nowrap;
+  }
+
+  .msg-bubble {
+    max-width: 78%;
+    padding: 6.5px 10px;
+    border-radius: 13px 13px 4px 13px;
+    font-size: 10.8px;
+    font-weight: 700;
+    line-height: 1.38;
+    word-break: break-word;
+    white-space: pre-wrap;
+    cursor: pointer;
+    transition: transform 0.12s ease, filter 0.12s ease;
+    background: var(--bbl-pink-bg);
+    border: 1px solid var(--bbl-pink-border);
+    color: var(--bbl-pink-fg);
+  }
+  .msg-bubble:hover {
+    filter: brightness(0.985);
+  }
+  .msg-bubble:active {
+    transform: scale(0.98);
+  }
+  .msg-bubble.tone-blue {
+    background: var(--bbl-blue-bg);
+    border-color: var(--bbl-blue-border);
+    color: var(--bbl-blue-fg);
+  }
+  .msg-bubble.tone-lav {
+    background: var(--bbl-lav-bg);
+    border-color: var(--bbl-lav-border);
+    color: var(--bbl-lav-fg);
+  }
+
+  /* 하단 채팅 입력창 */
+  .chat-input-bar {
+    display: flex;
+    align-items: flex-end;
+    gap: 5px;
+    background: var(--inp-wrap-bg);
+    border: 1.2px solid var(--inp-wrap-border);
+    border-radius: 12px;
+    padding: 4px 5px 4px 9px;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+  }
+  .chat-input-bar:focus-within {
+    border-color: var(--inp-focus-border);
+    background: var(--inp-focus-bg);
+  }
+  .chat-textarea {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 10.8px;
+    font-weight: 700;
+    color: var(--txt-main);
+    line-height: 1.35;
+    resize: none;
+    outline: none;
+    max-height: 54px;
+    min-height: 18px;
+    padding: 2px 0;
+  }
+  .chat-textarea::placeholder {
+    color: var(--inp-ph);
+    font-weight: 600;
+  }
+
+  .tone-dot-btn {
+    width: 14px;
+    height: 14px;
+    border-radius: 999px;
+    border: 1.5px solid #FFFFFF;
+    box-shadow: 0 0 0 1px var(--badge-border);
+    background: #F7B8CA;
+    cursor: pointer;
+    margin-bottom: 4px;
+    flex-shrink: 0;
+    transition: transform 0.15s ease;
+  }
+  .tone-dot-btn:hover { transform: scale(1.15); }
+  .tone-dot-btn.tone-blue { background: #A9D8F5; box-shadow: 0 0 0 1px #98CCE8; }
+  .tone-dot-btn.tone-lav { background: #CEB8F5; box-shadow: 0 0 0 1px #BCA3EB; }
+
+  .send-btn {
+    border: none;
+    background: var(--send-bg);
+    color: var(--send-fg);
+    width: 24px;
+    height: 22px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+  }
+  .send-btn:hover { background: var(--send-hover-bg); }
+  .send-btn:active { transform: scale(0.92); }
+  .send-icon {
+    width: 11px;
+    height: 11px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* 복사 토스트 */
+  .copy-toast {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-6px);
+    background: var(--toast-bg);
+    color: var(--toast-fg);
+    font-size: 9.5px;
+    font-weight: 800;
+    padding: 3px 10px;
+    border-radius: 999px;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.18s ease;
+    z-index: 20;
+  }
+  .copy-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  @media (max-width: 480px) {
+    body { padding: 2px; }
+    .chat-card {
+      height: 270px;
+      border-radius: 16px;
+      padding: 9px 10px;
+    }
+    .msg-actions {
+      opacity: 1;
+    }
+    .msg-bubble {
+      font-size: 10px;
+      padding: 5.5px 9px;
+    }
+    .chat-textarea {
+      font-size: 10px;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="chat-card">
+    <div class="copy-toast" id="copyToast">복사됨!</div>
+
+    <div class="c-head">
+      <div class="c-left">
+        <span class="c-badge">MEMO</span>
+        <span class="c-count" id="msgCount">0</span>
+      </div>
+      <button type="button" class="c-clear" id="clearAllBtn" onclick="handleClearAll()" title="전체 비우기">비우기</button>
+    </div>
+
+    <div class="pin-banner" id="pinBanner" onclick="copyPinned()">
+      <span class="pin-text" id="pinText"></span>
+      <button type="button" class="pin-unpin" onclick="unpinMessage(event)" title="고정 해제">×</button>
+    </div>
+
+    <div class="chat-stream" id="chatStream"></div>
+
+    <div class="chat-input-bar">
+      <button type="button" class="tone-dot-btn" id="toneBtn" onclick="cycleTone()" title="말풍선 색상 변경"></button>
+      <textarea
+        class="chat-textarea"
+        id="chatInput"
+        rows="1"
+        placeholder="메모 입력 (Enter 전송)"
+        oninput="autoResize(this)"
+        onkeydown="handleKeydown(event)"
+      ></textarea>
+      <button type="button" class="send-btn" onclick="sendMessage()" title="전송">
+        <svg class="send-icon" viewBox="0 0 24 24">
+          <line x1="12" y1="19" x2="12" y2="5"></line>
+          <polyline points="5 12 12 5 19 12"></polyline>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+<script>
+  (function applyThemeParam() {
+    const t = new URLSearchParams(location.search).get("theme");
+    if (t === "dark" || t === "light") document.documentElement.setAttribute("data-theme", t);
+  })();
+
+  const API_BASE = "https://notion-cal.binhaha329.workers.dev";
+  const STORAGE_KEY = "lostark_pastel_chat_memo_v1";
+  const TONES = ["pink", "blue", "lav"];
+
+  let state = {
+    tone: "pink",
+    pinnedId: "",
+    messages: []
+  };
+
+  function formatTimeNow() {
+    const now = new Date();
+    const h = now.getHours();
+    const m = String(now.getMinutes()).padStart(2, "0");
+    const ampm = h < 12 ? "오전" : "오후";
+    const h12 = h % 12 === 0 ? 12 : h % 12;
+    return `${ampm} ${h12}:${m}`;
+  }
+
+  function normalizeMessages(raw) {
+    if (!raw || typeof raw !== "object") return null;
+    const list = Array.isArray(raw.messages) ? raw.messages : [];
+    const cleaned = list
+      .filter(m => m && typeof m.text === "string" && m.text.trim())
+      .map((m, idx) => ({
+        id: String(m.id || `m_${Date.now()}_${idx}`),
+        text: String(m.text),
+        time: String(m.time || ""),
+        tone: TONES.includes(m.tone) ? m.tone : "pink"
+      }));
+    return {
+      tone: TONES.includes(raw.tone) ? raw.tone : "pink",
+      pinnedId: String(raw.pinnedId || ""),
+      messages: cleaned
+    };
+  }
+
+  async function loadState() {
+    try {
+      const local = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      const norm = normalizeMessages(local);
+      if (norm) {
+        state = norm;
+        render(true);
+      }
+    } catch (e) {}
+
+    try {
+      const res = await fetch(`${API_BASE}/memo?t=${Date.now()}`);
+      const data = await res.json();
+      const rawMemo = data && (data.chatMemo || data.state || data);
+      const norm = normalizeMessages(rawMemo);
+      if (norm && (norm.messages.length > 0 || state.messages.length === 0)) {
+        state = norm;
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+        render(true);
+      }
+    } catch (e) {}
+  }
+
+  let saveTimer = null;
+  function saveState() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      fetch(`${API_BASE}/memo`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chatMemo: state })
+      }).catch(() => {});
+    }, 300);
+  }
+
+  function autoResize(el) {
+    el.style.height = "auto";
+    el.style.height = Math.min(el.scrollHeight, 54) + "px";
+  }
+
+  function handleKeydown(e) {
+    if (e.isComposing) return;
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  }
+
+  function cycleTone() {
+    const idx = TONES.indexOf(state.tone);
+    state.tone = TONES[(idx + 1) % TONES.length];
+    updateToneDot();
+  }
+
+  function updateToneDot() {
+    const btn = document.getElementById("toneBtn");
+    btn.classList.remove("tone-blue", "tone-lav");
+    if (state.tone === "blue") btn.classList.add("tone-blue");
+    if (state.tone === "lav") btn.classList.add("tone-lav");
+  }
+
+  function sendMessage() {
+    const input = document.getElementById("chatInput");
+    const text = input.value.trim();
+    if (!text) return;
+
+    state.messages.push({
+      id: `m_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+      text,
+      time: formatTimeNow(),
+      tone: state.tone
+    });
+
+    input.value = "";
+    input.style.height = "18px";
+    render(true);
+    saveState();
+  }
+
+  function deleteMessage(id, e) {
+    if (e) e.stopPropagation();
+    state.messages = state.messages.filter(m => m.id !== id);
+    if (state.pinnedId === id) state.pinnedId = "";
+    render(false);
+    saveState();
+  }
+
+  function pinMessage(id, e) {
+    if (e) e.stopPropagation();
+    state.pinnedId = state.pinnedId === id ? "" : id;
+    render(false);
+    saveState();
+  }
+
+  function unpinMessage(e) {
+    if (e) e.stopPropagation();
+    state.pinnedId = "";
+    render(false);
+    saveState();
+  }
+
+  function copyPinned() {
+    const pinned = state.messages.find(m => m.id === state.pinnedId);
+    if (pinned) copyText(pinned.text);
+  }
+
+  let toastTimer = null;
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).catch(() => {});
+    }
+    const toast = document.getElementById("copyToast");
+    toast.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      toast.classList.remove("show");
+    }, 1100);
+  }
+
+  let clearTimer = null;
+  function handleClearAll() {
+    if (state.messages.length === 0) return;
+    const btn = document.getElementById("clearAllBtn");
+    if (!btn.classList.contains("confirming")) {
+      btn.classList.add("confirming");
+      btn.textContent = "전체삭제?";
+      clearTimeout(clearTimer);
+      clearTimer = setTimeout(() => {
+        btn.classList.remove("confirming");
+        btn.textContent = "비우기";
+      }, 2800);
+      return;
+    }
+
+    clearTimeout(clearTimer);
+    btn.classList.remove("confirming");
+    btn.textContent = "비우기";
+    state.messages = [];
+    state.pinnedId = "";
+    render(false);
+    saveState();
+  }
+
+  function render(scrollToBottom) {
+    updateToneDot();
+    document.getElementById("msgCount").textContent = state.messages.length;
+
+    const pinBanner = document.getElementById("pinBanner");
+    const pinText = document.getElementById("pinText");
+    const pinnedMsg = state.messages.find(m => m.id === state.pinnedId);
+    if (pinnedMsg) {
+      pinBanner.classList.add("visible");
+      pinText.textContent = `📌 ${pinnedMsg.text.replace(/\n+/g, " ")}`;
+    } else {
+      pinBanner.classList.remove("visible");
+      pinText.textContent = "";
+    }
+
+    const streamEl = document.getElementById("chatStream");
+    streamEl.innerHTML = "";
+
+    if (state.messages.length === 0) {
+      streamEl.innerHTML = `
+        <div class="empty-chat">
+          <span>메모를 남겨보세요</span>
+          <span class="empty-sub">말풍선 클릭 시 복사 · 왼쪽 점으로 색상 변경</span>
+        </div>
+      `;
+      return;
+    }
+
+    state.messages.forEach(msg => {
+      const row = document.createElement("div");
+      row.className = "msg-row";
+
+      const meta = document.createElement("div");
+      meta.className = "msg-meta";
+
+      const actions = document.createElement("div");
+      actions.className = "msg-actions";
+
+      const pinBtn = document.createElement("button");
+      pinBtn.type = "button";
+      pinBtn.className = "act-btn";
+      pinBtn.textContent = state.pinnedId === msg.id ? "★" : "☆";
+      pinBtn.title = "상단 고정";
+      pinBtn.onclick = (e) => pinMessage(msg.id, e);
+
+      const delBtn = document.createElement("button");
+      delBtn.type = "button";
+      delBtn.className = "act-btn";
+      delBtn.textContent = "×";
+      delBtn.title = "삭제";
+      delBtn.onclick = (e) => deleteMessage(msg.id, e);
+
+      actions.appendChild(pinBtn);
+      actions.appendChild(delBtn);
+
+      const timeSpan = document.createElement("span");
+      timeSpan.className = "msg-time";
+      timeSpan.textContent = msg.time;
+
+      meta.appendChild(actions);
+      meta.appendChild(timeSpan);
+
+      const bubble = document.createElement("div");
+      bubble.className = "msg-bubble" + (msg.tone === "blue" ? " tone-blue" : msg.tone === "lav" ? " tone-lav" : "");
+      bubble.textContent = msg.text;
+      bubble.title = "클릭 시 복사";
+      bubble.onclick = () => copyText(msg.text);
+
+      row.appendChild(meta);
+      row.appendChild(bubble);
+      streamEl.appendChild(row);
+    });
+
+    if (scrollToBottom) {
+      streamEl.scrollTop = streamEl.scrollHeight;
+    }
+  }
+
+  render(true);
+  loadState();
+</script>
+</body>
+</html>
