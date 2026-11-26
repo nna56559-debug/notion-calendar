@@ -31,25 +31,45 @@
     --date-fg: #9E838C;
     --date-line: #F5E6EA;
 
+    /* 1. 핑크 */
     --bbl-pink-bg: #FCE8EE;
     --bbl-pink-border: #F5DCE3;
     --bbl-pink-fg: #4A4442;
 
+    /* 2. 블루 */
     --bbl-blue-bg: #E6F3FB;
     --bbl-blue-border: #D0E8F7;
     --bbl-blue-fg: #3B4954;
 
+    /* 3. 라벤더 */
     --bbl-lav-bg: #F2EBFC;
     --bbl-lav-border: #E4D7F7;
     --bbl-lav-fg: #494154;
 
+    /* 4. 노랑 */
     --bbl-yellow-bg: #FFF7DC;
     --bbl-yellow-border: #F5E4A8;
     --bbl-yellow-fg: #52482B;
 
+    /* 5. 초록 */
     --bbl-green-bg: #E6F7EE;
     --bbl-green-border: #C9EAD8;
     --bbl-green-fg: #354E41;
+
+    /* 6. 피치 */
+    --bbl-peach-bg: #FFEDE2;
+    --bbl-peach-border: #F7D4C0;
+    --bbl-peach-fg: #543F33;
+
+    /* 7. 민트 */
+    --bbl-mint-bg: #E3F7F4;
+    --bbl-mint-border: #C2EAE4;
+    --bbl-mint-fg: #324E4A;
+
+    /* 8. 코랄 */
+    --bbl-coral-bg: #FFE9E6;
+    --bbl-coral-border: #F7CCC6;
+    --bbl-coral-fg: #543835;
 
     --other-bbl-bg: #F7F4F6;
     --other-bbl-border: #ECE4E8;
@@ -72,6 +92,7 @@
     --nick-locked-border: #EABAC8;
     --nick-req-border: #E86A8E;
     --txt-main: #4A4442;
+    --txt-sub: #8A7E82;
     --inp-ph: #BEB5B2;
     --sync-fg: #9E8F94;
     --sync-hover-fg: #C95B7A;
@@ -81,6 +102,16 @@
     --empty-fg: #B5AEAB;
     --toast-bg: rgba(201, 91, 122, 0.92);
     --toast-fg: #FFFFFF;
+
+    --modal-backdrop: rgba(74, 68, 66, 0.28);
+    --modal-bg: #FFFFFF;
+    --modal-border: #F5DCE3;
+    --modal-shadow: 0 10px 26px rgba(201, 91, 122, 0.18);
+    --modal-chip-bg: #FCE8EE;
+    --modal-chip-fg: #C95B7A;
+    --cancel-bg: #F7F3F5;
+    --cancel-fg: #7D7276;
+    --cancel-hover-bg: #EFE8EC;
   }
 
   @media (prefers-color-scheme: dark) {
@@ -116,6 +147,18 @@
       --bbl-green-border: #325443;
       --bbl-green-fg: #E7F7EE;
 
+      --bbl-peach-bg: #3A2920;
+      --bbl-peach-border: #5C4032;
+      --bbl-peach-fg: #FBECE3;
+
+      --bbl-mint-bg: #1E3533;
+      --bbl-mint-border: #2F5350;
+      --bbl-mint-fg: #E4F7F4;
+
+      --bbl-coral-bg: #3B2422;
+      --bbl-coral-border: #5E3936;
+      --bbl-coral-fg: #FBE7E4;
+
       --other-bbl-bg: #26252E;
       --other-bbl-border: #3B3748;
       --other-bbl-fg: #EAE6F4;
@@ -137,6 +180,7 @@
       --nick-locked-border: #78485C;
       --nick-req-border: #F5A3BC;
       --txt-main: #F4F2F8;
+      --txt-sub: #A59EB8;
       --inp-ph: #878296;
       --sync-fg: #9A95A8;
       --sync-hover-fg: #F5A3BC;
@@ -146,6 +190,16 @@
       --empty-fg: #878296;
       --toast-bg: rgba(201, 91, 122, 0.95);
       --toast-fg: #FFFFFF;
+
+      --modal-backdrop: rgba(10, 9, 14, 0.62);
+      --modal-bg: #23212B;
+      --modal-border: #4A384A;
+      --modal-shadow: 0 12px 28px rgba(0, 0, 0, 0.55);
+      --modal-chip-bg: #3B252E;
+      --modal-chip-fg: #F5A3BC;
+      --cancel-bg: #2E2B38;
+      --cancel-fg: #B8B0CC;
+      --cancel-hover-bg: #393546;
     }
   }
 
@@ -181,6 +235,18 @@
     --bbl-green-border: #325443;
     --bbl-green-fg: #E7F7EE;
 
+    --bbl-peach-bg: #3A2920;
+    --bbl-peach-border: #5C4032;
+    --bbl-peach-fg: #FBECE3;
+
+    --bbl-mint-bg: #1E3533;
+    --bbl-mint-border: #2F5350;
+    --bbl-mint-fg: #E4F7F4;
+
+    --bbl-coral-bg: #3B2422;
+    --bbl-coral-border: #5E3936;
+    --bbl-coral-fg: #FBE7E4;
+
     --other-bbl-bg: #26252E;
     --other-bbl-border: #3B3748;
     --other-bbl-fg: #EAE6F4;
@@ -202,6 +268,7 @@
     --nick-locked-border: #78485C;
     --nick-req-border: #F5A3BC;
     --txt-main: #F4F2F8;
+    --txt-sub: #A59EB8;
     --inp-ph: #878296;
     --sync-fg: #9A95A8;
     --sync-hover-fg: #F5A3BC;
@@ -211,6 +278,16 @@
     --empty-fg: #878296;
     --toast-bg: rgba(201, 91, 122, 0.95);
     --toast-fg: #FFFFFF;
+
+    --modal-backdrop: rgba(10, 9, 14, 0.62);
+    --modal-bg: #23212B;
+    --modal-border: #4A384A;
+    --modal-shadow: 0 12px 28px rgba(0, 0, 0, 0.55);
+    --modal-chip-bg: #3B252E;
+    --modal-chip-fg: #F5A3BC;
+    --cancel-bg: #2E2B38;
+    --cancel-fg: #B8B0CC;
+    --cancel-hover-bg: #393546;
   }
 
   html, body {
@@ -423,6 +500,21 @@
     border-color: var(--bbl-green-border);
     color: var(--bbl-green-fg);
   }
+  .msg-block.mine .msg-bubble.tone-peach {
+    background: var(--bbl-peach-bg);
+    border-color: var(--bbl-peach-border);
+    color: var(--bbl-peach-fg);
+  }
+  .msg-block.mine .msg-bubble.tone-mint {
+    background: var(--bbl-mint-bg);
+    border-color: var(--bbl-mint-border);
+    color: var(--bbl-mint-fg);
+  }
+  .msg-block.mine .msg-bubble.tone-coral {
+    background: var(--bbl-coral-bg);
+    border-color: var(--bbl-coral-border);
+    color: var(--bbl-coral-fg);
+  }
 
   /* 상대 말풍선 (왼쪽) */
   .msg-block.other .msg-bubble {
@@ -450,6 +542,21 @@
     background: var(--bbl-green-bg);
     border-color: var(--bbl-green-border);
     color: var(--bbl-green-fg);
+  }
+  .msg-block.other .msg-bubble.tone-peach {
+    background: var(--bbl-peach-bg);
+    border-color: var(--bbl-peach-border);
+    color: var(--bbl-peach-fg);
+  }
+  .msg-block.other .msg-bubble.tone-mint {
+    background: var(--bbl-mint-bg);
+    border-color: var(--bbl-mint-border);
+    color: var(--bbl-mint-fg);
+  }
+  .msg-block.other .msg-bubble.tone-coral {
+    background: var(--bbl-coral-bg);
+    border-color: var(--bbl-coral-border);
+    color: var(--bbl-coral-fg);
   }
 
   .chat-input-bar {
@@ -536,6 +643,9 @@
   .tone-dot-btn.tone-lav { background: #CEB8F5; box-shadow: 0 0 0 1px #BCA3EB; }
   .tone-dot-btn.tone-yellow { background: #F7DF88; box-shadow: 0 0 0 1px #E3C462; }
   .tone-dot-btn.tone-green { background: #9EE0BC; box-shadow: 0 0 0 1px #7EC9A0; }
+  .tone-dot-btn.tone-peach { background: #F8C4A6; box-shadow: 0 0 0 1px #E0A482; }
+  .tone-dot-btn.tone-mint { background: #9CE3D8; box-shadow: 0 0 0 1px #79C7BC; }
+  .tone-dot-btn.tone-coral { background: #F7B0A6; box-shadow: 0 0 0 1px #DF8F84; }
 
   .sync-btn {
     border: none;
@@ -605,11 +715,107 @@
     opacity: 0;
     pointer-events: none;
     transition: all 0.18s ease;
-    z-index: 20;
+    z-index: 30;
   }
   .copy-toast.show {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
+  }
+
+  /* 이름 결정 확인 모달창 */
+  .nick-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: var(--modal-backdrop);
+    backdrop-filter: blur(2px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    z-index: 40;
+  }
+  .nick-modal-backdrop.open {
+    display: flex;
+    animation: modalFade 0.15s ease-out;
+  }
+  @keyframes modalFade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .nick-modal-box {
+    width: 100%;
+    max-width: 256px;
+    background: var(--modal-bg);
+    border: 1.5px solid var(--modal-border);
+    border-radius: 18px;
+    padding: 13px 14px 12px;
+    box-shadow: var(--modal-shadow);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+    animation: modalPop 0.16s ease-out;
+  }
+  @keyframes modalPop {
+    from { opacity: 0; transform: scale(0.95) translateY(4px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .nick-modal-title {
+    font-size: 11.5px;
+    font-weight: 800;
+    color: var(--txt-main);
+  }
+  .nick-modal-chip {
+    background: var(--modal-chip-bg);
+    color: var(--modal-chip-fg);
+    font-size: 11px;
+    font-weight: 800;
+    padding: 3px 11px;
+    border-radius: 999px;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .nick-modal-desc {
+    font-size: 9.8px;
+    font-weight: 700;
+    color: var(--txt-sub);
+    line-height: 1.4;
+  }
+  .nick-modal-btns {
+    width: 100%;
+    display: flex;
+    gap: 6px;
+    margin-top: 2px;
+  }
+  .modal-btn {
+    flex: 1;
+    border: none;
+    border-radius: 10px;
+    padding: 6.5px 8px;
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.14s ease;
+  }
+  .modal-btn.cancel {
+    background: var(--cancel-bg);
+    color: var(--cancel-fg);
+  }
+  .modal-btn.cancel:hover {
+    background: var(--cancel-hover-bg);
+  }
+  .modal-btn.confirm {
+    background: var(--send-bg);
+    color: var(--send-fg);
+  }
+  .modal-btn.confirm:hover {
+    background: var(--send-hover-bg);
   }
 
   @media (max-width: 480px) {
@@ -653,7 +859,7 @@
         onkeydown="handleNickKeydown(event)"
         onclick="handleNickClick()"
       >
-      <button type="button" class="tone-dot-btn" id="toneBtn" onclick="cycleTone()" title="말풍선 색상 변경 (핑크/블루/라벤더/노랑/초록)"></button>
+      <button type="button" class="tone-dot-btn" id="toneBtn" onclick="cycleTone()" title="말풍선 색상 변경 (핑크/블루/라벤더/노랑/초록/피치/민트/코랄)"></button>
       <textarea
         class="chat-textarea"
         id="chatInput"
@@ -672,6 +878,18 @@
     </div>
   </div>
 
+  <div class="nick-modal-backdrop" id="nickModal" onclick="handleModalBackdrop(event)">
+    <div class="nick-modal-box">
+      <div class="nick-modal-title">이름을 이대로 결정할까요?</div>
+      <div class="nick-modal-chip" id="nickModalPreview"></div>
+      <div class="nick-modal-desc">한 번 결정하면 끝이며<br>나중에 이름을 바꿀 수 없어요!</div>
+      <div class="nick-modal-btns">
+        <button type="button" class="modal-btn cancel" onclick="cancelNickConfirm()">다시 입력</button>
+        <button type="button" class="modal-btn confirm" id="nickConfirmBtn" onclick="confirmNickAndSend()">결정하기</button>
+      </div>
+    </div>
+  </div>
+
 <script>
   (function applyThemeParam() {
     const t = new URLSearchParams(location.search).get("theme");
@@ -682,11 +900,22 @@
   const STORAGE_KEY = "lostark_pastel_chat_room_v2";
   const NICK_KEY = "lostark_pastel_chat_nick_v1";
   const NICK_LOCKED_KEY = "lostark_pastel_chat_nick_locked_v1";
-  const TONES = ["pink", "blue", "lav", "yellow", "green"];
+  const TONES = ["pink", "blue", "lav", "yellow", "green", "peach", "mint", "coral"];
+  const TONE_LABELS = {
+    pink: "핑크",
+    blue: "블루",
+    lav: "라벤더",
+    yellow: "노랑",
+    green: "초록",
+    peach: "피치",
+    mint: "민트",
+    coral: "코랄"
+  };
   const WEEKDAYS_KO = ["일", "월", "화", "수", "목", "금", "토"];
 
   let myNick = "";
   let isNickLocked = false;
+  let pendingNick = "";
   let isSending = false;
   let lastSavedAt = 0;
   let retrySaveTimer = null;
@@ -695,6 +924,45 @@
     updatedAt: 0,
     messages: []
   };
+
+  function isModalOpen() {
+    return document.getElementById("nickModal")?.classList.contains("open");
+  }
+
+  function openNickConfirmModal(nickValue) {
+    pendingNick = nickValue;
+    document.getElementById("nickModalPreview").textContent = nickValue;
+    document.getElementById("nickModal").classList.add("open");
+    document.getElementById("nickConfirmBtn").focus();
+  }
+
+  function closeNickConfirmModal() {
+    pendingNick = "";
+    document.getElementById("nickModal").classList.remove("open");
+  }
+
+  function cancelNickConfirm() {
+    closeNickConfirmModal();
+    const nickEl = document.getElementById("nickInput");
+    nickEl.focus();
+  }
+
+  function handleModalBackdrop(e) {
+    if (e.target.id === "nickModal") {
+      cancelNickConfirm();
+    }
+  }
+
+  function confirmNickAndSend() {
+    const chosen = String(pendingNick || document.getElementById("nickInput").value || "").trim();
+    closeNickConfirmModal();
+    if (!chosen) {
+      highlightNickRequired();
+      return;
+    }
+    lockNickPermanent(chosen);
+    executeSendMessage(chosen);
+  }
 
   function getDateKey(d = new Date()) {
     const y = d.getFullYear();
@@ -734,7 +1002,7 @@
     } else {
       nickEl.readOnly = false;
       nickEl.classList.remove("locked");
-      nickEl.title = "첫 채팅 전송 시 이름이 고정됩니다";
+      nickEl.title = "첫 채팅 전송 시 이름이 결정됩니다";
     }
   }
 
@@ -778,7 +1046,7 @@
     if (!isNickLocked) return;
     clearTimeout(nickToastTimer);
     nickToastTimer = setTimeout(() => {
-      showToast("확정된 이름은 변경할 수 없어요");
+      showToast("한 번 결정한 이름은 바꿀 수 없어요");
     }, 80);
   }
 
@@ -786,7 +1054,7 @@
     if (!isNickLocked) return;
     if (!["Tab", "ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) {
       e.preventDefault();
-      showToast("확정된 이름은 변경할 수 없어요");
+      showToast("한 번 결정한 이름은 바꿀 수 없어요");
     }
   }
 
@@ -881,7 +1149,7 @@
   }
 
   async function loadState({ isPolling = false, manual = false } = {}) {
-    if (isSending) return;
+    if (isSending || isModalOpen()) return;
 
     const syncBtn = document.getElementById("syncBtn");
     if (manual && syncBtn) syncBtn.classList.add("spinning");
@@ -946,21 +1214,36 @@
 
   function handleKeydown(e) {
     if (e.isComposing) return;
+    if (isModalOpen()) {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        cancelNickConfirm();
+      }
+      return;
+    }
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
   }
 
+  document.addEventListener("keydown", (e) => {
+    if (isModalOpen() && e.key === "Escape") {
+      e.preventDefault();
+      cancelNickConfirm();
+    }
+  });
+
   function cycleTone() {
     const idx = TONES.indexOf(state.tone);
     state.tone = TONES[(idx + 1) % TONES.length];
     updateToneDot();
+    showToast(`${TONE_LABELS[state.tone]} 말풍선`);
   }
 
   function updateToneDot() {
     const btn = document.getElementById("toneBtn");
-    btn.classList.remove("tone-blue", "tone-lav", "tone-yellow", "tone-green");
+    btn.classList.remove("tone-blue", "tone-lav", "tone-yellow", "tone-green", "tone-peach", "tone-mint", "tone-coral");
     if (state.tone !== "pink") {
       btn.classList.add(`tone-${state.tone}`);
     }
@@ -976,27 +1259,12 @@
     return div;
   }
 
-  function sendMessage() {
-    if (isSending) return;
-
-    const nickInput = document.getElementById("nickInput");
-    const sender = isNickLocked && myNick ? myNick : String(nickInput.value || "").trim();
-    if (!sender) {
-      highlightNickRequired();
-      return;
-    }
-
+  function executeSendMessage(senderName) {
     const input = document.getElementById("chatInput");
     const text = input.value.trim();
     if (!text) return;
 
     isSending = true;
-    if (!isNickLocked) {
-      lockNickPermanent(sender);
-    } else {
-      nickInput.value = myNick;
-    }
-
     const now = new Date();
     const todayKey = getDateKey(now);
     const lastMsg = state.messages[state.messages.length - 1];
@@ -1004,7 +1272,7 @@
 
     const newMsg = {
       id: `m_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-      sender: myNick,
+      sender: senderName,
       text,
       date: todayKey,
       time: formatTimeNow(now),
@@ -1035,6 +1303,29 @@
       saveStateNow();
       isSending = false;
     }
+  }
+
+  function sendMessage() {
+    if (isSending || isModalOpen()) return;
+
+    const nickInput = document.getElementById("nickInput");
+    const sender = isNickLocked && myNick ? myNick : String(nickInput.value || "").trim();
+    if (!sender) {
+      highlightNickRequired();
+      return;
+    }
+
+    const input = document.getElementById("chatInput");
+    const text = input.value.trim();
+    if (!text) return;
+
+    if (!isNickLocked) {
+      openNickConfirmModal(sender);
+      return;
+    }
+
+    nickInput.value = myNick;
+    executeSendMessage(myNick);
   }
 
   function deleteMessage(id, e) {
