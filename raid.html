@@ -65,6 +65,8 @@
     --row-done-border: #DCEFE3;
     --lv-bg: #F4EFF1;
     --lv-fg: #938985;
+    --raid-tag-fg: #A3969A;
+    --raid-tag-active-fg: #D4597E;
     --heart-fill: #F7E8EC;
     --heart-stroke: #E9B8C6;
     --heart-active-fill: #F28BA8;
@@ -126,6 +128,8 @@
       --row-done-border: #2F4F41;
       --lv-bg: #312E3B;
       --lv-fg: #B5B0C4;
+      --raid-tag-fg: #8E879E;
+      --raid-tag-active-fg: #F5A3BC;
       --heart-fill: #342B36;
       --heart-stroke: #6E4F5E;
       --heart-active-fill: #F28BA8;
@@ -187,6 +191,8 @@
     --row-done-border: #2F4F41;
     --lv-bg: #312E3B;
     --lv-fg: #B5B0C4;
+    --raid-tag-fg: #8E879E;
+    --raid-tag-active-fg: #F5A3BC;
     --heart-fill: #342B36;
     --heart-stroke: #6E4F5E;
     --heart-active-fill: #F28BA8;
@@ -415,8 +421,8 @@
   .char-list {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    max-height: 210px;
+    gap: 4.5px;
+    max-height: 245px;
     overflow-y: auto;
     padding-right: 2px;
   }
@@ -439,7 +445,7 @@
     background: var(--row-bg);
     border: 1px solid var(--row-border);
     border-radius: 9px;
-    padding: 4px 10px;
+    padding: 4.5px 10px;
     transition: all 0.15s ease;
   }
   .c-row.all-done {
@@ -471,17 +477,43 @@
     flex-shrink: 0;
   }
 
+  /* 하트 + 하트 위 레이드 약어 컬럼 */
   .hearts {
     display: flex;
     align-items: center;
-    gap: 5.5px;
+    gap: 6px;
     flex-shrink: 0;
   }
+  .heart-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5px;
+    min-width: 20px;
+  }
+  .raid-mini-lbl {
+    font-size: 8px;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--raid-tag-fg);
+    letter-spacing: -0.3px;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.15s ease;
+  }
+  .raid-mini-lbl:hover {
+    color: var(--raid-tag-active-fg);
+  }
+  .heart-slot.checked .raid-mini-lbl {
+    color: var(--raid-tag-active-fg);
+  }
+
   .heart-btn {
     border: none;
     background: transparent;
     cursor: pointer;
-    padding: 1px;
+    padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -490,14 +522,14 @@
   .heart-btn:hover { transform: scale(1.18); }
   .heart-btn:active { transform: scale(0.9); }
   .heart-svg {
-    width: 14px;
-    height: 14px;
+    width: 13.5px;
+    height: 13.5px;
     fill: var(--heart-fill);
     stroke: var(--heart-stroke);
     stroke-width: 1.8;
     transition: all 0.18s ease;
   }
-  .heart-btn.checked .heart-svg {
+  .heart-slot.checked .heart-svg {
     fill: var(--heart-active-fill);
     stroke: var(--heart-active-stroke);
     filter: var(--heart-shadow);
@@ -553,11 +585,11 @@
       padding: 2.5px 6px;
     }
     .char-list {
-      max-height: 185px;
+      max-height: 215px;
       gap: 3.5px;
     }
     .c-row {
-      padding: 3.5px 8px;
+      padding: 4px 8px;
       gap: 6px;
     }
     .c-name {
@@ -566,9 +598,15 @@
     .hearts {
       gap: 4.5px;
     }
+    .heart-slot {
+      min-width: 18px;
+    }
+    .raid-mini-lbl {
+      font-size: 7.5px;
+    }
     .heart-svg {
-      width: 13px;
-      height: 13px;
+      width: 12.5px;
+      height: 12.5px;
     }
   }
 </style>
@@ -611,12 +649,63 @@
   })();
 
   const API_BASE = "https://notion-cal.binhaha329.workers.dev";
-  const STORAGE_KEY = "lostark_pastel_rosters_v14";
+  const STORAGE_KEY = "lostark_pastel_rosters_v15";
   const CAT_LABELS = {
     raid: "레이드",
     paradise: "낙원",
     halmosi: "할모시"
   };
+
+  // 엔드 레이드 입장 레벨 목록 (상위 순)
+  const RAID_TIERS = [
+    { code: "벨나", minLv: 1780, group: "벨가" },
+    { code: "벨하", minLv: 1770, group: "벨가" },
+    { code: "벨노", minLv: 1750, group: "벨가" },
+    { code: "지3",  minLv: 1750, group: "지평" },
+    { code: "세나", minLv: 1750, group: "세르카" },
+    { code: "세하", minLv: 1730, group: "세르카" },
+    { code: "종하", minLv: 1730, group: "종막" },
+    { code: "지2",  minLv: 1720, group: "지평" },
+    { code: "4하",  minLv: 1720, group: "4막" },
+    { code: "세노", minLv: 1710, group: "세르카" },
+    { code: "종노", minLv: 1710, group: "종막" },
+    { code: "지1",  minLv: 1700, group: "지평" },
+    { code: "4노",  minLv: 1700, group: "4막" },
+    { code: "3하",  minLv: 1700, group: "3막" },
+    { code: "3노",  minLv: 1680, group: "3막" }
+  ];
+
+  function parseNumericLv(lvText) {
+    const num = parseFloat(String(lvText || "").replace(/,/g, ""));
+    return Number.isFinite(num) ? num : 0;
+  }
+
+  // 캐릭터 레벨 기준 동일 레이드 중복 없이 상위 3종 엔드 레이드 자동 산출
+  function getDefaultEndRaids(lvText) {
+    const lv = parseNumericLv(lvText);
+    const picked = [];
+    const usedGroups = new Set();
+
+    for (const r of RAID_TIERS) {
+      if (lv >= r.minLv && !usedGroups.has(r.group)) {
+        usedGroups.add(r.group);
+        picked.push(r.code);
+        if (picked.length === 3) break;
+      }
+    }
+
+    while (picked.length < 3) {
+      picked.push("-");
+    }
+    return picked;
+  }
+
+  // 해당 캐릭터가 입장 가능한 모든 레이드 코드 목록 (수동 전환용)
+  function getEligibleRaidCodes(lvText) {
+    const lv = parseNumericLv(lvText);
+    const list = RAID_TIERS.filter(r => lv >= r.minLv).map(r => r.code);
+    return list.length > 0 ? list : ["-"];
+  }
 
   function extractCharName(item) {
     if (!item || typeof item !== "object") return "";
@@ -655,10 +744,21 @@
     const name = extractCharName(c);
     const lvText = extractCharLv(c);
     const server = extractCharServer(c);
+    const defaultNames = getDefaultEndRaids(lvText);
+    const raidNames = Array.isArray(c?.raidNames) && c.raidNames.length === 3
+      ? [
+          c.raidNames[0] || defaultNames[0],
+          c.raidNames[1] || defaultNames[1],
+          c.raidNames[2] || defaultNames[2]
+        ]
+      : defaultNames;
+
     return {
       name,
       lvText,
       server,
+      raidNames,
+      customRaids: Boolean(c?.customRaids),
       checks: Array.isArray(c?.checks) ? [Boolean(c.checks[0]), Boolean(c.checks[1]), Boolean(c.checks[2])] : [false, false, false],
       paradise: Boolean(c?.paradise),
       halmosi: Boolean(c?.halmosi)
@@ -808,20 +908,28 @@
 
       const newChars = list.map(item => {
         const prev = prevMap[item.name];
+        const nextLv = item.lvText || prev?.lvText || "";
+        const autoRaids = getDefaultEndRaids(nextLv);
+        const raidNames = (prev?.customRaids && Array.isArray(prev.raidNames))
+          ? prev.raidNames
+          : autoRaids;
+
         return {
           name: item.name,
-          lvText: item.lvText || prev?.lvText || "",
+          lvText: nextLv,
           server: item.server || prev?.server || "",
+          raidNames,
+          customRaids: Boolean(prev?.customRaids),
           checks: prev?.checks || [false, false, false],
           paradise: Boolean(prev?.paradise),
           halmosi: Boolean(prev?.halmosi)
         };
       });
 
-      const oldNames = active.chars.map(c => `${c.name}:${c.lvText}:${c.server || ""}`).join("|");
-      const newNames = newChars.map(c => `${c.name}:${c.lvText}:${c.server || ""}`).join("|");
+      const oldSig = active.chars.map(c => `${c.name}:${c.lvText}:${(c.raidNames || []).join(",")}`).join("|");
+      const newSig = newChars.map(c => `${c.name}:${c.lvText}:${(c.raidNames || []).join(",")}`).join("|");
 
-      if (oldNames !== newNames) {
+      if (oldSig !== newSig) {
         active.chars = newChars;
         active.id = list[0].name;
         active.label = list[0].name;
@@ -1017,10 +1125,18 @@
 
       const updatedChars = list.map(item => {
         const prev = prevMap[item.name];
+        const nextLv = item.lvText || prev?.lvText || "";
+        const autoRaids = getDefaultEndRaids(nextLv);
+        const raidNames = (prev?.customRaids && Array.isArray(prev.raidNames))
+          ? prev.raidNames
+          : autoRaids;
+
         return {
           name: item.name,
-          lvText: item.lvText || prev?.lvText || "",
+          lvText: nextLv,
           server: item.server || prev?.server || "",
+          raidNames,
+          customRaids: Boolean(prev?.customRaids),
           checks: prev?.checks || [false, false, false],
           paradise: Boolean(prev?.paradise),
           halmosi: Boolean(prev?.halmosi)
@@ -1059,6 +1175,24 @@
     const roster = getActiveRoster();
     if (!roster) return;
     roster.chars[charIdx].checks[heartIdx] = !roster.chars[charIdx].checks[heartIdx];
+    render();
+    saveState();
+  }
+
+  // 하트 위 레이드 이름 클릭 시 해당 캐릭터가 갈 수 있는 다른 레이드로 순환 변경
+  function cycleRaidName(charIdx, slotIdx, e) {
+    if (e) e.stopPropagation();
+    const roster = getActiveRoster();
+    if (!roster) return;
+    const ch = roster.chars[charIdx];
+    const pool = getEligibleRaidCodes(ch.lvText);
+    if (pool.length <= 1) return;
+
+    const current = ch.raidNames[slotIdx];
+    const curIdx = pool.indexOf(current);
+    const nextCode = pool[(curIdx + 1) % pool.length];
+    ch.raidNames[slotIdx] = nextCode;
+    ch.customRaids = true;
     render();
     saveState();
   }
@@ -1114,8 +1248,13 @@
 
     activeRoster.chars.forEach((ch, cIdx) => {
       const checks = Array.isArray(ch.checks) ? ch.checks : [false, false, false];
+      const raidNames = Array.isArray(ch.raidNames) && ch.raidNames.length === 3
+        ? ch.raidNames
+        : getDefaultEndRaids(ch.lvText);
+
+      const activeSlots = raidNames.filter(n => n && n !== "-").length || 3;
       const cDone = checks.filter(Boolean).length;
-      const isCatDone = isRaid ? (cDone === 3) : Boolean(ch[cat]);
+      const isCatDone = isRaid ? (cDone >= activeSlots) : Boolean(ch[cat]);
 
       const row = document.createElement("div");
       row.className = "c-row" + (isCatDone ? " all-done" : "");
@@ -1140,16 +1279,28 @@
         heartsDiv.className = "hearts";
 
         checks.forEach((checked, hIdx) => {
+          const slotDiv = document.createElement("div");
+          slotDiv.className = "heart-slot" + (checked ? " checked" : "");
+
+          const lblSpan = document.createElement("span");
+          lblSpan.className = "raid-mini-lbl";
+          lblSpan.textContent = raidNames[hIdx] || "-";
+          lblSpan.title = "클릭 시 레이드 변경";
+          lblSpan.onclick = (e) => cycleRaidName(cIdx, hIdx, e);
+
           const btn = document.createElement("button");
           btn.type = "button";
-          btn.className = "heart-btn" + (checked ? " checked" : "");
+          btn.className = "heart-btn";
           btn.onclick = () => toggleHeart(cIdx, hIdx);
           btn.innerHTML = `
             <svg class="heart-svg" viewBox="0 0 24 24">
               <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
             </svg>
           `;
-          heartsDiv.appendChild(btn);
+
+          slotDiv.appendChild(lblSpan);
+          slotDiv.appendChild(btn);
+          heartsDiv.appendChild(slotDiv);
         });
 
         row.appendChild(infoDiv);
