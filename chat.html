@@ -68,6 +68,8 @@
     --nick-border: #F2DCE2;
     --nick-bg: #FCE8EE;
     --nick-fg: #C95B7A;
+    --nick-locked-bg: #F9E5EC;
+    --nick-locked-border: #EABAC8;
     --nick-req-border: #E86A8E;
     --txt-main: #4A4442;
     --inp-ph: #BEB5B2;
@@ -131,6 +133,8 @@
       --nick-border: #5E3A4A;
       --nick-bg: #3B252E;
       --nick-fg: #F5A3BC;
+      --nick-locked-bg: #462A36;
+      --nick-locked-border: #78485C;
       --nick-req-border: #F5A3BC;
       --txt-main: #F4F2F8;
       --inp-ph: #878296;
@@ -194,6 +198,8 @@
     --nick-border: #5E3A4A;
     --nick-bg: #3B252E;
     --nick-fg: #F5A3BC;
+    --nick-locked-bg: #462A36;
+    --nick-locked-border: #78485C;
     --nick-req-border: #F5A3BC;
     --txt-main: #F4F2F8;
     --inp-ph: #878296;
@@ -486,6 +492,12 @@
     border-color: var(--nick-req-border);
     box-shadow: 0 0 0 2px rgba(232, 106, 142, 0.25);
   }
+  .nick-input.locked {
+    background: var(--nick-locked-bg);
+    border-color: var(--nick-locked-border);
+    cursor: default;
+    user-select: none;
+  }
 
   .chat-textarea {
     flex: 1;
@@ -637,7 +649,9 @@
         id="nickInput"
         maxlength="10"
         placeholder="이름*"
-        oninput="handleNickInput(this.value)"
+        oninput="handleNickInput(this)"
+        onkeydown="handleNickKeydown(event)"
+        onclick="handleNickClick()"
       >
       <button type="button" class="tone-dot-btn" id="toneBtn" onclick="cycleTone()" title="말풍선 색상 변경 (핑크/블루/라벤더/노랑/초록)"></button>
       <textarea
@@ -667,10 +681,12 @@
   const API_BASE = "https://notion-cal.binhaha329.workers.dev";
   const STORAGE_KEY = "lostark_pastel_chat_room_v2";
   const NICK_KEY = "lostark_pastel_chat_nick_v1";
+  const NICK_LOCKED_KEY = "lostark_pastel_chat_nick_locked_v1";
   const TONES = ["pink", "blue", "lav", "yellow", "green"];
   const WEEKDAYS_KO = ["일", "월", "화", "수", "목", "금", "토"];
 
   let myNick = "";
+  let isNickLocked = false;
   let isSending = false;
   let lastSavedAt = 0;
   let retrySaveTimer = null;
@@ -706,12 +722,43 @@
     return `${ampm} ${h12}:${m}`;
   }
 
+  function applyNickLockUI() {
+    const nickEl = document.getElementById("nickInput");
+    if (!nickEl) return;
+    if (isNickLocked && myNick) {
+      nickEl.value = myNick;
+      nickEl.readOnly = true;
+      nickEl.classList.remove("required");
+      nickEl.classList.add("locked");
+      nickEl.title = `확정된 이름: ${myNick} (변경 불가)`;
+    } else {
+      nickEl.readOnly = false;
+      nickEl.classList.remove("locked");
+      nickEl.title = "첫 채팅 전송 시 이름이 고정됩니다";
+    }
+  }
+
   function loadNick() {
     try {
       const saved = String(localStorage.getItem(NICK_KEY) || "").trim();
+      const lockedFlag = localStorage.getItem(NICK_LOCKED_KEY) === "1";
       myNick = saved;
+      isNickLocked = Boolean(saved && lockedFlag);
       if (saved) document.getElementById("nickInput").value = saved;
     } catch (e) {}
+    applyNickLockUI();
+  }
+
+  function lockNickPermanent(name) {
+    const clean = String(name || "").trim();
+    if (!clean) return;
+    myNick = clean;
+    isNickLocked = true;
+    try {
+      localStorage.setItem(NICK_KEY, clean);
+      localStorage.setItem(NICK_LOCKED_KEY, "1");
+    } catch (e) {}
+    applyNickLockUI();
   }
 
   let nickReqTimer = null;
@@ -726,11 +773,31 @@
     }, 1500);
   }
 
-  function handleNickInput(val) {
-    const trimmed = String(val || "").trim();
+  let nickToastTimer = null;
+  function handleNickClick() {
+    if (!isNickLocked) return;
+    clearTimeout(nickToastTimer);
+    nickToastTimer = setTimeout(() => {
+      showToast("확정된 이름은 변경할 수 없어요");
+    }, 80);
+  }
+
+  function handleNickKeydown(e) {
+    if (!isNickLocked) return;
+    if (!["Tab", "ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) {
+      e.preventDefault();
+      showToast("확정된 이름은 변경할 수 없어요");
+    }
+  }
+
+  function handleNickInput(el) {
+    if (isNickLocked) {
+      el.value = myNick;
+      return;
+    }
+    const trimmed = String(el.value || "").trim();
     myNick = trimmed;
-    const nickEl = document.getElementById("nickInput");
-    if (trimmed) nickEl.classList.remove("required");
+    if (trimmed) el.classList.remove("required");
     try {
       if (trimmed) localStorage.setItem(NICK_KEY, trimmed);
       else localStorage.removeItem(NICK_KEY);
@@ -841,7 +908,6 @@
       const norm = normalizeMessages(rawMemo);
 
       if (norm) {
-        // 방금 내 기기에서 저장한 직후(3초 이내)에는 구버전 폴링 응답으로 덮어쓰지 않음
         const justSavedLocally = (Date.now() - lastSavedAt) < 3000;
         const remoteIsEmptyWhileLocalHasData = norm.messages.length === 0 && state.messages.length > 0;
 
@@ -914,7 +980,7 @@
     if (isSending) return;
 
     const nickInput = document.getElementById("nickInput");
-    const sender = String(nickInput.value || "").trim();
+    const sender = isNickLocked && myNick ? myNick : String(nickInput.value || "").trim();
     if (!sender) {
       highlightNickRequired();
       return;
@@ -925,8 +991,11 @@
     if (!text) return;
 
     isSending = true;
-    myNick = sender;
-    try { localStorage.setItem(NICK_KEY, sender); } catch (e) {}
+    if (!isNickLocked) {
+      lockNickPermanent(sender);
+    } else {
+      nickInput.value = myNick;
+    }
 
     const now = new Date();
     const todayKey = getDateKey(now);
@@ -935,7 +1004,7 @@
 
     const newMsg = {
       id: `m_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-      sender,
+      sender: myNick,
       text,
       date: todayKey,
       time: formatTimeNow(now),
@@ -970,7 +1039,7 @@
 
   function deleteMessage(id, e) {
     if (e) e.stopPropagation();
-    const currentNick = String(document.getElementById("nickInput")?.value || myNick || "").trim();
+    const currentNick = String(isNickLocked && myNick ? myNick : (document.getElementById("nickInput")?.value || myNick || "")).trim();
     if (!currentNick) return;
 
     const target = state.messages.find(m => m.id === id);
@@ -1001,6 +1070,7 @@
 
   function render({ scrollToBottom = false } = {}) {
     updateToneDot();
+    applyNickLockUI();
     const streamEl = document.getElementById("chatStream");
     streamEl.innerHTML = "";
 
@@ -1009,7 +1079,7 @@
       return;
     }
 
-    const currentNick = String(document.getElementById("nickInput")?.value || myNick || "").trim();
+    const currentNick = String(isNickLocked && myNick ? myNick : (document.getElementById("nickInput")?.value || myNick || "")).trim();
 
     state.messages.forEach((msg, idx) => {
       const prev = state.messages[idx - 1];
