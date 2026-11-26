@@ -75,7 +75,6 @@
     gap: 6px;
   }
 
-  /* 노션 '...' 오버레이와 겹치지 않도록 왼쪽에 배치하고 우측 여백 확보 */
   .d-head {
     display: flex;
     align-items: center;
@@ -123,7 +122,6 @@
   .add-btn:hover { background: var(--add-hover); }
   .add-btn:active { transform: scale(0.92); }
 
-  /* 추가/수정 폼 */
   .d-form {
     display: none;
     flex-direction: column;
@@ -180,7 +178,6 @@
   .btn-cancel { background: var(--btn-cancel-bg); color: var(--btn-cancel-color); }
   .btn-save { background: var(--add-bg); color: var(--add-color); }
 
-  /* 테두리 없는 연핑크 디데이 카드 리스트 */
   .d-list {
     display: flex;
     flex-direction: column;
@@ -316,7 +313,7 @@
 
 <script>
   const API_BASE = "https://notion-cal.binhaha329.workers.dev";
-  const CACHE_KEY = "lostark_dday_cache_v2";
+  const CACHE_KEY = "lostark_dday_saved_v1";
   const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
   let ddayItems = [];
@@ -367,27 +364,45 @@
     });
   }
 
+  function readLocal() {
+    try {
+      const raw = localStorage.getItem(CACHE_KEY);
+      const parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function writeLocal(items) {
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify(items));
+    } catch (e) {}
+  }
+
   async function fetchItems() {
     const syncBtn = document.getElementById("syncBtn");
     syncBtn.classList.add("spinning");
 
-    try {
-      const cached = localStorage.getItem(CACHE_KEY);
-      if (cached && ddayItems.length === 0) {
-        const parsed = JSON.parse(cached);
-        if (Array.isArray(parsed)) {
-          ddayItems = sortItems(parsed);
-          render();
-        }
-      }
-    } catch (e) {}
+    const localSaved = readLocal();
+    if (localSaved.length > 0) {
+      ddayItems = sortItems(localSaved);
+      render();
+    }
 
     try {
       const res = await fetch(`${API_BASE}/dday?t=${Date.now()}`);
       const data = await res.json();
       if (data && data.ok && Array.isArray(data.items)) {
-        ddayItems = sortItems(data.items);
-        try { localStorage.setItem(CACHE_KEY, JSON.stringify(ddayItems)); } catch (e) {}
+        if (data.items.length > 0) {
+          ddayItems = sortItems(data.items);
+          writeLocal(ddayItems);
+        } else if (localSaved.length > 0) {
+          // 서버에 아직 반영 전이고 로컬에 저장된 항목이 있으면 자동 재업로드해 유실 방지
+          await syncToServer(localSaved, true);
+        } else {
+          ddayItems = [];
+        }
       }
     } catch (e) {}
 
@@ -395,19 +410,24 @@
     render();
   }
 
-  async function syncToServer(nextItems) {
+  async function syncToServer(nextItems, silent = false) {
     ddayItems = sortItems(nextItems);
-    try { localStorage.setItem(CACHE_KEY, JSON.stringify(ddayItems)); } catch (e) {}
-    render();
+    writeLocal(ddayItems);
+    if (!silent) render();
 
     const syncBtn = document.getElementById("syncBtn");
     syncBtn.classList.add("spinning");
     try {
-      await fetch(`${API_BASE}/dday`, {
+      const res = await fetch(`${API_BASE}/dday`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ items: ddayItems }),
       });
+      const data = await res.json();
+      if (data && data.ok && Array.isArray(data.items)) {
+        ddayItems = sortItems(data.items);
+        writeLocal(ddayItems);
+      }
     } catch (e) {}
     syncBtn.classList.remove("spinning");
   }
