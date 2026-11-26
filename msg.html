@@ -71,6 +71,8 @@
     --nick-req-border: #E86A8E;
     --txt-main: #4A4442;
     --inp-ph: #BEB5B2;
+    --sync-fg: #9E8F94;
+    --sync-hover-fg: #C95B7A;
     --send-bg: #F28BA8;
     --send-hover-bg: #E67595;
     --send-fg: #FFFFFF;
@@ -132,6 +134,8 @@
       --nick-req-border: #F5A3BC;
       --txt-main: #F4F2F8;
       --inp-ph: #878296;
+      --sync-fg: #9A95A8;
+      --sync-hover-fg: #F5A3BC;
       --send-bg: #C95B7A;
       --send-hover-bg: #DE6F8E;
       --send-fg: #FFFFFF;
@@ -193,6 +197,8 @@
     --nick-req-border: #F5A3BC;
     --txt-main: #F4F2F8;
     --inp-ph: #878296;
+    --sync-fg: #9A95A8;
+    --sync-hover-fg: #F5A3BC;
     --send-bg: #C95B7A;
     --send-hover-bg: #DE6F8E;
     --send-fg: #FFFFFF;
@@ -519,6 +525,34 @@
   .tone-dot-btn.tone-yellow { background: #F7DF88; box-shadow: 0 0 0 1px #E3C462; }
   .tone-dot-btn.tone-green { background: #9EE0BC; box-shadow: 0 0 0 1px #7EC9A0; }
 
+  .sync-btn {
+    border: none;
+    background: transparent;
+    color: var(--sync-fg);
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 800;
+    width: 20px;
+    height: 22px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+  }
+  .sync-btn:hover {
+    color: var(--sync-hover-fg);
+  }
+  .sync-btn.spinning {
+    animation: spinSync 0.6s linear infinite;
+  }
+  @keyframes spinSync {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
   .send-btn {
     border: none;
     background: var(--send-bg);
@@ -614,6 +648,7 @@
         oninput="autoResize(this)"
         onkeydown="handleKeydown(event)"
       ></textarea>
+      <button type="button" class="sync-btn" id="syncBtn" onclick="loadState({ isPolling: false, manual: true })" title="채팅 새로고침">↻</button>
       <button type="button" class="send-btn" id="sendBtn" onclick="sendMessage()" title="전송">
         <svg class="send-icon" viewBox="0 0 24 24">
           <line x1="12" y1="19" x2="12" y2="5"></line>
@@ -637,8 +672,11 @@
 
   let myNick = "";
   let isSending = false;
+  let lastSavedAt = 0;
+  let retrySaveTimer = null;
   let state = {
     tone: "pink",
+    updatedAt: 0,
     messages: []
   };
 
@@ -700,6 +738,16 @@
     render({ scrollToBottom: false });
   }
 
+  function extractMemoPayload(data) {
+    if (!data || typeof data !== "object") return null;
+    if (data.chatMemo && typeof data.chatMemo === "object") return data.chatMemo;
+    if (data.memo && typeof data.memo === "object" && data.memo.chatMemo) return data.memo.chatMemo;
+    if (data.state && typeof data.state === "object") return data.state;
+    if (Array.isArray(data.messages)) return data;
+    if (Array.isArray(data)) return { messages: data };
+    return null;
+  }
+
   function normalizeMessages(raw) {
     if (!raw || typeof raw !== "object") return null;
     const list = Array.isArray(raw.messages) ? raw.messages : [];
@@ -716,6 +764,7 @@
       }));
     return {
       tone: TONES.includes(raw.tone) ? raw.tone : "pink",
+      updatedAt: Number(raw.updatedAt || 0),
       messages: cleaned
     };
   }
@@ -724,15 +773,58 @@
     return (list || []).map(m => `${m.id}:${m.sender}:${m.text}:${m.date}:${m.time}:${m.tone}`).join("|");
   }
 
-  async function loadState(isPolling = false) {
+  function writeLocalCache() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {}
+  }
+
+  async function postStateToWorker(isRetry = false) {
+    const snapshot = {
+      tone: state.tone,
+      updatedAt: state.updatedAt || Date.now(),
+      messages: state.messages
+    };
+    try {
+      const res = await fetch(`${API_BASE}/memo`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chatMemo: snapshot })
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      lastSavedAt = Date.now();
+      clearTimeout(retrySaveTimer);
+      retrySaveTimer = null;
+      return true;
+    } catch (e) {
+      if (!isRetry) {
+        clearTimeout(retrySaveTimer);
+        retrySaveTimer = setTimeout(() => {
+          postStateToWorker(true).catch(() => {});
+        }, 2500);
+      }
+      return false;
+    }
+  }
+
+  function saveStateNow() {
+    state.updatedAt = Date.now();
+    writeLocalCache();
+    return postStateToWorker(false);
+  }
+
+  async function loadState({ isPolling = false, manual = false } = {}) {
     if (isSending) return;
+
+    const syncBtn = document.getElementById("syncBtn");
+    if (manual && syncBtn) syncBtn.classList.add("spinning");
 
     if (!isPolling) {
       loadNick();
       try {
         const local = JSON.parse(localStorage.getItem(STORAGE_KEY));
         const norm = normalizeMessages(local);
-        if (norm) {
+        if (norm && norm.messages.length > 0) {
           state = norm;
           render({ scrollToBottom: true });
         }
@@ -740,37 +832,46 @@
     }
 
     try {
-      const res = await fetch(`${API_BASE}/memo?t=${Date.now()}`);
+      const res = await fetch(`${API_BASE}/memo?_=${Date.now()}`, {
+        cache: "no-store"
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      const rawMemo = data && (data.chatMemo || data.state || data);
+      const rawMemo = extractMemoPayload(data);
       const norm = normalizeMessages(rawMemo);
-      if (norm && (norm.messages.length > 0 || !isPolling)) {
-        const prevSig = getSig(state.messages);
-        const nextSig = getSig(norm.messages);
-        if (prevSig !== nextSig || !isPolling) {
-          const hadNew = norm.messages.length > state.messages.length;
-          state = norm;
-          try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
-          render({ scrollToBottom: hadNew || !isPolling });
+
+      if (norm) {
+        // 방금 내 기기에서 저장한 직후(3초 이내)에는 구버전 폴링 응답으로 덮어쓰지 않음
+        const justSavedLocally = (Date.now() - lastSavedAt) < 3000;
+        const remoteIsEmptyWhileLocalHasData = norm.messages.length === 0 && state.messages.length > 0;
+
+        if (!justSavedLocally && !remoteIsEmptyWhileLocalHasData) {
+          const prevSig = getSig(state.messages);
+          const nextSig = getSig(norm.messages);
+          if (prevSig !== nextSig || !isPolling) {
+            const hadNew = norm.messages.length > state.messages.length;
+            state = norm;
+            writeLocalCache();
+            render({ scrollToBottom: hadNew || !isPolling });
+          }
         }
       }
-    } catch (e) {}
+      if (manual) showToast("동기화 완료");
+    } catch (e) {
+      if (manual) showToast("서버 연결을 확인해 주세요");
+    } finally {
+      if (manual && syncBtn) {
+        setTimeout(() => syncBtn.classList.remove("spinning"), 300);
+      }
+    }
   }
 
-  setInterval(() => loadState(true), 8000);
-
-  let saveTimer = null;
-  function saveState() {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(() => {
-      fetch(`${API_BASE}/memo`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chatMemo: state })
-      }).catch(() => {});
-    }, 300);
-  }
+  setInterval(() => loadState({ isPolling: true, manual: false }), 5000);
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) {
+      loadState({ isPolling: false, manual: false });
+    }
+  });
 
   function autoResize(el) {
     el.style.height = "auto";
@@ -856,13 +957,13 @@
       setTimeout(() => {
         state.messages.push(newMsg);
         render({ scrollToBottom: true });
-        saveState();
+        saveStateNow();
         isSending = false;
       }, 260);
     } else {
       state.messages.push(newMsg);
       render({ scrollToBottom: true });
-      saveState();
+      saveStateNow();
       isSending = false;
     }
   }
@@ -877,7 +978,7 @@
 
     state.messages = state.messages.filter(m => m.id !== id);
     render({ scrollToBottom: false });
-    saveState();
+    saveStateNow();
   }
 
   let toastTimer = null;
@@ -996,7 +1097,7 @@
   }
 
   render({ scrollToBottom: true });
-  loadState(false);
+  loadState({ isPolling: false, manual: false });
 </script>
 </body>
 </html>
