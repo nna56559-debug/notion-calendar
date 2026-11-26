@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: transparent;
+    width: 100%;
+    overflow-x: hidden;
+  }
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 4px;
+  }
+
+  :root {
+    --page-bg: transparent;
+    --card-bg: #FFFFFF;
+    --card-border: #F9E5E9;
+    --card-shadow: 0 4px 16px rgba(244, 182, 198, 0.1);
+    --scroll-thumb: #F2DCE2;
+
+    --txt-main: #4A4442;
+    --txt-sub: #9E838C;
+    --txt-muted: #C2B5B9;
+    --accent: #C95B7A;
+    --accent-soft: #FCE8EE;
+    --accent-border: #F5DCE3;
+    --btn-bg: #FDF5F7;
+    --btn-hover: #FCE8EE;
+    --btn-border: #F2DCE2;
+
+    --today-bg: #F28BA8;
+    --today-fg: #FFFFFF;
+    --selected-bg: #FCE8EE;
+    --selected-border: #E88AA6;
+    --reset-dot: #E86A8E;
+
+    --tag-pink-bg: #FCE8EE;
+    --tag-pink-fg: #B84A6B;
+    --tag-blue-bg: #E6F3FB;
+    --tag-blue-fg: #3B6E8C;
+    --tag-lav-bg: #F2EBFC;
+    --tag-lav-fg: #6A4FA3;
+    --tag-mint-bg: #E3F7F4;
+    --tag-mint-fg: #2E786E;
+
+    --panel-bg: #FDFBFC;
+    --panel-border: #F5E6EA;
+    --inp-bg: #FFFFFF;
+    --inp-border: #F2DCE2;
+    --inp-ph: #BEB5B2;
+    --toast-bg: rgba(201, 91, 122, 0.94);
+    --toast-fg: #FFFFFF;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --page-bg: #191919;
+      --card-bg: #1B1A20;
+      --card-border: #383342;
+      --card-shadow: 0 6px 20px rgba(0, 0, 0, 0.42);
+      --scroll-thumb: #4B3846;
+
+      --txt-main: #F4F2F8;
+      --txt-sub: #B8B0CC;
+      --txt-muted: #76708A;
+      --accent: #F5A3BC;
+      --accent-soft: #36232D;
+      --accent-border: #543646;
+      --btn-bg: #262330;
+      --btn-hover: #36232D;
+      --btn-border: #3E384E;
+
+      --today-bg: #C95B7A;
+      --today-fg: #FFFFFF;
+      --selected-bg: #36232D;
+      --selected-border: #C95B7A;
+      --reset-dot: #F5A3BC;
+
+      --tag-pink-bg: #36232D;
+      --tag-pink-fg: #F5A3BC;
+      --tag-blue-bg: #223442;
+      --tag-blue-fg: #9DD0F0;
+      --tag-lav-bg: #2D263B;
+      --tag-lav-fg: #CEB8F5;
+      --tag-mint-bg: #1E3533;
+      --tag-mint-fg: #9CE3D8;
+
+      --panel-bg: #23212A;
+      --panel-border: #353042;
+      --inp-bg: #2A2834;
+      --inp-border: #3E394F;
+      --inp-ph: #878296;
+      --toast-bg: rgba(201, 91, 122, 0.95);
+      --toast-fg: #FFFFFF;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --page-bg: #191919;
+    --card-bg: #1B1A20;
+    --card-border: #383342;
+    --card-shadow: 0 6px 20px rgba(0, 0, 0, 0.42);
+    --scroll-thumb: #4B3846;
+
+    --txt-main: #F4F2F8;
+    --txt-sub: #B8B0CC;
+    --txt-muted: #76708A;
+    --accent: #F5A3BC;
+    --accent-soft: #36232D;
+    --accent-border: #543646;
+    --btn-bg: #262330;
+    --btn-hover: #36232D;
+    --btn-border: #3E384E;
+
+    --today-bg: #C95B7A;
+    --today-fg: #FFFFFF;
+    --selected-bg: #36232D;
+    --selected-border: #C95B7A;
+    --reset-dot: #F5A3BC;
+
+    --tag-pink-bg: #36232D;
+    --tag-pink-fg: #F5A3BC;
+    --tag-blue-bg: #223442;
+    --tag-blue-fg: #9DD0F0;
+    --tag-lav-bg: #2D263B;
+    --tag-lav-fg: #CEB8F5;
+    --tag-mint-bg: #1E3533;
+    --tag-mint-fg: #9CE3D8;
+
+    --panel-bg: #23212A;
+    --panel-border: #353042;
+    --inp-bg: #2A2834;
+    --inp-border: #3E394F;
+    --inp-ph: #878296;
+    --toast-bg: rgba(201, 91, 122, 0.95);
+    --toast-fg: #FFFFFF;
+  }
+
+  html, body {
+    background: var(--page-bg);
+  }
+
+  .cal-card {
+    position: relative;
+    width: 100%;
+    max-width: 460px;
+    background: var(--card-bg);
+    border: 1.5px solid var(--card-border);
+    border-radius: 22px;
+    padding: 12px 13px;
+    box-shadow: var(--card-shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .cal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+  }
+
+  .cal-title-wrap {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  .cal-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--txt-main);
+    letter-spacing: -0.3px;
+  }
+
+  .cal-reset-hint {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--txt-sub);
+  }
+
+  .cal-nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .nav-btn {
+    border: 1px solid var(--btn-border);
+    background: var(--btn-bg);
+    color: var(--txt-sub);
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 800;
+    height: 22px;
+    padding: 0 7px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.14s ease;
+  }
+  .nav-btn:hover {
+    background: var(--btn-hover);
+    color: var(--accent);
+  }
+
+  .weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    gap: 2px;
+  }
+
+  .weekday {
+    font-size: 9.5px;
+    font-weight: 800;
+    color: var(--txt-sub);
+    padding: 2px 0;
+  }
+  .weekday.sun { color: #E07A96; }
+  .weekday.wed { color: var(--accent); }
+
+  .days-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+  }
+
+  .day-cell {
+    min-height: 36px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--txt-main);
+    font-family: inherit;
+    padding: 3px 2px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 2px;
+    cursor: pointer;
+    transition: all 0.12s ease;
+  }
+  .day-cell:hover:not(.empty) {
+    background: var(--btn-bg);
+    border-color: var(--accent-border);
+  }
+  .day-cell.empty {
+    cursor: default;
+  }
+  .day-cell.other-month .day-num {
+    color: var(--txt-muted);
+  }
+  .day-cell.selected {
+    background: var(--selected-bg);
+    border-color: var(--selected-border);
+  }
+
+  .day-top {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+  }
+
+  .day-num {
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 16px;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .day-cell.today .day-num {
+    background: var(--today-bg);
+    color: var(--today-fg);
+  }
+
+  .reset-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--reset-dot);
+    flex-shrink: 0;
+  }
+
+  .event-dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    flex-wrap: wrap;
+    max-width: 100%;
+  }
+
+  .ev-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 999px;
+  }
+  .ev-dot.pink { background: #F28BA8; }
+  .ev-dot.blue { background: #7CC2EB; }
+  .ev-dot.lav { background: #B597F0; }
+  .ev-dot.mint { background: #6FD1C2; }
+
+  .detail-panel {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 14px;
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .detail-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--accent);
+  }
+
+  .event-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 84px;
+    overflow-y: auto;
+  }
+  .event-list::-webkit-scrollbar { width: 3px; }
+  .event-list::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 999px; }
+
+  .ev-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 4px 7px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 700;
+  }
+  .ev-item.pink { background: var(--tag-pink-bg); color: var(--tag-pink-fg); }
+  .ev-item.blue { background: var(--tag-blue-bg); color: var(--tag-blue-fg); }
+  .ev-item.lav { background: var(--tag-lav-bg); color: var(--tag-lav-fg); }
+  .ev-item.mint { background: var(--tag-mint-bg); color: var(--tag-mint-fg); }
+
+  .ev-main {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+    flex: 1;
+  }
+  .ev-time {
+    font-size: 9px;
+    font-weight: 800;
+    opacity: 0.85;
+    white-space: nowrap;
+  }
+  .ev-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .ev-del {
+    border: none;
+    background: transparent;
+    color: inherit;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
+    opacity: 0.65;
+    padding: 0 2px;
+  }
+  .ev-del:hover { opacity: 1; }
+
+  .empty-ev {
+    font-size: 9.5px;
+    font-weight: 700;
+    color: var(--txt-muted);
+    text-align: center;
+    padding: 4px 0;
+  }
+
+  .add-form {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .ev-input {
+    flex: 1;
+    min-width: 0;
+    border: 1px solid var(--inp-border);
+    background: var(--inp-bg);
+    color: var(--txt-main);
+    border-radius: 8px;
+    padding: 4px 7px;
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 700;
+    outline: none;
+  }
+  .ev-input::placeholder { color: var(--inp-ph); }
+  .ev-input.time-inp {
+    width: 58px;
+    flex: none;
+    text-align: center;
+  }
+
+  .color-cycle {
+    width: 15px;
+    height: 15px;
+    border-radius: 999px;
+    border: 1.5px solid var(--card-bg);
+    box-shadow: 0 0 0 1px var(--inp-border);
+    background: #F28BA8;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .color-cycle.blue { background: #7CC2EB; }
+  .color-cycle.lav { background: #B597F0; }
+  .color-cycle.mint { background: #6FD1C2; }
+
+  .add-btn {
+    border: none;
+    background: var(--today-bg);
+    color: #FFFFFF;
+    font-family: inherit;
+    font-size: 9.5px;
+    font-weight: 800;
+    padding: 4.5px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .add-btn:hover { opacity: 0.92; }
+
+  .toast {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-6px);
+    background: var(--toast-bg);
+    color: var(--toast-fg);
+    font-size: 9.5px;
+    font-weight: 800;
+    padding: 3px 10px;
+    border-radius: 999px;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.16s ease;
+    z-index: 10;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+</style>
+</head>
+<body>
+  <div class="cal-card">
+    <div class="toast" id="toast">저장됨</div>
+
+    <div class="cal-header">
+      <div class="cal-title-wrap">
+        <div class="cal-title" id="calTitle"></div>
+        <div class="cal-reset-hint">• 수요일 주간 초기화</div>
+      </div>
+      <div class="cal-nav">
+        <button type="button" class="nav-btn" onclick="goToday()">오늘</button>
+        <button type="button" class="nav-btn" onclick="shiftMonth(-1)">‹</button>
+        <button type="button" class="nav-btn" onclick="shiftMonth(1)">›</button>
+      </div>
+    </div>
+
+    <div class="weekdays">
+      <div class="weekday sun">일</div>
+      <div class="weekday">월</div>
+      <div class="weekday">화</div>
+      <div class="weekday wed">수</div>
+      <div class="weekday">목</div>
+      <div class="weekday">금</div>
+      <div class="weekday">토</div>
+    </div>
+
+    <div class="days-grid" id="daysGrid"></div>
+
+    <div class="detail-panel">
+      <div class="detail-head">
+        <span id="selectedLabel"></span>
+        <span id="selectedCount">0개</span>
+      </div>
+      <div class="event-list" id="eventList"></div>
+      <form class="add-form" onsubmit="addEvent(event)">
+        <input type="text" class="ev-input time-inp" id="evTime" maxlength="8" placeholder="20:30">
+        <input type="text" class="ev-input" id="evTitle" maxlength="40" placeholder="일정 입력 (예: 4막 하드)">
+        <button type="button" class="color-cycle" id="colorCycle" onclick="cycleColor()" title="색상 변경"></button>
+        <button type="submit" class="add-btn">추가</button>
+      </form>
+    </div>
+  </div>
+
+<script>
+  (function applyThemeParam() {
+    const t = new URLSearchParams(location.search).get("theme");
+    if (t === "dark" || t === "light") document.documentElement.setAttribute("data-theme", t);
+  })();
+
+  const API_BASE = "https://notion-cal.binhaha329.workers.dev";
+  const STORAGE_KEY = "lostark_pastel_calendar_v1";
+  const COLORS = ["pink", "blue", "lav", "mint"];
+  const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
+
+  const now = new Date();
+  let viewYear = now.getFullYear();
+  let viewMonth = now.getMonth();
+  let selectedKey = toDateKey(now);
+  let activeColor = "pink";
+  let eventsMap = {};
+
+  function toDateKey(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  }
+
+  function formatFullLabel(key) {
+    const [y, m, d] = key.split("-").map(Number);
+    const dt = new Date(y, m - 1, d);
+    return `${m}월 ${d}일 (${WEEKDAYS[dt.getDay()]})`;
+  }
+
+  let toastTimer = null;
+  function showToast(msg) {
+    const el = document.getElementById("toast");
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove("show"), 1100);
+  }
+
+  function saveLocal() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(eventsMap));
+    } catch (e) {}
+  }
+
+  async function syncToServer() {
+    saveLocal();
+    try {
+      await fetch(`${API_BASE}/calendar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ events: eventsMap })
+      });
+    } catch (e) {}
+  }
+
+  async function loadInitial() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+      if (saved && typeof saved === "object") eventsMap = saved;
+    } catch (e) {}
+
+    try {
+      const res = await fetch(`${API_BASE}/calendar?_=${Date.now()}`, { cache: "no-store" });
+      if (res.ok) {
+        const data = await res.json();
+        const remote = data && data.events && typeof data.events === "object" ? data.events : null;
+        if (remote && Object.keys(remote).length > 0) {
+          eventsMap = remote;
+          saveLocal();
+        }
+      }
+    } catch (e) {}
+
+    render();
+  }
+
+  function shiftMonth(delta) {
+    viewMonth += delta;
+    if (viewMonth < 0) {
+      viewMonth = 11;
+      viewYear -= 1;
+    } else if (viewMonth > 11) {
+      viewMonth = 0;
+      viewYear += 1;
+    }
+    render();
+  }
+
+  function goToday() {
+    const t = new Date();
+    viewYear = t.getFullYear();
+    viewMonth = t.getMonth();
+    selectedKey = toDateKey(t);
+    render();
+  }
+
+  function cycleColor() {
+    const idx = COLORS.indexOf(activeColor);
+    activeColor = COLORS[(idx + 1) % COLORS.length];
+    const btn = document.getElementById("colorCycle");
+    btn.className = "color-cycle" + (activeColor !== "pink" ? ` ${activeColor}` : "");
+  }
+
+  function addEvent(e) {
+    e.preventDefault();
+    const titleEl = document.getElementById("evTitle");
+    const timeEl = document.getElementById("evTime");
+    const title = titleEl.value.trim();
+    const time = timeEl.value.trim();
+    if (!title) return;
+
+    if (!Array.isArray(eventsMap[selectedKey])) {
+      eventsMap[selectedKey] = [];
+    }
+    eventsMap[selectedKey].push({
+      id: `ev_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+      time,
+      title,
+      color: activeColor
+    });
+
+    titleEl.value = "";
+    render();
+    syncToServer();
+    showToast("일정 추가됨");
+  }
+
+  function deleteEvent(dateKey, id) {
+    if (!Array.isArray(eventsMap[dateKey])) return;
+    eventsMap[dateKey] = eventsMap[dateKey].filter(ev => ev.id !== id);
+    if (eventsMap[dateKey].length === 0) delete eventsMap[dateKey];
+    render();
+    syncToServer();
+    showToast("삭제됨");
+  }
+
+  function render() {
+    document.getElementById("calTitle").textContent = `${viewYear}년 ${viewMonth + 1}월`;
+
+    const grid = document.getElementById("daysGrid");
+    grid.innerHTML = "";
+
+    const firstDay = new Date(viewYear, viewMonth, 1).getDay();
+    const lastDate = new Date(viewYear, viewMonth + 1, 0).getDate();
+    const prevLastDate = new Date(viewYear, viewMonth, 0).getDate();
+    const todayKey = toDateKey(new Date());
+
+    for (let i = firstDay - 1; i >= 0; i--) {
+      const dayNum = prevLastDate - i;
+      const cell = document.createElement("div");
+      cell.className = "day-cell empty other-month";
+      cell.innerHTML = `<div class="day-top"><span class="day-num">${dayNum}</span></div>`;
+      grid.appendChild(cell);
+    }
+
+    for (let d = 1; d <= lastDate; d++) {
+      const dt = new Date(viewYear, viewMonth, d);
+      const key = toDateKey(dt);
+      const isWed = dt.getDay() === 3;
+      const dayEvents = Array.isArray(eventsMap[key]) ? eventsMap[key] : [];
+
+      const cell = document.createElement("button");
+      cell.type = "button";
+      cell.className = "day-cell" +
+        (key === todayKey ? " today" : "") +
+        (key === selectedKey ? " selected" : "");
+      cell.onclick = () => {
+        selectedKey = key;
+        render();
+      };
+
+      const dotsHtml = dayEvents.slice(0, 4).map(ev =>
+        `<span class="ev-dot ${COLORS.includes(ev.color) ? ev.color : "pink"}"></span>`
+      ).join("");
+
+      cell.innerHTML = `
+        <div class="day-top">
+          <span class="day-num">${d}</span>
+          ${isWed ? `<span class="reset-dot" title="주간 초기화"></span>` : ""}
+        </div>
+        <div class="event-dots">${dotsHtml}</div>
+      `;
+      grid.appendChild(cell);
+    }
+
+    const totalCells = firstDay + lastDate;
+    const trailing = (7 - (totalCells % 7)) % 7;
+    for (let t = 1; t <= trailing; t++) {
+      const cell = document.createElement("div");
+      cell.className = "day-cell empty other-month";
+      cell.innerHTML = `<div class="day-top"><span class="day-num">${t}</span></div>`;
+      grid.appendChild(cell);
+    }
+
+    const listEl = document.getElementById("eventList");
+    const selEvents = Array.isArray(eventsMap[selectedKey]) ? eventsMap[selectedKey] : [];
+    document.getElementById("selectedLabel").textContent = formatFullLabel(selectedKey);
+    document.getElementById("selectedCount").textContent = `${selEvents.length}개`;
+
+    if (selEvents.length === 0) {
+      listEl.innerHTML = `<div class="empty-ev">등록된 일정이 없어요</div>`;
+    } else {
+      listEl.innerHTML = "";
+      selEvents.forEach(ev => {
+        const colorClass = COLORS.includes(ev.color) ? ev.color : "pink";
+        const row = document.createElement("div");
+        row.className = `ev-item ${colorClass}`;
+        row.innerHTML = `
+          <div class="ev-main">
+            ${ev.time ? `<span class="ev-time">${ev.time}</span>` : ""}
+            <span class="ev-title">${ev.title}</span>
+          </div>
+          <button type="button" class="ev-del" title="삭제" onclick="deleteEvent('${selectedKey}', '${ev.id}')">×</button>
+        `;
+        listEl.appendChild(row);
+      });
+    }
+  }
+
+  loadInitial();
+</script>
+</body>
+</html>
