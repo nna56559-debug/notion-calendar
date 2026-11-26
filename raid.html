@@ -65,7 +65,7 @@
     --row-done-border: #DCEFE3;
     --lv-bg: #F4EFF1;
     --lv-fg: #938985;
-    --raid-tag-fg: #A3969A;
+    --raid-tag-fg: #9E8F94;
     --raid-tag-active-fg: #D4597E;
     --heart-fill: #F7E8EC;
     --heart-stroke: #E9B8C6;
@@ -128,7 +128,7 @@
       --row-done-border: #2F4F41;
       --lv-bg: #312E3B;
       --lv-fg: #B5B0C4;
-      --raid-tag-fg: #8E879E;
+      --raid-tag-fg: #948CA6;
       --raid-tag-active-fg: #F5A3BC;
       --heart-fill: #342B36;
       --heart-stroke: #6E4F5E;
@@ -191,7 +191,7 @@
     --row-done-border: #2F4F41;
     --lv-bg: #312E3B;
     --lv-fg: #B5B0C4;
-    --raid-tag-fg: #8E879E;
+    --raid-tag-fg: #948CA6;
     --raid-tag-active-fg: #F5A3BC;
     --heart-fill: #342B36;
     --heart-stroke: #6E4F5E;
@@ -220,7 +220,7 @@
     box-shadow: var(--card-shadow);
     display: flex;
     flex-direction: column;
-    gap: 7px;
+    gap: 8px;
   }
 
   .r-head {
@@ -233,15 +233,15 @@
     position: relative;
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
     flex-wrap: wrap;
   }
   .r-badge-btn {
     border: 1px solid var(--badge-border);
     font-family: inherit;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 800;
-    padding: 2.5px 8px;
+    padding: 3px 9px;
     border-radius: 7px;
     background: var(--badge-bg);
     color: var(--badge-fg);
@@ -255,7 +255,7 @@
     background: var(--badge-hover);
   }
   .r-badge-arrow {
-    font-size: 8px;
+    font-size: 8.5px;
     line-height: 1;
     opacity: 0.85;
   }
@@ -268,7 +268,7 @@
     display: none;
     flex-direction: column;
     gap: 2px;
-    min-width: 84px;
+    min-width: 90px;
     background: var(--pop-bg);
     border: 1.5px solid var(--pop-border);
     border-radius: 10px;
@@ -283,10 +283,10 @@
     background: transparent;
     color: var(--pop-item-fg);
     font-family: inherit;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 800;
     text-align: left;
-    padding: 4px 8px;
+    padding: 4.5px 8px;
     border-radius: 7px;
     cursor: pointer;
     transition: all 0.12s ease;
@@ -305,10 +305,10 @@
     background: transparent;
     color: var(--reset-fg);
     font-family: inherit;
-    font-size: 10.5px;
+    font-size: 12px;
     font-weight: 800;
     cursor: pointer;
-    padding: 1.5px 5px;
+    padding: 2px 6px;
     border-radius: 6px;
     flex-shrink: 0;
     transition: all 0.15s ease;
@@ -320,7 +320,7 @@
   .r-reset.confirming {
     background: var(--reset-conf-bg);
     color: var(--reset-conf-fg);
-    font-size: 9.5px;
+    font-size: 10.5px;
   }
 
   .sub-bar {
@@ -345,14 +345,14 @@
     background-position: right 8px center;
     border: 1px solid var(--sel-border);
     border-radius: 9px;
-    padding: 3px 22px 3px 9px;
+    padding: 3.5px 22px 3.5px 9px;
     font-family: inherit;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 800;
     color: var(--sel-fg);
     cursor: pointer;
     outline: none;
-    max-width: 125px;
+    max-width: 124px;
     text-overflow: ellipsis;
   }
   .roster-select:hover { background-color: var(--sel-hover); }
@@ -363,10 +363,10 @@
     background: var(--del-bg);
     color: var(--del-fg);
     font-family: inherit;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 800;
-    min-width: 20px;
-    height: 20px;
+    min-width: 21px;
+    height: 21px;
     padding: 0 5px;
     border-radius: 7px;
     cursor: pointer;
@@ -381,7 +381,7 @@
     background: var(--del-conf-bg);
     border-color: var(--del-conf-border);
     color: var(--del-conf-fg);
-    font-size: 9px;
+    font-size: 10px;
   }
 
   .search-box {
@@ -391,13 +391,13 @@
     flex-shrink: 0;
   }
   .search-input {
-    width: 84px;
+    width: 82px;
     border: 1px solid var(--inp-border);
     background: var(--inp-bg);
     border-radius: 7px;
-    padding: 2.5px 6px;
+    padding: 3px 7px;
     font-family: inherit;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
     color: var(--txt-main);
     outline: none;
@@ -409,9 +409,9 @@
     background: var(--btn-bg);
     color: var(--btn-fg);
     font-family: inherit;
-    font-size: 9.5px;
+    font-size: 10.5px;
     font-weight: 800;
-    padding: 3px 7px;
+    padding: 3.5px 8px;
     border-radius: 7px;
     cursor: pointer;
     flex-shrink: 0;
@@ -421,8 +421,8 @@
   .char-list {
     display: flex;
     flex-direction: column;
-    gap: 4.5px;
-    max-height: 245px;
+    gap: 5px;
+    max-height: 260px;
     overflow-y: auto;
     padding-right: 2px;
   }
@@ -431,7 +431,7 @@
 
   .empty-guide {
     text-align: center;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
     color: var(--empty-fg);
     padding: 22px 8px;
@@ -441,11 +441,11 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 8px;
+    gap: 6px;
     background: var(--row-bg);
     border: 1px solid var(--row-border);
     border-radius: 9px;
-    padding: 4.5px 10px;
+    padding: 5px 9px;
     transition: all 0.15s ease;
   }
   .c-row.all-done {
@@ -460,7 +460,7 @@
     min-width: 0;
   }
   .c-name {
-    font-size: 10.5px;
+    font-size: 11.5px;
     font-weight: 800;
     color: var(--txt-main);
     white-space: nowrap;
@@ -468,11 +468,11 @@
     text-overflow: ellipsis;
   }
   .c-lv {
-    font-size: 8.5px;
+    font-size: 9.5px;
     font-weight: 700;
     color: var(--lv-fg);
     background: var(--lv-bg);
-    padding: 1px 5px;
+    padding: 1.5px 5.5px;
     border-radius: 4px;
     flex-shrink: 0;
   }
@@ -481,7 +481,7 @@
   .hearts {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 6.5px;
     flex-shrink: 0;
   }
   .heart-slot {
@@ -489,15 +489,16 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 1.5px;
-    min-width: 20px;
+    gap: 2px;
+    min-width: 24px;
   }
   .raid-mini-lbl {
-    font-size: 8px;
+    font-size: 9.5px;
     font-weight: 800;
     line-height: 1;
     color: var(--raid-tag-fg);
     letter-spacing: -0.3px;
+    white-space: nowrap;
     cursor: pointer;
     user-select: none;
     transition: color 0.15s ease;
@@ -522,8 +523,8 @@
   .heart-btn:hover { transform: scale(1.18); }
   .heart-btn:active { transform: scale(0.9); }
   .heart-svg {
-    width: 13.5px;
-    height: 13.5px;
+    width: 14px;
+    height: 14px;
     fill: var(--heart-fill);
     stroke: var(--heart-stroke);
     stroke-width: 1.8;
@@ -540,9 +541,9 @@
     background: var(--cat-btn-bg);
     color: var(--cat-btn-fg);
     font-family: inherit;
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 800;
-    padding: 2px 8px;
+    padding: 2.5px 9px;
     border-radius: 7px;
     cursor: pointer;
     transition: all 0.15s ease;
@@ -571,42 +572,45 @@
       gap: 4px;
     }
     .roster-select {
-      max-width: 96px;
-      font-size: 9.5px;
-      padding: 2.5px 18px 2.5px 7px;
+      max-width: 92px;
+      font-size: 10px;
+      padding: 3px 18px 3px 7px;
     }
     .search-input {
-      width: 68px;
-      font-size: 9.5px;
+      width: 66px;
+      font-size: 10px;
       padding: 2.5px 5px;
     }
     .search-btn {
-      font-size: 9px;
+      font-size: 10px;
       padding: 2.5px 6px;
     }
     .char-list {
-      max-height: 215px;
-      gap: 3.5px;
+      max-height: 225px;
+      gap: 4px;
     }
     .c-row {
       padding: 4px 8px;
-      gap: 6px;
+      gap: 5px;
     }
     .c-name {
-      font-size: 10px;
+      font-size: 10.5px;
+    }
+    .c-lv {
+      font-size: 9px;
     }
     .hearts {
-      gap: 4.5px;
+      gap: 5px;
     }
     .heart-slot {
-      min-width: 18px;
+      min-width: 21px;
     }
     .raid-mini-lbl {
-      font-size: 7.5px;
+      font-size: 8.5px;
     }
     .heart-svg {
-      width: 12.5px;
-      height: 12.5px;
+      width: 13px;
+      height: 13px;
     }
   }
 </style>
@@ -656,7 +660,6 @@
     halmosi: "할모시"
   };
 
-  // 엔드 레이드 입장 레벨 목록 (상위 순)
   const RAID_TIERS = [
     { code: "벨나", minLv: 1780, group: "벨가" },
     { code: "벨하", minLv: 1770, group: "벨가" },
@@ -680,7 +683,6 @@
     return Number.isFinite(num) ? num : 0;
   }
 
-  // 캐릭터 레벨 기준 동일 레이드 중복 없이 상위 3종 엔드 레이드 자동 산출
   function getDefaultEndRaids(lvText) {
     const lv = parseNumericLv(lvText);
     const picked = [];
@@ -700,7 +702,6 @@
     return picked;
   }
 
-  // 해당 캐릭터가 입장 가능한 모든 레이드 코드 목록 (수동 전환용)
   function getEligibleRaidCodes(lvText) {
     const lv = parseNumericLv(lvText);
     const list = RAID_TIERS.filter(r => lv >= r.minLv).map(r => r.code);
@@ -1179,7 +1180,6 @@
     saveState();
   }
 
-  // 하트 위 레이드 이름 클릭 시 해당 캐릭터가 갈 수 있는 다른 레이드로 순환 변경
   function cycleRaidName(charIdx, slotIdx, e) {
     if (e) e.stopPropagation();
     const roster = getActiveRoster();
