@@ -124,6 +124,15 @@
   .sync-btn.spinning { animation: spin 0.7s linear infinite; }
   @keyframes spin { 100% { transform: rotate(360deg); } }
 
+  .sync-status {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--icon-color);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  .sync-status.show { opacity: 1; }
+
   .add-btn {
     width: 20px;
     height: 20px;
@@ -297,6 +306,7 @@
     <div class="d-head">
       <button type="button" class="add-btn" title="디데이 추가" onclick="openForm()">+</button>
       <button type="button" class="sync-btn" id="syncBtn" title="새로고침" onclick="fetchItems(true)">↻</button>
+      <span class="sync-status" id="syncStatus"></span>
     </div>
 
     <div class="d-form" id="ddayForm">
@@ -326,7 +336,7 @@
   })();
 
   const API_BASE = "https://notion-cal.binhaha329.workers.dev";
-  const CACHE_KEY = "lostark_dday_saved_v4";
+  const CACHE_KEY = "lostark_dday_saved_v5";
   const DELETED_KEY = "lostark_dday_deleted_v1";
   const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -335,12 +345,23 @@
   let isSyncing = false;
   let lastSavedAt = 0;
   let retryTimer = null;
+  let statusTimer = null;
   let deletedIds = new Set();
 
   try {
     const savedDel = JSON.parse(localStorage.getItem(DELETED_KEY) || "[]");
     if (Array.isArray(savedDel)) savedDel.forEach(id => deletedIds.add(String(id)));
   } catch (e) {}
+
+  function setStatus(text, isError = false) {
+    const el = document.getElementById("syncStatus");
+    if (!el) return;
+    el.textContent = text;
+    el.style.color = isError ? "#E85A7A" : "";
+    el.classList.add("show");
+    clearTimeout(statusTimer);
+    statusTimer = setTimeout(() => el.classList.remove("show"), 2500);
+  }
 
   function saveDeletedCache() {
     try {
@@ -381,12 +402,8 @@
     const targetUtc = Date.UTC(y, m - 1, d);
     const diffDays = Math.round((targetUtc - todayUtc) / (1000 * 60 * 60 * 24));
 
-    if (diffDays > 0) {
-      return { label: `D-${diffDays}`, cls: "", diff: diffDays };
-    }
-    if (diffDays === 0) {
-      return { label: includeStart ? "D+1" : "D-DAY", cls: "today", diff: 0 };
-    }
+    if (diffDays > 0) return { label: `D-${diffDays}`, cls: "", diff: diffDays };
+    if (diffDays === 0) return { label: includeStart ? "D+1" : "D-DAY", cls: "today", diff: 0 };
     const passed = Math.abs(diffDays) + (includeStart ? 1 : 0);
     return { label: `D+${passed}`, cls: "past", diff: diffDays };
   }
@@ -474,13 +491,17 @@
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const resData = await res.json();
-      if (resData && resData.ok === false) throw new Error("server_save_false");
+      if (!resData || resData.ok === false) {
+        throw new Error(resData?.error || "서버 저장 실패");
+      }
 
       lastSavedAt = Date.now();
       clearTimeout(retryTimer);
       retryTimer = null;
+      setStatus("저장됨");
       return true;
     } catch (e) {
+      setStatus(`저장 오류: ${e.message}`, true);
       if (!isRetry) {
         clearTimeout(retryTimer);
         retryTimer = setTimeout(() => {
@@ -506,8 +527,9 @@
       const res = await fetch(`${API_BASE}/dday?_=${Date.now()}`, { cache: "no-store" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      const serverItems = normalizeList(data.items);
+      if (data && data.ok === false) throw new Error(data.error || "조회 실패");
 
+      const serverItems = normalizeList(data.items);
       const justSavedLocally = (Date.now() - lastSavedAt) < 4000;
       const keepLocal = justSavedLocally || ((!serverItems || serverItems.length === 0) && localSaved.length > 0);
       const merged = mergeDdayLists(serverItems || [], keepLocal ? ddayItems : []);
@@ -520,8 +542,11 @@
 
       if ((!serverItems || serverItems.length === 0) && ddayItems.length > 0) {
         await postDdayToServer(ddayItems, false);
+      } else if (showSpinner) {
+        setStatus("동기화 완료");
       }
     } catch (e) {
+      if (showSpinner) setStatus(`연결 오류`, true);
       if (ddayItems.length === 0 && localSaved.length > 0) {
         ddayItems = sortItems(localSaved);
         render();
