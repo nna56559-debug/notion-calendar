@@ -376,6 +376,9 @@
   .msg-block.other {
     align-items: flex-start;
   }
+  .msg-block.new-minute-gap {
+    margin-top: 3px;
+  }
 
   @keyframes popIn {
     from { opacity: 0; transform: translateY(5px); }
@@ -876,7 +879,8 @@
   })();
 
   const API_BASE = "https://notion-cal.binhaha329.workers.dev";
-  const STORAGE_KEY = "lostark_pastel_chat_room_v2";
+  const STORAGE_KEY = "lostark_pastel_chat_room_v3";
+  const DELETED_KEY = "lostark_pastel_chat_deleted_v1";
   const NICK_KEY = "lostark_pastel_chat_nick_v1";
   const NICK_LOCKED_KEY = "lostark_pastel_chat_nick_locked_v1";
   const TONES = ["pink", "blue", "lav", "yellow", "green", "peach", "mint", "coral"];
@@ -896,14 +900,36 @@
   let isNickLocked = false;
   let pendingNick = "";
   let isSending = false;
+  let isSavingToServer = false;
   let lastSavedAt = 0;
   let retrySaveTimer = null;
   let deletedIds = new Set();
   let state = {
     tone: "pink",
     updatedAt: 0,
-    messages: []
+    messages: [],
+    deletedIds: [],
+    ddayItems: null
   };
+
+  function loadDeletedCache() {
+    try {
+      const arr = JSON.parse(localStorage.getItem(DELETED_KEY) || "[]");
+      if (Array.isArray(arr)) {
+        arr.forEach(id => {
+          if (id) deletedIds.add(String(id));
+        });
+      }
+    } catch (e) {}
+  }
+
+  function saveDeletedCache() {
+    try {
+      const trimmed = Array.from(deletedIds).slice(-300);
+      deletedIds = new Set(trimmed);
+      localStorage.setItem(DELETED_KEY, JSON.stringify(trimmed));
+    } catch (e) {}
+  }
 
   function isModalOpen() {
     return document.getElementById("nickModal")?.classList.contains("open");
@@ -943,7 +969,6 @@
     executeSendMessage(chosen);
   }
 
-  // 기기 로컬 시간대와 무관하게 한국 표준시(KST, UTC+9) 기준으로 날짜·시간 통일
   function getKstParts(d = new Date()) {
     const kst = new Date(d.getTime() + (d.getTimezoneOffset() + 540) * 60000);
     return {
@@ -1086,6 +1111,13 @@
     if (!raw || typeof raw !== "object") return null;
     const list = Array.isArray(raw.messages) ? raw.messages : [];
     const fallbackDate = getDateKey(new Date());
+    const remoteDeleted = Array.isArray(raw.deletedIds) ? raw.deletedIds.map(String) : [];
+
+    remoteDeleted.forEach(id => {
+      if (id) deletedIds.add(id);
+    });
+    if (remoteDeleted.length > 0) saveDeletedCache();
+
     const cleaned = list
       .filter(m => m && typeof m.text === "string" && m.text.trim())
       .map((m, idx) => ({
@@ -1095,15 +1127,18 @@
         date: String(m.date || fallbackDate).trim(),
         time: String(m.time || ""),
         tone: TONES.includes(m.tone) ? m.tone : "pink"
-      }));
+      }))
+      .filter(m => !deletedIds.has(m.id));
+
     return {
       tone: TONES.includes(raw.tone) ? raw.tone : "pink",
       updatedAt: Number(raw.updatedAt || 0),
-      messages: cleaned
+      messages: cleaned,
+      deletedIds: Array.from(deletedIds),
+      ddayItems: Array.isArray(raw.ddayItems) ? raw.ddayItems : null
     };
   }
 
-  // 서버 메시지와 로컬 미전송/방금 보낸 메시지를 id 기준으로 안전하게 병합
   function mergeMessageLists(remoteList, localList) {
     const map = new Map();
     (remoteList || []).forEach(m => {
@@ -1123,26 +1158,68 @@
 
   function writeLocalCache() {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        tone: state.tone,
+        updatedAt: state.updatedAt,
+        messages: state.messages,
+        deletedIds: Array.from(deletedIds),
+        ddayItems: state.ddayItems
+      }));
     } catch (e) {}
   }
 
+  // 저장 직전에 서버 최신 데이터를 먼저 읽어 병합 후 POST (다른 기기 메시지·삭제·디데이 유실 방지)
   async function postStateToWorker(isRetry = false) {
-    const snapshot = {
-      tone: state.tone,
-      updatedAt: state.updatedAt || Date.now(),
-      messages: state.messages
-    };
+    isSavingToServer = true;
     try {
+      let remoteMessages = [];
+      let remoteDday = state.ddayItems;
+
+      try {
+        const getRes = await fetch(`${API_BASE}/memo?_=${Date.now()}`, { cache: "no-store" });
+        if (getRes.ok) {
+          const currentData = await getRes.json();
+          const rawMemo = extractMemoPayload(currentData);
+          const normRemote = normalizeMessages(rawMemo);
+          if (normRemote) {
+            remoteMessages = normRemote.messages;
+            if (Array.isArray(normRemote.ddayItems)) {
+              remoteDday = normRemote.ddayItems;
+            }
+          }
+        }
+      } catch (e) {}
+
+      const mergedMessages = mergeMessageLists(remoteMessages, state.messages);
+      const deletedList = Array.from(deletedIds).slice(-300);
+
+      state.messages = mergedMessages;
+      state.deletedIds = deletedList;
+      state.ddayItems = remoteDday;
+      state.updatedAt = Date.now();
+      writeLocalCache();
+
+      const snapshot = {
+        tone: state.tone,
+        updatedAt: state.updatedAt,
+        messages: mergedMessages,
+        deletedIds: deletedList
+      };
+      if (Array.isArray(remoteDday)) {
+        snapshot.ddayItems = remoteDday;
+      }
+
       const res = await fetch(`${API_BASE}/memo`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ chatMemo: snapshot })
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
       lastSavedAt = Date.now();
       clearTimeout(retrySaveTimer);
       retrySaveTimer = null;
+      render({ scrollToBottom: false });
       return true;
     } catch (e) {
       if (!isRetry) {
@@ -1152,6 +1229,8 @@
         }, 2500);
       }
       return false;
+    } finally {
+      isSavingToServer = false;
     }
   }
 
@@ -1162,12 +1241,13 @@
   }
 
   async function loadState({ isPolling = false, manual = false } = {}) {
-    if (isSending || isModalOpen()) return;
+    if (isSending || isSavingToServer || isModalOpen()) return;
 
     const syncBtn = document.getElementById("syncBtn");
     if (manual && syncBtn) syncBtn.classList.add("spinning");
 
     if (!isPolling) {
+      loadDeletedCache();
       loadNick();
       try {
         const local = JSON.parse(localStorage.getItem(STORAGE_KEY));
@@ -1189,7 +1269,7 @@
       const norm = normalizeMessages(rawMemo);
 
       if (norm) {
-        const justSavedLocally = (Date.now() - lastSavedAt) < 3000;
+        const justSavedLocally = (Date.now() - lastSavedAt) < 3500;
         const merged = mergeMessageLists(norm.messages, justSavedLocally ? state.messages : []);
         const prevSig = getSig(state.messages);
         const nextSig = getSig(merged);
@@ -1199,7 +1279,9 @@
           state = {
             tone: justSavedLocally ? state.tone : norm.tone,
             updatedAt: Math.max(Number(norm.updatedAt || 0), Number(state.updatedAt || 0)),
-            messages: merged
+            messages: merged,
+            deletedIds: Array.from(deletedIds),
+            ddayItems: Array.isArray(norm.ddayItems) ? norm.ddayItems : state.ddayItems
           };
           writeLocalCache();
           render({ scrollToBottom: hadNew || !isPolling });
@@ -1215,7 +1297,7 @@
     }
   }
 
-  setInterval(() => loadState({ isPolling: true, manual: false }), 5000);
+  setInterval(() => loadState({ isPolling: true, manual: false }), 3500);
   document.addEventListener("visibilitychange", () => {
     if (!document.hidden) {
       loadState({ isPolling: false, manual: false });
@@ -1352,6 +1434,7 @@
     if (!target || target.sender !== currentNick) return;
 
     deletedIds.add(id);
+    saveDeletedCache();
     state.messages = state.messages.filter(m => m.id !== id);
     render({ scrollToBottom: false });
     saveStateNow();
@@ -1401,14 +1484,16 @@
       const prevIsMine = prev ? Boolean(currentNick && prev.sender && prev.sender === currentNick) : null;
       const nextIsMine = next ? Boolean(currentNick && next.sender && next.sender === currentNick) : null;
 
-      const sameGroupAsPrev = prev && !isNewDate && prev.sender === msg.sender && prevIsMine === isMine;
+      // 같은 날 + 같은 보낸 사람 + 같은 분(msg.time)일 때만 하나의 말풍선 묶음으로 연결
+      const sameMinuteAsPrev = prev && !isNewDate && prev.sender === msg.sender && prevIsMine === isMine && prev.time === msg.time;
       const nextIsNewDate = next && next.date !== msg.date;
-      const isLastInUserStreak = !next || nextIsNewDate || next.sender !== msg.sender || nextIsMine !== isMine;
+      const isLastInMinuteGroup = !next || nextIsNewDate || next.sender !== msg.sender || nextIsMine !== isMine || next.time !== msg.time;
+      const isNewMinuteAfterSameUser = prev && !isNewDate && prev.sender === msg.sender && prevIsMine === isMine && prev.time !== msg.time;
 
       const block = document.createElement("div");
-      block.className = "msg-block " + (isMine ? "mine" : "other");
+      block.className = "msg-block " + (isMine ? "mine" : "other") + (isNewMinuteAfterSameUser ? " new-minute-gap" : "");
 
-      if (!isMine && msg.sender && !sameGroupAsPrev) {
+      if (!isMine && msg.sender && !sameMinuteAsPrev) {
         const senderEl = document.createElement("div");
         senderEl.className = "msg-sender";
         senderEl.textContent = msg.sender;
@@ -1441,7 +1526,7 @@
         actions.appendChild(delBtn);
         meta.appendChild(actions);
 
-        if (isLastInUserStreak && msg.time) {
+        if (isLastInMinuteGroup && msg.time) {
           const timeSpan = document.createElement("span");
           timeSpan.className = "msg-time";
           timeSpan.textContent = msg.time;
@@ -1453,7 +1538,7 @@
       } else {
         row.appendChild(bubble);
 
-        if (isLastInUserStreak && msg.time) {
+        if (isLastInMinuteGroup && msg.time) {
           const meta = document.createElement("div");
           meta.className = "msg-meta";
           const timeSpan = document.createElement("span");
