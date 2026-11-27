@@ -348,13 +348,19 @@
   }
 
   function getRewardInfo(item) {
-    const rewards = item.RewardItems || [];
-    const names = rewards.flatMap(r => (r.Items || []).map(i => i.Name)).join(" ");
-    if (names.includes("골드")) return { label: "골드", cls: "gold" };
-    if (names.includes("카드")) return { label: "카드", cls: "card" };
-    if (names.includes("주화")) return { label: "주화", cls: "coin" };
-    return { label: "실링", cls: "" };
-  }
+  const rewards = item.RewardItems || [];
+  const names = rewards
+    .flatMap(r => (r.Items || []).map(i => `${i.Name || ""} ${i.Description || ""}`))
+    .join(" ");
+
+  if (names.includes("골드")) return { label: "골드", cls: "gold" };
+  if (names.includes("카드")) return { label: "카드", cls: "card" };
+  if (names.includes("주화")) return { label: "주화", cls: "coin" };
+  if (names.includes("실링")) return { label: "실링", cls: "" };
+
+  const firstItemName = rewards[0]?.Items?.[0]?.Name || "보상";
+  return { label: firstItemName, cls: "" };
+}
 
   function hasTodaySchedule(items, todayKey, kstNow) {
     return (items || []).some(item => {
