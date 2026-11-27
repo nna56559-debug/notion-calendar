@@ -326,7 +326,8 @@
   })();
 
   const API_BASE = "https://notion-cal.binhaha329.workers.dev";
-  const CACHE_KEY = "lostark_dday_saved_v3";
+  const CACHE_KEY = "lostark_dday_saved_v4";
+  const DELETED_KEY = "lostark_dday_deleted_v1";
   const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
   let ddayItems = [];
@@ -335,6 +336,19 @@
   let lastSavedAt = 0;
   let retryTimer = null;
   let deletedIds = new Set();
+
+  try {
+    const savedDel = JSON.parse(localStorage.getItem(DELETED_KEY) || "[]");
+    if (Array.isArray(savedDel)) savedDel.forEach(id => deletedIds.add(String(id)));
+  } catch (e) {}
+
+  function saveDeletedCache() {
+    try {
+      const trimmed = Array.from(deletedIds).slice(-200);
+      deletedIds = new Set(trimmed);
+      localStorage.setItem(DELETED_KEY, JSON.stringify(trimmed));
+    } catch (e) {}
+  }
 
   function getKstToday() {
     const now = new Date();
@@ -398,23 +412,8 @@
         date: String(it.date).trim(),
         includeStart: Boolean(it.includeStart),
         updatedAt: Number(it.updatedAt || 0)
-      }));
-  }
-
-  // Worker가 저장하는 chatMemo 객체 내부 또는 최상위 어디서든 디데이 목록 추출
-  function extractDdayItems(payload) {
-    if (!payload || typeof payload !== "object") return null;
-    const chatMemo = payload.chatMemo || (payload.memo && payload.memo.chatMemo) || payload;
-    if (chatMemo && Array.isArray(chatMemo.ddayItems)) {
-      return normalizeList(chatMemo.ddayItems);
-    }
-    if (payload.ddayMemo && Array.isArray(payload.ddayMemo.items)) {
-      return normalizeList(payload.ddayMemo.items);
-    }
-    if (Array.isArray(payload.ddayItems)) {
-      return normalizeList(payload.ddayItems);
-    }
-    return null;
+      }))
+      .filter(it => !deletedIds.has(it.id));
   }
 
   function mergeDdayLists(remoteList, localList) {
@@ -452,26 +451,31 @@
     } catch (e) {}
   }
 
-  // 기존 chatMemo의 messages/tone을 그대로 유지하면서 ddayItems만 함께 저장
   async function postDdayToServer(snapshotItems, isRetry = false) {
     try {
-      const getRes = await fetch(`${API_BASE}/memo?_=${Date.now()}`, { cache: "no-store" });
-      const currentData = getRes.ok ? await getRes.json() : {};
-      const existingChat = (currentData && typeof currentData.chatMemo === "object" && currentData.chatMemo)
-        ? currentData.chatMemo
-        : { tone: "pink", updatedAt: Date.now(), messages: [] };
+      let remoteItems = [];
+      try {
+        const getRes = await fetch(`${API_BASE}/dday?_=${Date.now()}`, { cache: "no-store" });
+        if (getRes.ok) {
+          const getData = await getRes.json();
+          remoteItems = normalizeList(getData.items) || [];
+        }
+      } catch (e) {}
 
-      const nextChatMemo = {
-        ...existingChat,
-        ddayItems: snapshotItems
-      };
+      const mergedToSave = mergeDdayLists(remoteItems, snapshotItems);
+      ddayItems = mergedToSave;
+      writeLocal(mergedToSave);
+      render();
 
-      const res = await fetch(`${API_BASE}/memo`, {
+      const res = await fetch(`${API_BASE}/dday`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chatMemo: nextChatMemo })
+        body: JSON.stringify({ items: mergedToSave })
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const resData = await res.json();
+      if (resData && resData.ok === false) throw new Error("server_save_false");
+
       lastSavedAt = Date.now();
       clearTimeout(retryTimer);
       retryTimer = null;
@@ -499,13 +503,13 @@
     }
 
     try {
-      const res = await fetch(`${API_BASE}/memo?_=${Date.now()}`, { cache: "no-store" });
+      const res = await fetch(`${API_BASE}/dday?_=${Date.now()}`, { cache: "no-store" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      const serverItems = extractDdayItems(data);
+      const serverItems = normalizeList(data.items);
 
       const justSavedLocally = (Date.now() - lastSavedAt) < 4000;
-      const keepLocal = justSavedLocally || (serverItems === null && localSaved.length > 0);
+      const keepLocal = justSavedLocally || ((!serverItems || serverItems.length === 0) && localSaved.length > 0);
       const merged = mergeDdayLists(serverItems || [], keepLocal ? ddayItems : []);
 
       if (getSig(ddayItems) !== getSig(merged) || showSpinner) {
@@ -514,7 +518,7 @@
         render();
       }
 
-      if (serverItems === null && ddayItems.length > 0) {
+      if ((!serverItems || serverItems.length === 0) && ddayItems.length > 0) {
         await postDdayToServer(ddayItems, false);
       }
     } catch (e) {
@@ -603,6 +607,7 @@
 
   async function deleteItem(id) {
     deletedIds.add(id);
+    saveDeletedCache();
     const next = ddayItems.filter((it) => it.id !== id);
     await syncToServer(next);
   }
