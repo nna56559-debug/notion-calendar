@@ -347,38 +347,44 @@
     document.getElementById("nextCountdown").innerHTML = `- ${h}<small>H</small> ${m}<small>M</small>`;
   }
 
-  function getRewardInfo(item, todayKey) {
-    const rewards = item.RewardItems || [];
-
-    const todayRewards = rewards.filter(r => {
-      const rTimes = r.StartTimes || [];
-      if (rTimes.length === 0) return false;
-      return rTimes.some(t => getLoaDateStr(new Date(t)) === todayKey);
+  function isMatchToday(times, todayKey) {
+    if (!Array.isArray(times) || times.length === 0) return false;
+    return times.some(t => {
+      const dt = new Date(t);
+      return !isNaN(dt.getTime()) && getLoaDateStr(dt) === todayKey;
     });
-
-    const targetRewards = todayRewards.length > 0 ? todayRewards : rewards;
-
-    const names = targetRewards
-      .flatMap(r => (r.Items || []).map(i => `${i.Name || ""} ${i.Description || ""}`))
-      .join(" ");
-
-    if (names.includes("골드")) return { label: "골드", cls: "gold" };
-    if (names.includes("카드")) return { label: "카드", cls: "card" };
-    if (names.includes("주화")) return { label: "주화", cls: "coin" };
-    if (names.includes("실링")) return { label: "실링", cls: "" };
-
-    const firstItemName = targetRewards[0]?.Items?.[0]?.Name || rewards[0]?.Items?.[0]?.Name || "보상";
-    return { label: firstItemName, cls: "" };
   }
 
-  function hasTodaySchedule(items, todayKey, kstNow) {
-    return (items || []).some(item => {
-      const times = item.StartTimes || [];
-      return times.some(t => {
-        const dt = new Date(t);
-        return getLoaDateStr(dt) === todayKey;
+  function getRewardInfo(item, todayKey) {
+    const rewards = item.RewardItems || [];
+    const todayMatchedNames = [];
+    const fallbackNames = [];
+
+    rewards.forEach(r => {
+      const groupMatch = isMatchToday(r.StartTimes, todayKey);
+      (r.Items || []).forEach(i => {
+        const name = String(i.Name || "").trim();
+        if (!name) return;
+        fallbackNames.push(name);
+        if (groupMatch || isMatchToday(i.StartTimes, todayKey)) {
+          todayMatchedNames.push(name);
+        }
       });
     });
+
+    const targetNames = todayMatchedNames.length > 0 ? todayMatchedNames : fallbackNames;
+    const joined = targetNames.join(" ");
+
+    if (joined.includes("골드")) return { label: "골드", cls: "gold" };
+    if (joined.includes("카드")) return { label: "카드", cls: "card" };
+    if (joined.includes("주화")) return { label: "주화", cls: "coin" };
+    if (joined.includes("실링")) return { label: "실링", cls: "" };
+
+    return { label: targetNames[0] || "보상", cls: "" };
+  }
+
+  function hasTodaySchedule(items, todayKey) {
+    return (items || []).some(item => isMatchToday(item.StartTimes, todayKey));
   }
 
   async function loadIslands() {
@@ -432,8 +438,8 @@
         });
       }
 
-      const bossOn = hasTodaySchedule(fieldBoss, todayKey, kst);
-      const gateOn = hasTodaySchedule(chaosGate, todayKey, kst);
+      const bossOn = hasTodaySchedule(fieldBoss, todayKey);
+      const gateOn = hasTodaySchedule(chaosGate, todayKey);
 
       const bossStateEl = document.getElementById("stateBoss");
       const gateStateEl = document.getElementById("stateGate");
