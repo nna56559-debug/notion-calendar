@@ -332,7 +332,6 @@
     color: var(--empty-fg);
   }
 
-  /* 중앙 날짜 구분선 */
   .date-divider {
     display: flex;
     align-items: center;
@@ -473,7 +472,6 @@
     transform: scale(0.98);
   }
 
-  /* 내 말풍선 (오른쪽) */
   .msg-block.mine .msg-bubble {
     border-radius: 13px 13px 4px 13px;
     background: var(--bbl-pink-bg);
@@ -516,7 +514,6 @@
     color: var(--bbl-coral-fg);
   }
 
-  /* 상대 말풍선 (왼쪽) */
   .msg-block.other .msg-bubble {
     border-radius: 13px 13px 13px 4px;
     background: var(--other-bbl-bg);
@@ -722,7 +719,6 @@
     transform: translateX(-50%) translateY(0);
   }
 
-  /* 이름 결정 확인 모달창 */
   .nick-modal-backdrop {
     position: fixed;
     inset: 0;
@@ -819,25 +815,8 @@
   }
 
   @media (max-width: 480px) {
-    body { padding: 2px; }
-    .chat-card {
-      height: 240px;
-      border-radius: 16px;
-      padding: 9px 10px;
-    }
     .msg-block.mine .msg-actions {
       opacity: 1;
-    }
-    .nick-input {
-      width: 48px;
-      font-size: 9px;
-    }
-    .msg-bubble {
-      font-size: 10px;
-      padding: 5.5px 9px;
-    }
-    .chat-textarea {
-      font-size: 10px;
     }
   }
 </style>
@@ -919,6 +898,7 @@
   let isSending = false;
   let lastSavedAt = 0;
   let retrySaveTimer = null;
+  let deletedIds = new Set();
   let state = {
     tone: "pink",
     updatedAt: 0,
@@ -943,8 +923,7 @@
 
   function cancelNickConfirm() {
     closeNickConfirmModal();
-    const nickEl = document.getElementById("nickInput");
-    nickEl.focus();
+    document.getElementById("nickInput").focus();
   }
 
   function handleModalBackdrop(e) {
@@ -964,11 +943,25 @@
     executeSendMessage(chosen);
   }
 
+  // 기기 로컬 시간대와 무관하게 한국 표준시(KST, UTC+9) 기준으로 날짜·시간 통일
+  function getKstParts(d = new Date()) {
+    const kst = new Date(d.getTime() + (d.getTimezoneOffset() + 540) * 60000);
+    return {
+      year: kst.getFullYear(),
+      month: kst.getMonth() + 1,
+      day: kst.getDate(),
+      weekday: kst.getDay(),
+      hours: kst.getHours(),
+      minutes: kst.getMinutes(),
+      ts: kst.getTime()
+    };
+  }
+
   function getDateKey(d = new Date()) {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-    return `${y}-${m}-${day}`;
+    const p = getKstParts(d);
+    const m = String(p.month).padStart(2, "0");
+    const day = String(p.day).padStart(2, "0");
+    return `${p.year}-${m}-${day}`;
   }
 
   function formatDateLabel(dateKey) {
@@ -977,14 +970,15 @@
     const y = Number(m[1]);
     const mo = Number(m[2]);
     const da = Number(m[3]);
-    const dt = new Date(y, mo - 1, da);
-    const w = WEEKDAYS_KO[dt.getDay()] || "";
+    const utcDt = new Date(Date.UTC(y, mo - 1, da));
+    const w = WEEKDAYS_KO[utcDt.getUTCDay()] || "";
     return `${y}년 ${mo}월 ${da}일 (${w})`;
   }
 
   function formatTimeNow(d = new Date()) {
-    const h = d.getHours();
-    const m = String(d.getMinutes()).padStart(2, "0");
+    const p = getKstParts(d);
+    const h = p.hours;
+    const m = String(p.minutes).padStart(2, "0");
     const ampm = h < 12 ? "오전" : "오후";
     const h12 = h % 12 === 0 ? 12 : h % 12;
     return `${ampm} ${h12}:${m}`;
@@ -1083,6 +1077,11 @@
     return null;
   }
 
+  function parseMsgSeq(idStr) {
+    const m = String(idStr || "").match(/^m_(\d+)/);
+    return m ? Number(m[1]) : 0;
+  }
+
   function normalizeMessages(raw) {
     if (!raw || typeof raw !== "object") return null;
     const list = Array.isArray(raw.messages) ? raw.messages : [];
@@ -1102,6 +1101,20 @@
       updatedAt: Number(raw.updatedAt || 0),
       messages: cleaned
     };
+  }
+
+  // 서버 메시지와 로컬 미전송/방금 보낸 메시지를 id 기준으로 안전하게 병합
+  function mergeMessageLists(remoteList, localList) {
+    const map = new Map();
+    (remoteList || []).forEach(m => {
+      if (!deletedIds.has(m.id)) map.set(m.id, m);
+    });
+    (localList || []).forEach(m => {
+      if (!deletedIds.has(m.id) && !map.has(m.id)) {
+        map.set(m.id, m);
+      }
+    });
+    return Array.from(map.values()).sort((a, b) => parseMsgSeq(a.id) - parseMsgSeq(b.id));
   }
 
   function getSig(list) {
@@ -1177,17 +1190,19 @@
 
       if (norm) {
         const justSavedLocally = (Date.now() - lastSavedAt) < 3000;
-        const remoteIsEmptyWhileLocalHasData = norm.messages.length === 0 && state.messages.length > 0;
+        const merged = mergeMessageLists(norm.messages, justSavedLocally ? state.messages : []);
+        const prevSig = getSig(state.messages);
+        const nextSig = getSig(merged);
 
-        if (!justSavedLocally && !remoteIsEmptyWhileLocalHasData) {
-          const prevSig = getSig(state.messages);
-          const nextSig = getSig(norm.messages);
-          if (prevSig !== nextSig || !isPolling) {
-            const hadNew = norm.messages.length > state.messages.length;
-            state = norm;
-            writeLocalCache();
-            render({ scrollToBottom: hadNew || !isPolling });
-          }
+        if (prevSig !== nextSig || !isPolling) {
+          const hadNew = merged.length > state.messages.length;
+          state = {
+            tone: justSavedLocally ? state.tone : norm.tone,
+            updatedAt: Math.max(Number(norm.updatedAt || 0), Number(state.updatedAt || 0)),
+            messages: merged
+          };
+          writeLocalCache();
+          render({ scrollToBottom: hadNew || !isPolling });
         }
       }
       if (manual) showToast("동기화 완료");
@@ -1336,6 +1351,7 @@
     const target = state.messages.find(m => m.id === id);
     if (!target || target.sender !== currentNick) return;
 
+    deletedIds.add(id);
     state.messages = state.messages.filter(m => m.id !== id);
     render({ scrollToBottom: false });
     saveStateNow();
