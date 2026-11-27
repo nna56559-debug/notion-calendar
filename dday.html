@@ -326,7 +326,7 @@
   })();
 
   const API_BASE = "https://notion-cal.binhaha329.workers.dev";
-  const CACHE_KEY = "lostark_dday_saved_v2";
+  const CACHE_KEY = "lostark_dday_saved_v3";
   const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
   let ddayItems = [];
@@ -401,17 +401,18 @@
       }));
   }
 
+  // Worker가 저장하는 chatMemo 객체 내부 또는 최상위 어디서든 디데이 목록 추출
   function extractDdayItems(payload) {
     if (!payload || typeof payload !== "object") return null;
-    if (Array.isArray(payload)) return normalizeList(payload);
+    const chatMemo = payload.chatMemo || (payload.memo && payload.memo.chatMemo) || payload;
+    if (chatMemo && Array.isArray(chatMemo.ddayItems)) {
+      return normalizeList(chatMemo.ddayItems);
+    }
     if (payload.ddayMemo && Array.isArray(payload.ddayMemo.items)) {
       return normalizeList(payload.ddayMemo.items);
     }
-    if (payload.memo && payload.memo.ddayMemo && Array.isArray(payload.memo.ddayMemo.items)) {
-      return normalizeList(payload.memo.ddayMemo.items);
-    }
-    if (Array.isArray(payload.items)) {
-      return normalizeList(payload.items);
+    if (Array.isArray(payload.ddayItems)) {
+      return normalizeList(payload.ddayItems);
     }
     return null;
   }
@@ -451,17 +452,24 @@
     } catch (e) {}
   }
 
+  // 기존 chatMemo의 messages/tone을 그대로 유지하면서 ddayItems만 함께 저장
   async function postDdayToServer(snapshotItems, isRetry = false) {
     try {
+      const getRes = await fetch(`${API_BASE}/memo?_=${Date.now()}`, { cache: "no-store" });
+      const currentData = getRes.ok ? await getRes.json() : {};
+      const existingChat = (currentData && typeof currentData.chatMemo === "object" && currentData.chatMemo)
+        ? currentData.chatMemo
+        : { tone: "pink", updatedAt: Date.now(), messages: [] };
+
+      const nextChatMemo = {
+        ...existingChat,
+        ddayItems: snapshotItems
+      };
+
       const res = await fetch(`${API_BASE}/memo`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ddayMemo: {
-            updatedAt: Date.now(),
-            items: snapshotItems
-          }
-        })
+        body: JSON.stringify({ chatMemo: nextChatMemo })
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       lastSavedAt = Date.now();
