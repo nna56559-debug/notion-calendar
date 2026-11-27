@@ -1001,8 +1001,8 @@
       }
     } catch (e) {}
 
-    try {
-      const res = await fetch(`${API_BASE}/raid?t=${Date.now()}`, { cache: "no-store" });
+   try {
+      const res = await fetch(`${API_BASE}/raid-check?t=${Date.now()}`, { cache: "no-store" });
       const data = await res.json();
       const resNorm = normalizeState(data && data.state);
       if (resNorm) {
@@ -1023,14 +1023,14 @@
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
     clearTimeout(saveTimer);
     saveTimer = setTimeout(() => {
-      fetch(`${API_BASE}/raid`, {
+      fetch(`${API_BASE}/raid-check`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ state })
       }).catch(() => {});
     }, 200);
   }
-
+  
   function getActiveRoster() {
     if (!Array.isArray(state.rosters) || state.rosters.length === 0) return null;
     return state.rosters.find(r => r.id === state.activeId) || state.rosters[0];
