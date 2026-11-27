@@ -211,7 +211,6 @@
     overflow: hidden;
   }
 
-  /* 우측 '...' 더보기 영역과 겹치지 않도록 왼쪽 정렬 및 우측 여백 확보 */
   .s-head {
     display: flex;
     align-items: center;
@@ -519,13 +518,13 @@
     <div class="s-head">
       <span class="s-badge">캐릭터 조회</span>
       <div class="search-box">
-        <input type="text" class="search-input" id="nameInput" onkeydown="if(event.key==='Enter') fetchSpec()">
+        <input type="text" class="search-input" id="nameInput" placeholder="닉네임" onkeydown="if(event.key==='Enter') fetchSpec()">
         <button type="button" class="search-btn" id="searchBtn" onclick="fetchSpec()">검색</button>
       </div>
     </div>
 
     <div id="contentArea">
-      <div class="empty-txt">불러오는 중...</div>
+      <div class="empty-txt">닉네임을 검색해 주세요</div>
     </div>
   </div>
 
@@ -689,7 +688,7 @@
         const brHtml = brLines.length > 0
           ? `<div class="sec-row"><span class="sec-label">팔찌</span><div class="br-box">${brLines.join("")}</div></div>`
           : "";
-        
+
         const sourceGems = (Array.isArray(data.gems) && data.gems.length > 0)
           ? data.gems
           : (Array.isArray(data.boundGems) ? data.boundGems : []);
@@ -738,8 +737,6 @@
       btn.disabled = false;
     }
   }
-
-  fetchSpec("앙녕하새오");
 </script>
 </body>
 </html>
