@@ -30,7 +30,7 @@
   }
 
   @media (prefers-color-scheme: dark) {
-    :root {
+    :root:not([data-theme="light"]) {
       --add-bg: #4A2C37;
       --add-color: #F7A8BE;
       --add-hover: #5C3644;
@@ -50,6 +50,27 @@
       --empty-color: #7D7477;
       --scroll-thumb: #46363C;
     }
+  }
+
+  :root[data-theme="dark"] {
+    --add-bg: #4A2C37;
+    --add-color: #F7A8BE;
+    --add-hover: #5C3644;
+    --slot-bg: #272225;
+    --title-color: #C4A3AE;
+    --dday-color: #FF82B0;
+    --dday-today-color: #F5C76B;
+    --dday-past-color: #968188;
+    --date-color: #8F7D83;
+    --form-bg: #272225;
+    --input-bg: #1E1B1D;
+    --input-color: #EAE4E6;
+    --btn-cancel-bg: #322C2E;
+    --btn-cancel-color: #A89EA1;
+    --icon-color: #8A767D;
+    --icon-hover: #FF82B0;
+    --empty-color: #7D7477;
+    --scroll-thumb: #46363C;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -210,7 +231,7 @@
     display: flex;
     align-items: center;
     gap: 2px;
-    opacity: 0.65;
+    opacity: 0.75;
     transition: opacity 0.15s ease;
   }
   .d-slot:hover .d-slot-actions { opacity: 1; }
@@ -269,19 +290,6 @@
     color: var(--empty-color);
     padding: 20px 0;
   }
-
-  @media (max-width: 480px) {
-    .d-wrap { gap: 5px; }
-    .d-head { padding: 2px 42px 0 2px; }
-    .d-slot {
-      border-radius: 12px;
-      padding: 11px 8px 9px;
-      gap: 3px;
-    }
-    .d-slot-title { font-size: 10px; padding: 0 26px; }
-    .d-slot-num { font-size: 22px; }
-    .d-slot-date { font-size: 9px; }
-  }
 </style>
 </head>
 <body>
@@ -312,20 +320,35 @@
   </div>
 
 <script>
+  (function applyThemeParam() {
+    const t = new URLSearchParams(location.search).get("theme");
+    if (t === "dark" || t === "light") document.documentElement.setAttribute("data-theme", t);
+  })();
+
   const API_BASE = "https://notion-cal.binhaha329.workers.dev";
-  const CACHE_KEY = "lostark_dday_saved_v1";
+  const CACHE_KEY = "lostark_dday_saved_v2";
   const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
   let ddayItems = [];
   let editingId = null;
   let isSyncing = false;
+  let lastSavedAt = 0;
+  let retryTimer = null;
+  let deletedIds = new Set();
+
+  function getKstToday() {
+    const now = new Date();
+    const kst = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
+    return {
+      y: kst.getFullYear(),
+      m: kst.getMonth() + 1,
+      d: kst.getDate()
+    };
+  }
 
   function getTodayStr() {
-    const d = new Date();
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, "0");
-    const dd = String(d.getDate()).padStart(2, "0");
-    return `${yyyy}-${mm}-${dd}`;
+    const { y, m, d } = getKstToday();
+    return `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
   }
 
   function formatEnDate(dateStr) {
@@ -339,10 +362,10 @@
     const [y, m, d] = String(dateStr || "").split("-").map(Number);
     if (!y || !m || !d) return { label: "D-?", cls: "", diff: 0 };
 
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const target = new Date(y, m - 1, d);
-    const diffDays = Math.round((target - today) / (1000 * 60 * 60 * 24));
+    const kst = getKstToday();
+    const todayUtc = Date.UTC(kst.y, kst.m - 1, kst.d);
+    const targetUtc = Date.UTC(y, m - 1, d);
+    const diffDays = Math.round((targetUtc - todayUtc) / (1000 * 60 * 60 * 24));
 
     if (diffDays > 0) {
       return { label: `D-${diffDays}`, cls: "", diff: diffDays };
@@ -365,11 +388,58 @@
     });
   }
 
+  function normalizeList(rawList) {
+    if (!Array.isArray(rawList)) return null;
+    return rawList
+      .filter(it => it && typeof it.title === "string" && it.title.trim() && it.date)
+      .map((it, idx) => ({
+        id: String(it.id || `dday_${Date.now()}_${idx}`),
+        title: String(it.title).trim(),
+        date: String(it.date).trim(),
+        includeStart: Boolean(it.includeStart),
+        updatedAt: Number(it.updatedAt || 0)
+      }));
+  }
+
+  function extractDdayItems(payload) {
+    if (!payload || typeof payload !== "object") return null;
+    if (Array.isArray(payload)) return normalizeList(payload);
+    if (payload.ddayMemo && Array.isArray(payload.ddayMemo.items)) {
+      return normalizeList(payload.ddayMemo.items);
+    }
+    if (payload.memo && payload.memo.ddayMemo && Array.isArray(payload.memo.ddayMemo.items)) {
+      return normalizeList(payload.memo.ddayMemo.items);
+    }
+    if (Array.isArray(payload.items)) {
+      return normalizeList(payload.items);
+    }
+    return null;
+  }
+
+  function mergeDdayLists(remoteList, localList) {
+    const map = new Map();
+    (remoteList || []).forEach(it => {
+      if (!deletedIds.has(it.id)) map.set(it.id, it);
+    });
+    (localList || []).forEach(it => {
+      if (deletedIds.has(it.id)) return;
+      const existing = map.get(it.id);
+      if (!existing || (it.updatedAt || 0) >= (existing.updatedAt || 0)) {
+        map.set(it.id, it);
+      }
+    });
+    return sortItems(Array.from(map.values()));
+  }
+
+  function getSig(list) {
+    return (list || []).map(it => `${it.id}:${it.title}:${it.date}:${it.includeStart ? 1 : 0}`).join("|");
+  }
+
   function readLocal() {
     try {
       const raw = localStorage.getItem(CACHE_KEY);
       const parsed = raw ? JSON.parse(raw) : [];
-      return Array.isArray(parsed) ? parsed : [];
+      return normalizeList(parsed) || [];
     } catch (e) {
       return [];
     }
@@ -381,11 +451,32 @@
     } catch (e) {}
   }
 
-  function extractItems(payload) {
-    if (Array.isArray(payload)) return payload;
-    if (payload && payload.ok && Array.isArray(payload.items)) return payload.items;
-    if (payload && Array.isArray(payload.items)) return payload.items;
-    return null;
+  async function postDdayToServer(snapshotItems, isRetry = false) {
+    try {
+      const res = await fetch(`${API_BASE}/memo`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ddayMemo: {
+            updatedAt: Date.now(),
+            items: snapshotItems
+          }
+        })
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      lastSavedAt = Date.now();
+      clearTimeout(retryTimer);
+      retryTimer = null;
+      return true;
+    } catch (e) {
+      if (!isRetry) {
+        clearTimeout(retryTimer);
+        retryTimer = setTimeout(() => {
+          postDdayToServer(ddayItems, true).catch(() => {});
+        }, 2500);
+      }
+      return false;
+    }
   }
 
   async function fetchItems(showSpinner = false) {
@@ -400,14 +491,23 @@
     }
 
     try {
-      const res = await fetch(`${API_BASE}/dday?t=${Date.now()}`, { cache: "no-store" });
+      const res = await fetch(`${API_BASE}/memo?_=${Date.now()}`, { cache: "no-store" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      const serverItems = extractItems(data);
+      const serverItems = extractDdayItems(data);
 
-      if (serverItems !== null) {
-        ddayItems = sortItems(serverItems);
+      const justSavedLocally = (Date.now() - lastSavedAt) < 4000;
+      const keepLocal = justSavedLocally || (serverItems === null && localSaved.length > 0);
+      const merged = mergeDdayLists(serverItems || [], keepLocal ? ddayItems : []);
+
+      if (getSig(ddayItems) !== getSig(merged) || showSpinner) {
+        ddayItems = merged;
         writeLocal(ddayItems);
         render();
+      }
+
+      if (serverItems === null && ddayItems.length > 0) {
+        await postDdayToServer(ddayItems, false);
       }
     } catch (e) {
       if (ddayItems.length === 0 && localSaved.length > 0) {
@@ -415,7 +515,9 @@
         render();
       }
     } finally {
-      if (showSpinner) syncBtn.classList.remove("spinning");
+      if (showSpinner) {
+        setTimeout(() => syncBtn.classList.remove("spinning"), 250);
+      }
     }
   }
 
@@ -429,23 +531,10 @@
     const syncBtn = document.getElementById("syncBtn");
     syncBtn.classList.add("spinning");
     try {
-      const res = await fetch(`${API_BASE}/dday`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items: sorted }),
-      });
-      const data = await res.json();
-      const serverItems = extractItems(data);
-      if (serverItems !== null) {
-        ddayItems = sortItems(serverItems);
-        writeLocal(ddayItems);
-        render();
-      }
-    } catch (e) {
-      // 네트워크 오류 시에도 로컬 캐시는 유지되며 다음 폴링에서 재동기화됨
+      await postDdayToServer(sorted, false);
     } finally {
       isSyncing = false;
-      syncBtn.classList.remove("spinning");
+      setTimeout(() => syncBtn.classList.remove("spinning"), 250);
     }
   }
 
@@ -483,18 +572,20 @@
 
     if (!title || !date) return;
 
+    const nowTs = Date.now();
     const next = [...ddayItems];
     if (editingId) {
       const idx = next.findIndex((it) => it.id === editingId);
       if (idx !== -1) {
-        next[idx] = { ...next[idx], title, date, includeStart };
+        next[idx] = { ...next[idx], title, date, includeStart, updatedAt: nowTs };
       }
     } else {
       next.push({
-        id: `dday_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+        id: `dday_${nowTs}_${Math.random().toString(36).slice(2, 6)}`,
         title,
         date,
         includeStart,
+        updatedAt: nowTs
       });
     }
 
@@ -503,6 +594,7 @@
   }
 
   async function deleteItem(id) {
+    deletedIds.add(id);
     const next = ddayItems.filter((it) => it.id !== id);
     await syncToServer(next);
   }
