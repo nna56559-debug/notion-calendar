@@ -288,7 +288,7 @@
   <div class="d-wrap">
     <div class="d-head">
       <button type="button" class="add-btn" title="디데이 추가" onclick="openForm()">+</button>
-      <button type="button" class="sync-btn" id="syncBtn" title="새로고침" onclick="fetchItems()">↻</button>
+      <button type="button" class="sync-btn" id="syncBtn" title="새로고침" onclick="fetchItems(true)">↻</button>
     </div>
 
     <div class="d-form" id="ddayForm">
@@ -318,6 +318,7 @@
 
   let ddayItems = [];
   let editingId = null;
+  let isSyncing = false;
 
   function getTodayStr() {
     const d = new Date();
@@ -380,40 +381,50 @@
     } catch (e) {}
   }
 
-  async function fetchItems() {
+  function extractItems(payload) {
+    if (Array.isArray(payload)) return payload;
+    if (payload && payload.ok && Array.isArray(payload.items)) return payload.items;
+    if (payload && Array.isArray(payload.items)) return payload.items;
+    return null;
+  }
+
+  async function fetchItems(showSpinner = false) {
+    if (isSyncing) return;
     const syncBtn = document.getElementById("syncBtn");
-    syncBtn.classList.add("spinning");
+    if (showSpinner) syncBtn.classList.add("spinning");
 
     const localSaved = readLocal();
-    if (localSaved.length > 0) {
+    if (ddayItems.length === 0 && localSaved.length > 0) {
       ddayItems = sortItems(localSaved);
       render();
     }
 
     try {
-      const res = await fetch(`${API_BASE}/dday?t=${Date.now()}`);
+      const res = await fetch(`${API_BASE}/dday?t=${Date.now()}`, { cache: "no-store" });
       const data = await res.json();
-      if (data && data.ok && Array.isArray(data.items)) {
-        if (data.items.length > 0) {
-          ddayItems = sortItems(data.items);
-          writeLocal(ddayItems);
-        } else if (localSaved.length > 0) {
-          // 서버에 아직 반영 전이고 로컬에 저장된 항목이 있으면 자동 재업로드해 유실 방지
-          await syncToServer(localSaved, true);
-        } else {
-          ddayItems = [];
-        }
-      }
-    } catch (e) {}
+      const serverItems = extractItems(data);
 
-    syncBtn.classList.remove("spinning");
-    render();
+      if (serverItems !== null) {
+        ddayItems = sortItems(serverItems);
+        writeLocal(ddayItems);
+        render();
+      }
+    } catch (e) {
+      if (ddayItems.length === 0 && localSaved.length > 0) {
+        ddayItems = sortItems(localSaved);
+        render();
+      }
+    } finally {
+      if (showSpinner) syncBtn.classList.remove("spinning");
+    }
   }
 
-  async function syncToServer(nextItems, silent = false) {
-    ddayItems = sortItems(nextItems);
-    writeLocal(ddayItems);
-    if (!silent) render();
+  async function syncToServer(nextItems) {
+    isSyncing = true;
+    const sorted = sortItems(nextItems);
+    ddayItems = sorted;
+    writeLocal(sorted);
+    render();
 
     const syncBtn = document.getElementById("syncBtn");
     syncBtn.classList.add("spinning");
@@ -421,15 +432,21 @@
       const res = await fetch(`${API_BASE}/dday`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items: ddayItems }),
+        body: JSON.stringify({ items: sorted }),
       });
       const data = await res.json();
-      if (data && data.ok && Array.isArray(data.items)) {
-        ddayItems = sortItems(data.items);
+      const serverItems = extractItems(data);
+      if (serverItems !== null) {
+        ddayItems = sortItems(serverItems);
         writeLocal(ddayItems);
+        render();
       }
-    } catch (e) {}
-    syncBtn.classList.remove("spinning");
+    } catch (e) {
+      // 네트워크 오류 시에도 로컬 캐시는 유지되며 다음 폴링에서 재동기화됨
+    } finally {
+      isSyncing = false;
+      syncBtn.classList.remove("spinning");
+    }
   }
 
   function openForm(item = null) {
@@ -474,7 +491,7 @@
       }
     } else {
       next.push({
-        id: `dday_${Date.now()}`,
+        id: `dday_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
         title,
         date,
         includeStart,
@@ -550,7 +567,15 @@
     if (e.key === "Enter") saveItem();
   });
 
-  fetchItems();
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) fetchItems(false);
+  });
+
+  setInterval(() => {
+    if (!document.hidden && !editingId) fetchItems(false);
+  }, 5000);
+
+  fetchItems(true);
 </script>
 </body>
 </html>
