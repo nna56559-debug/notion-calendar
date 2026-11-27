@@ -477,7 +477,6 @@
     flex-shrink: 0;
   }
 
-  /* 하트 + 하트 위 레이드 약어 컬럼 */
   .hearts {
     display: flex;
     align-items: center;
@@ -653,7 +652,7 @@
   })();
 
   const API_BASE = "https://notion-cal.binhaha329.workers.dev";
-  const STORAGE_KEY = "lostark_pastel_rosters_v15";
+  const STORAGE_KEY = "lostark_pastel_rosters_v16";
   const CAT_LABELS = {
     raid: "레이드",
     paradise: "낙원",
@@ -762,7 +761,8 @@
       customRaids: Boolean(c?.customRaids),
       checks: Array.isArray(c?.checks) ? [Boolean(c.checks[0]), Boolean(c.checks[1]), Boolean(c.checks[2])] : [false, false, false],
       paradise: Boolean(c?.paradise),
-      halmosi: Boolean(c?.halmosi)
+      halmosi: Boolean(c?.halmosi),
+      updatedAt: Number(c?.updatedAt || 0)
     };
   }
 
@@ -770,14 +770,18 @@
     c.checks = [false, false, false];
     c.paradise = false;
     c.halmosi = false;
+    c.updatedAt = Date.now();
   }
 
   let state = {
     weekKey: getCurrentWeekKey(),
+    updatedAt: 0,
     activeCat: "raid",
     activeId: "",
     rosters: []
   };
+
+  let lastLocalEditAt = 0;
 
   function normalizeState(raw) {
     if (!raw || typeof raw !== "object") return null;
@@ -791,14 +795,14 @@
           const fallbackName = chars[0]?.name || `원정대 ${idx + 1}`;
           const id = String(r.id || fallbackName).trim() || fallbackName;
           const label = String(r.label || id).trim() || id;
-          return { id, label, chars };
+          return { id, label, chars, updatedAt: Number(r.updatedAt || 0) };
         })
         .filter(r => r.chars.length > 0);
     } else if (Array.isArray(raw.chars) && raw.chars.length > 0) {
       const chars = raw.chars.map(normalizeChar).filter(c => c.name);
       if (chars.length > 0) {
         const topName = chars[0].name;
-        rosters = [{ id: topName, label: topName, chars }];
+        rosters = [{ id: topName, label: topName, chars, updatedAt: Number(raw.updatedAt || 0) }];
       }
     }
 
@@ -815,15 +819,58 @@
       : "";
     const activeCat = CAT_LABELS[raw.activeCat] ? raw.activeCat : "raid";
     return {
-      normalized: { weekKey: currentWeek, activeCat, activeId, rosters },
+      normalized: {
+        weekKey: currentWeek,
+        updatedAt: Number(raw.updatedAt || 0),
+        activeCat,
+        activeId,
+        rosters
+      },
       weekChanged
     };
+  }
+
+  function mergeRemoteWithRecentLocal(remoteState, localState) {
+    if (!localState || localState.weekKey !== remoteState.weekKey) return remoteState;
+    if ((Date.now() - lastLocalEditAt) > 6000) return remoteState;
+
+    const merged = {
+      ...remoteState,
+      activeCat: (localState.updatedAt || 0) >= (remoteState.updatedAt || 0) ? localState.activeCat : remoteState.activeCat,
+      activeId: (localState.updatedAt || 0) >= (remoteState.updatedAt || 0) ? localState.activeId : remoteState.activeId,
+      rosters: [...(remoteState.rosters || [])]
+    };
+
+    (localState.rosters || []).forEach(locR => {
+      const idx = merged.rosters.findIndex(remR => remR.id === locR.id);
+      if (idx === -1) {
+        if ((locR.updatedAt || 0) > (remoteState.updatedAt || 0)) {
+          merged.rosters.push(locR);
+        }
+        return;
+      }
+      const remR = merged.rosters[idx];
+      const remCharMap = new Map((remR.chars || []).map(c => [c.name, c]));
+      const locCharMap = new Map((locR.chars || []).map(c => [c.name, c]));
+
+      const combinedChars = (remR.chars || []).map(remC => {
+        const locC = locCharMap.get(remC.name);
+        if (locC && (locC.updatedAt || 0) > (remC.updatedAt || 0)) {
+          return locC;
+        }
+        return remC;
+      });
+      merged.rosters[idx] = { ...remR, chars: combinedChars };
+    });
+
+    return merged;
   }
 
   function checkWeeklyAutoReset() {
     const currentWeek = getCurrentWeekKey();
     if (state.weekKey !== currentWeek) {
       state.weekKey = currentWeek;
+      state.updatedAt = Date.now();
       state.rosters.forEach(r => {
         (r.chars || []).forEach(resetCharChecks);
       });
@@ -879,7 +926,7 @@
 
   async function fetchSingleCharFallback(keyword) {
     try {
-      const res = await fetch(`${API_BASE}/spec?name=${encodeURIComponent(keyword)}&t=${Date.now()}`);
+      const res = await fetch(`${API_BASE}/spec?name=${encodeURIComponent(keyword)}&t=${Date.now()}`, { cache: "no-store" });
       const data = await res.json();
       if (data && data.ok && data.name) {
         return [{
@@ -899,7 +946,7 @@
     if (!queryName) return;
 
     try {
-      const res = await fetch(`${API_BASE}/siblings?name=${encodeURIComponent(queryName)}&t=${Date.now()}`);
+      const res = await fetch(`${API_BASE}/siblings?name=${encodeURIComponent(queryName)}&t=${Date.now()}`, { cache: "no-store" });
       const rawData = await res.json();
       const list = parseSiblingsList(rawData, queryName);
       if (list.length === 0) return;
@@ -923,7 +970,8 @@
           customRaids: Boolean(prev?.customRaids),
           checks: prev?.checks || [false, false, false],
           paradise: Boolean(prev?.paradise),
-          halmosi: Boolean(prev?.halmosi)
+          halmosi: Boolean(prev?.halmosi),
+          updatedAt: Number(prev?.updatedAt || 0)
         };
       });
 
@@ -942,21 +990,23 @@
   }
 
   async function loadState() {
+    let localNorm = null;
     try {
       const localSaved = JSON.parse(localStorage.getItem(STORAGE_KEY));
       const resNorm = normalizeState(localSaved);
       if (resNorm) {
-        state = resNorm.normalized;
+        localNorm = resNorm.normalized;
+        state = localNorm;
         render();
       }
     } catch (e) {}
 
     try {
-      const res = await fetch(`${API_BASE}/raid?t=${Date.now()}`);
+      const res = await fetch(`${API_BASE}/raid?t=${Date.now()}`, { cache: "no-store" });
       const data = await res.json();
       const resNorm = normalizeState(data && data.state);
       if (resNorm) {
-        state = resNorm.normalized;
+        state = mergeRemoteWithRecentLocal(resNorm.normalized, localNorm);
         try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
         render();
         if (resNorm.weekChanged) saveState();
@@ -968,6 +1018,8 @@
 
   let saveTimer = null;
   function saveState() {
+    state.updatedAt = Date.now();
+    lastLocalEditAt = state.updatedAt;
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
     clearTimeout(saveTimer);
     saveTimer = setTimeout(() => {
@@ -976,7 +1028,7 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ state })
       }).catch(() => {});
-    }, 300);
+    }, 200);
   }
 
   function getActiveRoster() {
@@ -998,6 +1050,14 @@
   document.addEventListener("click", () => {
     closeCatMenu();
   });
+
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) loadState();
+  });
+
+  setInterval(() => {
+    if (!document.hidden) loadState();
+  }, 5000);
 
   let delConfirmTimer = null;
   let resetConfirmTimer = null;
@@ -1073,6 +1133,8 @@
     }
 
     clearConfirmStates();
+    const nowTs = Date.now();
+    roster.updatedAt = nowTs;
     roster.chars.forEach(c => {
       if (state.activeCat === "raid") {
         c.checks = [false, false, false];
@@ -1081,6 +1143,7 @@
       } else if (state.activeCat === "halmosi") {
         c.halmosi = false;
       }
+      c.updatedAt = nowTs;
     });
     render();
     saveState();
@@ -1097,7 +1160,7 @@
     btn.disabled = true;
 
     try {
-      const res = await fetch(`${API_BASE}/siblings?name=${encodeURIComponent(keyword)}&t=${Date.now()}`);
+      const res = await fetch(`${API_BASE}/siblings?name=${encodeURIComponent(keyword)}&t=${Date.now()}`, { cache: "no-store" });
       const rawData = await res.json();
       let list = parseSiblingsList(rawData, keyword);
 
@@ -1124,6 +1187,7 @@
         existing.chars.forEach(c => { prevMap[c.name] = c; });
       }
 
+      const nowTs = Date.now();
       const updatedChars = list.map(item => {
         const prev = prevMap[item.name];
         const nextLv = item.lvText || prev?.lvText || "";
@@ -1140,7 +1204,8 @@
           customRaids: Boolean(prev?.customRaids),
           checks: prev?.checks || [false, false, false],
           paradise: Boolean(prev?.paradise),
-          halmosi: Boolean(prev?.halmosi)
+          halmosi: Boolean(prev?.halmosi),
+          updatedAt: Number(prev?.updatedAt || nowTs)
         };
       });
 
@@ -1148,12 +1213,14 @@
         existing.id = rosterId;
         existing.label = rosterId;
         existing.chars = updatedChars;
+        existing.updatedAt = nowTs;
         state.activeId = rosterId;
       } else {
         state.rosters.push({
           id: rosterId,
           label: rosterId,
-          chars: updatedChars
+          chars: updatedChars,
+          updatedAt: nowTs
         });
         state.activeId = rosterId;
       }
@@ -1175,7 +1242,10 @@
   function toggleHeart(charIdx, heartIdx) {
     const roster = getActiveRoster();
     if (!roster) return;
+    const nowTs = Date.now();
     roster.chars[charIdx].checks[heartIdx] = !roster.chars[charIdx].checks[heartIdx];
+    roster.chars[charIdx].updatedAt = nowTs;
+    roster.updatedAt = nowTs;
     render();
     saveState();
   }
@@ -1188,11 +1258,14 @@
     const pool = getEligibleRaidCodes(ch.lvText);
     if (pool.length <= 1) return;
 
+    const nowTs = Date.now();
     const current = ch.raidNames[slotIdx];
     const curIdx = pool.indexOf(current);
     const nextCode = pool[(curIdx + 1) % pool.length];
     ch.raidNames[slotIdx] = nextCode;
     ch.customRaids = true;
+    ch.updatedAt = nowTs;
+    roster.updatedAt = nowTs;
     render();
     saveState();
   }
@@ -1200,7 +1273,10 @@
   function toggleCategoryCheck(charIdx, catKey) {
     const roster = getActiveRoster();
     if (!roster) return;
+    const nowTs = Date.now();
     roster.chars[charIdx][catKey] = !roster.chars[charIdx][catKey];
+    roster.chars[charIdx].updatedAt = nowTs;
+    roster.updatedAt = nowTs;
     render();
     saveState();
   }
